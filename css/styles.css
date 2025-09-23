@@ -1,0 +1,579 @@
+/*
+ * Hoja de estilos para el login personalizado de WordPress.
+ * Versión 2.2.1 - Con animación del logo
+ */
+
+/* --- ESTILOS BASE Y TIPOGRAFÍA --- */
+h1.screen-reader-text {
+    display: none;
+}
+
+body.login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background: var(--background-fallback, var(--primary-color, #009bde));
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: #666;
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: var(--wp--preset--font-family--base, var(--wp--preset--font-family--primary, var(--fallback-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif)));
+    position: relative;
+}
+
+/* Video de fondo optimizado - CORREGIDO */
+body.login #login-background-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -2;
+    pointer-events: none;
+}
+
+/* Overlay para video - CORREGIDO */
+body.login::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--video-overlay, transparent);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.login label, 
+.login input[type="text"], 
+.login input[type="password"], 
+.login input[type="checkbox"], 
+.login .button, 
+.login #nav a, 
+.login #backtoblog a, 
+.login p, 
+.login .privacy-policy-page-link a {
+    font-family: inherit;
+}
+/* --- FIN TIPOGRAFÍA --- */
+
+/* --- Estilos de Layout y Colores --- */
+body.login div#login {
+    width: min(90vw, 800px);
+    max-width: 800px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    padding: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas: 
+        "logo form"
+        "messages messages"
+        "links links";
+    min-height: 400px;
+    position: relative;
+    z-index: 1;
+}
+
+body.login div#login h1 {
+    grid-area: logo;
+    box-sizing: border-box;
+    background: var(--logo-background-fallback, #f9f9f9);
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 350px;
+    position: relative;
+    /* Transición por defecto para el logo - será sobrescrita por JavaScript si las transiciones están activas */
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s ease-out;
+}
+
+/* Overlay solo cuando sea necesario y únicamente para imágenes */
+body.login div#login h1.has-image-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--logo-overlay, transparent);
+    z-index: 1;
+    pointer-events: none;
+}
+
+body.login div#login h1 a {
+    height: 80%;
+    width: 80%;
+    max-width: 200px;
+    max-height: 200px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    outline: none;
+    overflow: hidden;
+    text-decoration: none;
+    background-image: var(--logo-url);
+    text-indent: -9999px;
+    position: relative;
+    z-index: 2;
+}
+
+body.login div#login form#loginform,
+form#lostpasswordform, 
+form#magicloginform {
+    grid-area: form;
+    box-sizing: border-box;
+    padding: 40px 30px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: white;
+    position: relative;
+}
+
+body.login div#login form p {
+    margin: 15px 0;
+    position: relative;
+}
+
+label {
+    line-height: 1.4;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.login label {
+    color: var(--primary-color, #009bde);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.login #nav, 
+.login #backtoblog {
+    grid-area: links;
+    padding: 15px 30px;
+    text-align: center;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.login #nav a, 
+.login #backtoblog a {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.login #nav a:hover, 
+.login #backtoblog a:hover {
+    color: var(--primary-color, #009bde);
+    text-decoration: underline;
+}
+
+body.login div#login form .input,
+body.login div#login form input[type="text"],
+body.login div#login form input[type="password"] {
+    border: 2px solid #e9ecef;
+    background: #fff;
+    box-shadow: none;
+    color: #333;
+    transition: all .3s ease-in-out;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 16px;
+    margin: 0;
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+body.login div#login form .input:focus,
+body.login div#login form input[type="text"]:focus,
+body.login div#login form input[type="password"]:focus {
+    border-color: var(--primary-color, #009bde);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 155, 222, 0.1);
+}
+
+/* --- Estilos de Magic Login --- */
+.login.login-action-checkemail div#login {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+        "logo"
+        "form"
+        "messages"
+        "links";
+    max-width: 400px;
+}
+
+.login.login-action-checkemail div#login h1 {
+    min-height: 200px;
+}
+/* === FIN AJUSTES Magic Login === */
+
+/* === AJUSTES CHECKBOX "Recuérdame" === */
+body.login div#login form p.forgetmenot {
+    margin-top: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none !important;
+    padding: 0;
+    background: none !important;
+}
+
+body.login div#login form input[type=checkbox] {
+    background: #fff;
+    border: 2px solid #dee2e6;
+    box-shadow: none;
+    margin: 0;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+body.login div#login form input[type=checkbox]:checked {
+    background-color: var(--primary-color, #009bde);
+    border-color: var(--primary-color, #009bde);
+}
+
+body.login div#login form .forgetmenot label {
+    display: inline;
+    margin-bottom: 0;
+    margin-left: 0;
+    font-weight: normal;
+    color: #6c757d;
+    line-height: 1.4;
+    cursor: pointer;
+    font-size: 14px;
+}
+/* === FIN AJUSTES CHECKBOX === */
+
+/* === AJUSTES BOTÓN === */
+body.login div#login form p.submit {
+    clear: both;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+body.login div#login form .button-primary {
+    float: none;
+    clear: both;
+    width: 100%;
+    height: auto;
+    font-size: 16px;
+    padding: 14px 24px;
+    font-weight: 600;
+    border-radius: 8px;
+    color: white;
+    background-color: var(--primary-color, #009bde);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+    text-shadow: none;
+    transition: all .3s ease-in-out;
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: 0.5px;
+}
+
+body.login div#login form .button-primary:hover,
+body.login div#login form .button-primary:focus {
+    background-color: var(--darker-color, #007ab8);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    outline: none;
+}
+
+body.login div#login form .button-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+/* === FIN AJUSTES BOTÓN === */
+
+/* === ESTILOS PARA ICONO CONTRASEÑA (SVG) === */
+.login .wp-pwd {
+    display: block;
+    position: relative;
+}
+
+.login .wp-hide-pw {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    bottom: 2px;
+    margin: 0;
+    padding: 0 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.6;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0 6px 6px 0;
+    transition: opacity 0.3s ease;
+}
+
+.login .wp-hide-pw:hover,
+.login .wp-hide-pw:focus {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.login .wp-hide-pw span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    color: #6c757d;
+    font-size: 0;
+    line-height: 0;
+}
+
+.login .wp-hide-pw span.dashicons-visibility {
+    background-image: var(--svg-eye-visible);
+}
+
+.login .wp-hide-pw span.dashicons-hidden {
+    background-image: var(--svg-eye-hidden);
+}
+
+body.login div#login form input[type=password] {
+    padding-right: 48px !important;
+    box-sizing: border-box;
+}
+/* === FIN ESTILOS ICONO CONTRASEÑA (SVG) === */
+
+/* Mensajes y Errores */
+.login p.message,
+.login #login_error, 
+#login-message {
+    grid-area: messages;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 16px 30px;
+    border: none;
+    border-radius: 0;
+    border-left-width: 4px;
+    border-left-style: solid;
+    text-align: left;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.login #login_error {
+    border-left-color: #dc3545;
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.login #login_error a {
+    color: #dc3545;
+    text-decoration: underline;
+}
+
+.login p.message {
+    border-left-color: #0ea5e9;
+    background-color: #e0f2fe;
+    color: #0c4a6e;
+}
+
+/* Enlace Privacidad */
+.login .privacy-policy-page-link {
+    grid-area: links;
+    padding: 10px 30px;
+    text-align: center;
+    margin: 0;
+    background: #f8f9fa;
+}
+
+.login .privacy-policy-page-link a {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.login .privacy-policy-page-link a:hover {
+    color: var(--primary-color, #009bde);
+    text-decoration: underline;
+}
+
+#login-message {
+    width: 100%;
+    text-align: left;
+}
+
+.notice.notice-info.message {
+    grid-area: messages;
+    padding: 16px 30px;
+    text-align: left;
+    border-left: 4px solid #0ea5e9;
+    background-color: #e0f2fe;
+    color: #0c4a6e;
+    margin: 0;
+}
+
+/* --- ESTILOS RESPONSIVE --- */
+@media (max-width: 768px) {
+    body.login {
+        padding: 10px;
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+    
+    body.login div#login {
+        grid-template-columns: 1fr;
+        grid-template-areas: 
+            "logo"
+            "form"
+            "messages"
+            "links";
+        width: 100%;
+        max-width: 400px;
+    }
+
+    body.login div#login h1 {
+        min-height: 180px;
+        padding: 20px;
+    }
+
+    body.login div#login h1 a {
+        max-width: 150px;
+        max-height: 150px;
+    }
+
+    body.login div#login form#loginform,
+    form#lostpasswordform, 
+    form#magicloginform {
+        padding: 30px 20px;
+    }
+
+    body.login div#login form input[type=password] {
+        padding-right: 48px !important;
+    }
+
+    .login p.message,
+    .login #login_error,
+    #login-message,
+    .notice.notice-info.message {
+        padding: 16px 20px;
+        margin: 0;
+    }
+
+    .login #nav, 
+    .login #backtoblog,
+    .login .privacy-policy-page-link {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    body.login div#login form .button-primary {
+        padding: 16px 24px;
+        font-size: 16px;
+    }
+    
+    /* No cargar video en móvil para mejor performance */
+    body.login #login-background-video {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    body.login {
+        padding: 5px;
+        padding-top: 10px;
+    }
+
+    body.login div#login {
+        border-radius: 8px;
+    }
+
+    body.login div#login h1 {
+        min-height: 150px;
+        padding: 15px;
+    }
+
+    body.login div#login form#loginform,
+    form#lostpasswordform, 
+    form#magicloginform {
+        padding: 20px 15px;
+    }
+
+    .login p.message,
+    .login #login_error,
+    #login-message,
+    .notice.notice-info.message {
+        padding: 12px 15px;
+        font-size: 13px;
+    }
+
+    .login #nav, 
+    .login #backtoblog,
+    .login .privacy-policy-page-link {
+        padding: 12px 15px;
+        font-size: 13px;
+    }
+}
+
+/* --- OPTIMIZACIONES DE PERFORMANCE --- */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Optimizar rendering */
+body.login div#login {
+    transform: translateZ(0);
+}
+
+body.login div#login form input,
+body.login div#login form .button-primary {
+    will-change: auto;
+}
+/* --- FIN ESTILOS RESPONSIVE --- */
