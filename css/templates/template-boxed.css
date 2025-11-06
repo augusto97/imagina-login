@@ -1,0 +1,221 @@
+/*
+ * Template: Boxed Centered
+ * Descripción: Login pequeño y centrado flotando sobre fondo que cubre toda la pantalla
+ * Ideal para: Sitios minimalistas, blogs premium, portfolios
+ */
+
+body.login.template-boxed {
+    padding: 40px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+body.login.template-boxed div#login {
+    width: min(90vw, 420px);
+    max-width: 420px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+        "logo"
+        "form"
+        "messages"
+        "links";
+    min-height: auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+body.login.template-boxed div#login h1 {
+    grid-area: logo;
+    min-height: 140px;
+    padding: 40px 30px 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+}
+
+/* Overlay sutil en el logo */
+body.login.template-boxed div#login h1::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.1) 100%);
+    z-index: 1;
+}
+
+body.login.template-boxed div#login h1 a {
+    max-width: 100px;
+    max-height: 100px;
+    position: relative;
+    z-index: 2;
+    filter: brightness(1.1) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+body.login.template-boxed div#login form#loginform,
+body.login.template-boxed div#login form#lostpasswordform,
+body.login.template-boxed div#login form#magicloginform {
+    grid-area: form;
+    padding: 35px 35px 30px;
+    background: white;
+}
+
+/* Inputs con sombra sutil */
+body.login.template-boxed div#login form .input,
+body.login.template-boxed div#login form input[type="text"],
+body.login.template-boxed div#login form input[type="password"] {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+body.login.template-boxed div#login form .input:focus,
+body.login.template-boxed div#login form input[type="text"]:focus,
+body.login.template-boxed div#login form input[type="password"]:focus {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Botón con sombra prominente */
+body.login.template-boxed div#login form .button-primary {
+    box-shadow: 0 4px 16px rgba(0, 155, 222, 0.3);
+}
+
+body.login.template-boxed div#login form .button-primary:hover,
+body.login.template-boxed div#login form .button-primary:focus {
+    box-shadow: 0 6px 20px rgba(0, 155, 222, 0.4);
+}
+
+/* Mensajes más compactos */
+body.login.template-boxed .login p.message,
+body.login.template-boxed .login #login_error,
+body.login.template-boxed #login-message,
+body.login.template-boxed .notice.notice-info.message {
+    padding: 14px 35px;
+    margin: 0;
+    font-size: 13px;
+}
+
+/* Footer compacto */
+body.login.template-boxed .login #nav,
+body.login.template-boxed .login #backtoblog {
+    background: #fafbfc;
+    border-top: 1px solid #e9ecef;
+    padding: 18px 35px;
+    font-size: 13px;
+}
+
+/* Magic Login */
+body.login.template-boxed.login-action-checkemail div#login h1 {
+    min-height: 120px;
+    padding: 35px 30px 20px;
+}
+
+body.login.template-boxed.login-action-checkemail div#login h1 a {
+    max-width: 85px;
+    max-height: 85px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body.login.template-boxed {
+        padding: 30px 15px;
+    }
+
+    body.login.template-boxed div#login {
+        width: 100%;
+        max-width: 380px;
+        border-radius: 14px;
+    }
+
+    body.login.template-boxed div#login h1 {
+        min-height: 120px;
+        padding: 35px 25px 20px;
+    }
+
+    body.login.template-boxed div#login h1 a {
+        max-width: 85px;
+        max-height: 85px;
+    }
+
+    body.login.template-boxed div#login form#loginform,
+    body.login.template-boxed div#login form#lostpasswordform,
+    body.login.template-boxed div#login form#magicloginform {
+        padding: 30px 25px;
+    }
+
+    body.login.template-boxed .login p.message,
+    body.login.template-boxed .login #login_error,
+    body.login.template-boxed #login-message,
+    body.login.template-boxed .notice.notice-info.message {
+        padding: 12px 25px;
+    }
+
+    body.login.template-boxed .login #nav,
+    body.login.template-boxed .login #backtoblog {
+        padding: 16px 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    body.login.template-boxed {
+        padding: 20px 10px;
+    }
+
+    body.login.template-boxed div#login {
+        max-width: 100%;
+        border-radius: 12px;
+    }
+
+    body.login.template-boxed div#login h1 {
+        min-height: 100px;
+        padding: 30px 20px 18px;
+    }
+
+    body.login.template-boxed div#login h1 a {
+        max-width: 75px;
+        max-height: 75px;
+    }
+
+    body.login.template-boxed div#login form#loginform,
+    body.login.template-boxed div#login form#lostpasswordform,
+    body.login.template-boxed div#login form#magicloginform {
+        padding: 25px 20px;
+    }
+
+    body.login.template-boxed .login p.message,
+    body.login.template-boxed .login #login_error,
+    body.login.template-boxed #login-message,
+    body.login.template-boxed .notice.notice-info.message {
+        padding: 12px 20px;
+        font-size: 12px;
+    }
+
+    body.login.template-boxed .login #nav,
+    body.login.template-boxed .login #backtoblog {
+        padding: 14px 20px;
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+/* Animación de entrada suave */
+@media (prefers-reduced-motion: no-preference) {
+    body.login.template-boxed div#login {
+        animation: boxedFadeIn 0.5s ease-out;
+    }
+
+    @keyframes boxedFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+}

@@ -1,0 +1,194 @@
+/*
+ * Template: Sidebar Login
+ * Descripción: Login en sidebar lateral que cubre toda la altura de la pantalla
+ * Ideal para: Aplicaciones web, intranets, sistemas de gestión
+ */
+
+body.login.template-sidebar {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-end;
+    min-height: 100vh;
+}
+
+body.login.template-sidebar div#login {
+    width: 100%;
+    max-width: 480px;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto auto;
+    grid-template-areas:
+        "logo"
+        "form"
+        "messages"
+        "links";
+    border-radius: 0;
+    box-shadow: -4px 0 30px rgba(0, 0, 0, 0.15);
+    overflow-y: auto;
+    position: relative;
+    background: white;
+}
+
+body.login.template-sidebar div#login h1 {
+    grid-area: logo;
+    min-height: auto;
+    padding: 60px 40px 30px;
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+    border-bottom: 1px solid #e3e8ee;
+}
+
+body.login.template-sidebar div#login h1 a {
+    max-width: 140px;
+    max-height: 140px;
+}
+
+body.login.template-sidebar div#login form#loginform,
+body.login.template-sidebar div#login form#lostpasswordform,
+body.login.template-sidebar div#login form#magicloginform {
+    grid-area: form;
+    padding: 50px 45px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Mensajes */
+body.login.template-sidebar .login p.message,
+body.login.template-sidebar .login #login_error,
+body.login.template-sidebar #login-message,
+body.login.template-sidebar .notice.notice-info.message {
+    margin: 0;
+}
+
+/* Footer fijo en la parte inferior */
+body.login.template-sidebar .login #nav,
+body.login.template-sidebar .login #backtoblog {
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    padding: 20px 40px;
+}
+
+/* Magic Login */
+body.login.template-sidebar.login-action-checkemail div#login h1 {
+    padding: 50px 40px 25px;
+}
+
+/* Variante: Sidebar izquierdo (opcional con clase adicional) */
+body.login.template-sidebar.sidebar-left {
+    justify-content: flex-start;
+}
+
+body.login.template-sidebar.sidebar-left div#login {
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    body.login.template-sidebar div#login {
+        max-width: 420px;
+    }
+
+    body.login.template-sidebar div#login h1 {
+        padding: 50px 35px 25px;
+    }
+
+    body.login.template-sidebar div#login h1 a {
+        max-width: 120px;
+        max-height: 120px;
+    }
+
+    body.login.template-sidebar div#login form#loginform,
+    body.login.template-sidebar div#login form#lostpasswordform,
+    body.login.template-sidebar div#login form#magicloginform {
+        padding: 40px 35px;
+    }
+
+    body.login.template-sidebar .login #nav,
+    body.login.template-sidebar .login #backtoblog {
+        padding: 18px 35px;
+    }
+}
+
+@media (max-width: 768px) {
+    body.login.template-sidebar {
+        justify-content: center;
+        padding: 20px;
+    }
+
+    body.login.template-sidebar div#login {
+        max-width: 100%;
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    body.login.template-sidebar div#login h1 {
+        padding: 40px 30px 20px;
+    }
+
+    body.login.template-sidebar div#login h1 a {
+        max-width: 110px;
+        max-height: 110px;
+    }
+
+    body.login.template-sidebar div#login form#loginform,
+    body.login.template-sidebar div#login form#lostpasswordform,
+    body.login.template-sidebar div#login form#magicloginform {
+        padding: 35px 25px;
+    }
+
+    body.login.template-sidebar .login #nav,
+    body.login.template-sidebar .login #backtoblog {
+        padding: 16px 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    body.login.template-sidebar {
+        padding: 0;
+    }
+
+    body.login.template-sidebar div#login h1 {
+        padding: 35px 25px 18px;
+    }
+
+    body.login.template-sidebar div#login h1 a {
+        max-width: 95px;
+        max-height: 95px;
+    }
+
+    body.login.template-sidebar div#login form#loginform,
+    body.login.template-sidebar div#login form#lostpasswordform,
+    body.login.template-sidebar div#login form#magicloginform {
+        padding: 30px 20px;
+    }
+
+    body.login.template-sidebar .login #nav,
+    body.login.template-sidebar .login #backtoblog {
+        padding: 14px 20px;
+    }
+}
+
+/* Mejora visual para scroll */
+body.login.template-sidebar div#login::-webkit-scrollbar {
+    width: 6px;
+}
+
+body.login.template-sidebar div#login::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+body.login.template-sidebar div#login::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+body.login.template-sidebar div#login::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}

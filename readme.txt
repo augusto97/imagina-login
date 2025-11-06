@@ -1,14 +1,14 @@
 === Imagina Login ===
 Contributors: augusto97
-Tags: login, custom login, login page, login background, login logo, login templates
+Tags: login, custom login, login page, login background, login logo, login templates, fullscreen login
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 2.2.3
+Stable tag: 2.3.0
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Personaliza la página de inicio de sesión de WordPress con múltiples diseños, logo, imágenes de fondo, videos y colores de marca.
+Personaliza la página de inicio de sesión de WordPress con 8 diseños profesionales, logo, imágenes de fondo, videos y colores de marca.
 
 == Description ==
 
@@ -16,7 +16,15 @@ Transforma por completo la aburrida página de inicio de sesión de WordPress (`
 
 **Características principales:**
 
-* **🎭 4 Diseños Profesionales:** Elige entre 4 templates modernos (Clásico, Minimalista, Logo Superior y Pantalla Dividida) que se adaptan a diferentes estilos de marca.
+* **🎭 8 Diseños Profesionales:** Elige entre 8 templates modernos que se adaptan a diferentes estilos de marca:
+  - Clásico Dos Columnas (empresas corporativas)
+  - Centrado Minimalista (startups y blogs)
+  - Logo Superior (e-commerce y portfolios)
+  - Pantalla Dividida 60/40 (agencias creativas)
+  - Pantalla Completa (aplicaciones web y SaaS)
+  - Glassmorphism (startups tech y apps premium)
+  - Sidebar Lateral (intranets y sistemas de gestión)
+  - Centrado Compacto (sitios minimalistas)
 * **🖼️ Fondos Personalizables:** Usa colores sólidos, degradados lineales/radiales, imágenes o videos de fondo tanto para la página como para el área del logo.
 * **🎨 Sistema de Colores Completo:** Personaliza colores de etiquetas, botones, enlaces y estados hover de forma independiente o usa los colores de tu tema.
 * **✨ Transiciones Animadas:** 3 tipos de animaciones (Fade, Slide Down, Zoom) con duración personalizable para una experiencia suave.
@@ -62,6 +70,18 @@ Sí, el plugin funciona correctamente en instalaciones de WordPress Multisite.
 
 == Changelog ==
 
+= 2.3.0 =
+* 🎭 **NUEVO:** 4 templates adicionales (ahora 8 en total)
+* 🖥️ **NUEVO:** Template Pantalla Completa - login cubre toda la pantalla
+* 💎 **NUEVO:** Template Glassmorphism - efecto cristal moderno
+* 📱 **NUEVO:** Template Sidebar Lateral - panel lateral full height
+* 📦 **NUEVO:** Template Centrado Compacto - caja flotante sobre fondo
+* 🎨 **MEJORA:** Mockups visuales mejorados para todos los templates
+* 🎨 **MEJORA:** Efectos backdrop-filter en template Glassmorphism
+* 📱 **MEJORA:** Mejor experiencia responsive en todos los nuevos templates
+* 🎨 **MEJORA:** Animaciones de entrada suaves en template Boxed
+* 📦 **ACTUALIZADO:** Versión del plugin a 2.3.0
+
 = 2.2.3 =
 * 🎭 **NUEVO:** Sistema de templates con 4 diseños profesionales
 * 🏢 **NUEVO:** Template Clásico Dos Columnas (mejorado del diseño original)
@@ -73,9 +93,6 @@ Sí, el plugin funciona correctamente en instalaciones de WordPress Multisite.
 * ⚡ **OPTIMIZACIÓN:** MutationObserver con auto-disconnect después de 3s
 * 🎨 **MEJORA:** Panel de administración reorganizado y más amigable
 * 🎨 **MEJORA:** Selector visual de templates con preview animado
-* 🎨 **MEJORA:** Estilos mejorados para cards de templates
-* 📱 **MEJORA:** Todos los templates responsive para móviles
-* 🐛 **FIX:** Mejor manejo de cache en memoria
 * 📦 **ACTUALIZADO:** Versión del plugin a 2.2.3
 
 = 2.2.2 =
@@ -91,8 +108,11 @@ Sí, el plugin funciona correctamente en instalaciones de WordPress Multisite.
 
 == Upgrade Notice ==
 
+= 2.3.0 =
+¡Actualización mayor! Ahora incluye 8 diseños profesionales incluyendo Full Screen, Glassmorphism, Sidebar y Boxed. Totalmente compatible con versiones anteriores.
+
 = 2.2.3 =
-¡Actualización mayor! Ahora incluye 4 diseños profesionales y optimizaciones de rendimiento significativas. Totalmente compatible con versiones anteriores.
+Primera versión con sistema de templates múltiples y optimizaciones de rendimiento significativas. Totalmente compatible con versiones anteriores.
 
 = 1.0.0 =
 Esta es la primera versión del plugin. ¡Gracias por probarlo!

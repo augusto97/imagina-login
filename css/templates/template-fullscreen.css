@@ -1,0 +1,140 @@
+/*
+ * Template: Full Screen Centered
+ * Descripción: El div de login cubre toda la pantalla con diseño centrado
+ * Ideal para: Aplicaciones web, plataformas SaaS, dashboards
+ */
+
+body.login.template-fullscreen {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.login.template-fullscreen div#login {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto auto;
+    grid-template-areas:
+        "logo"
+        "form"
+        "messages"
+        "links";
+    border-radius: 0;
+    box-shadow: none;
+    overflow-y: auto;
+    position: relative;
+}
+
+body.login.template-fullscreen div#login h1 {
+    grid-area: logo;
+    min-height: auto;
+    padding: 60px 40px 30px;
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.login.template-fullscreen div#login h1 a {
+    max-width: 140px;
+    max-height: 140px;
+}
+
+body.login.template-fullscreen div#login form#loginform,
+body.login.template-fullscreen div#login form#lostpasswordform,
+body.login.template-fullscreen div#login form#magicloginform {
+    grid-area: form;
+    padding: 40px 60px;
+    max-width: 450px;
+    margin: 0 auto;
+    width: 100%;
+    background: transparent !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Estilo especial para inputs en full screen */
+body.login.template-fullscreen div#login form .input,
+body.login.template-fullscreen div#login form input[type="text"],
+body.login.template-fullscreen div#login form input[type="password"] {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+body.login.template-fullscreen div#login form .input:focus,
+body.login.template-fullscreen div#login form input[type="text"]:focus,
+body.login.template-fullscreen div#login form input[type="password"]:focus {
+    background: rgba(255, 255, 255, 1);
+}
+
+/* Labels más visibles en full screen */
+body.login.template-fullscreen .login label {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Magic Login */
+body.login.template-fullscreen.login-action-checkemail div#login h1 {
+    padding: 50px 40px 25px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body.login.template-fullscreen div#login {
+        grid-template-rows: auto 1fr auto auto;
+    }
+
+    body.login.template-fullscreen div#login h1 {
+        padding: 40px 30px 20px;
+    }
+
+    body.login.template-fullscreen div#login h1 a {
+        max-width: 110px;
+        max-height: 110px;
+    }
+
+    body.login.template-fullscreen div#login form#loginform,
+    body.login.template-fullscreen div#login form#lostpasswordform,
+    body.login.template-fullscreen div#login form#magicloginform {
+        padding: 30px 25px;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    body.login.template-fullscreen div#login h1 {
+        padding: 30px 20px 15px;
+    }
+
+    body.login.template-fullscreen div#login h1 a {
+        max-width: 90px;
+        max-height: 90px;
+    }
+
+    body.login.template-fullscreen div#login form#loginform,
+    body.login.template-fullscreen div#login form#lostpasswordform,
+    body.login.template-fullscreen div#login form#magicloginform {
+        padding: 25px 20px;
+    }
+}
+
+/* Ajustes para mejor visibilidad sobre fondos oscuros */
+body.login.template-fullscreen .login #nav,
+body.login.template-fullscreen .login #backtoblog {
+    background: rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.login.template-fullscreen .login #nav a,
+body.login.template-fullscreen .login #backtoblog a {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+body.login.template-fullscreen .login #nav a:hover,
+body.login.template-fullscreen .login #backtoblog a:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
