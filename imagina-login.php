@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Imagina Login
  * Plugin URI:  https://imaginawp.com
- * Description: Customized wp login with multiple templates and advanced background options
- * Version:     2.2.3
+ * Description: Customized wp login with 8 professional templates and advanced background options
+ * Version:     2.3.0
  * Author:      IMAGINA WP
  * Author URI:  https://imaginawp.com/
  * License:     GPLv2 or later
@@ -309,7 +309,7 @@ function my_custom_login_assets() {
         'imagina-login',
         plugin_dir_url( __FILE__ ) . 'css/styles.css',
         array(),
-        '2.2.3'
+        '2.3.0'
     );
 
     // Cargar CSS del template seleccionado
@@ -325,6 +325,18 @@ function my_custom_login_assets() {
         case 'split':
             $template_file = 'template-split.css';
             break;
+        case 'fullscreen':
+            $template_file = 'template-fullscreen.css';
+            break;
+        case 'glass':
+            $template_file = 'template-glass.css';
+            break;
+        case 'sidebar':
+            $template_file = 'template-sidebar.css';
+            break;
+        case 'boxed':
+            $template_file = 'template-boxed.css';
+            break;
         case 'classic':
         default:
             $template_file = 'template-classic.css';
@@ -335,7 +347,7 @@ function my_custom_login_assets() {
         'imagina-login-template',
         plugin_dir_url( __FILE__ ) . 'css/templates/' . $template_file,
         array('imagina-login'),
-        '2.2.3'
+        '2.3.0'
     );
 
     // Agregar clase del template al body
@@ -789,11 +801,11 @@ function my_custom_login_assets() {
             console.log('🔌 MutationObserver desconectado (optimización de performance)');
         }, 3000);
 
-        console.log('🎉 Imagina Login v2.2.3 inicializado completamente');
+        console.log('🎉 Imagina Login v2.3.0 inicializado completamente');
     });
     ";
     
-    wp_register_script('imagina-login-toggle', '', array('jquery'), '2.2.3', true);
+    wp_register_script('imagina-login-toggle', '', array('jquery'), '2.3.0', true);
     wp_enqueue_script('imagina-login-toggle');
     wp_add_inline_script('imagina-login-toggle', $script);
 }
@@ -1062,6 +1074,89 @@ function il_settings_page_html() {
                                 <div class="template-info">
                                     <h3>🎨 Pantalla Dividida</h3>
                                     <p>Split 60/40 con efecto visual impactante. Para agencias creativas.</p>
+                                </div>
+                                <span class="template-check">✓</span>
+                            </label>
+
+                            <!-- Template 5: Full Screen -->
+                            <label class="imagina-template-card <?php echo $selected_template === 'fullscreen' ? 'active' : ''; ?>">
+                                <input type="radio" name="il_login_template" value="fullscreen" <?php checked($selected_template, 'fullscreen'); ?>>
+                                <div class="template-preview">
+                                    <div class="template-mockup fullscreen-mockup">
+                                        <div class="mockup-full-header"></div>
+                                        <div class="mockup-full-content">
+                                            <div class="mock-input"></div>
+                                            <div class="mock-input"></div>
+                                            <div class="mock-button"></div>
+                                        </div>
+                                        <div class="mockup-full-footer"></div>
+                                    </div>
+                                </div>
+                                <div class="template-info">
+                                    <h3>🖥️ Pantalla Completa</h3>
+                                    <p>Login cubre toda la pantalla. Ideal para aplicaciones web y SaaS.</p>
+                                </div>
+                                <span class="template-check">✓</span>
+                            </label>
+
+                            <!-- Template 6: Glassmorphism -->
+                            <label class="imagina-template-card <?php echo $selected_template === 'glass' ? 'active' : ''; ?>">
+                                <input type="radio" name="il_login_template" value="glass" <?php checked($selected_template, 'glass'); ?>>
+                                <div class="template-preview glass-preview">
+                                    <div class="template-mockup glass-mockup">
+                                        <div class="mockup-glass-header"></div>
+                                        <div class="mockup-glass-content">
+                                            <div class="mock-input"></div>
+                                            <div class="mock-input"></div>
+                                            <div class="mock-button"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="template-info">
+                                    <h3>💎 Glassmorphism</h3>
+                                    <p>Efecto cristal moderno sobre fondo. Para startups tech y apps premium.</p>
+                                </div>
+                                <span class="template-check">✓</span>
+                            </label>
+
+                            <!-- Template 7: Sidebar -->
+                            <label class="imagina-template-card <?php echo $selected_template === 'sidebar' ? 'active' : ''; ?>">
+                                <input type="radio" name="il_login_template" value="sidebar" <?php checked($selected_template, 'sidebar'); ?>>
+                                <div class="template-preview">
+                                    <div class="template-mockup sidebar-mockup">
+                                        <div class="mockup-sidebar-bg"></div>
+                                        <div class="mockup-sidebar-panel">
+                                            <div class="mock-input"></div>
+                                            <div class="mock-input"></div>
+                                            <div class="mock-button"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="template-info">
+                                    <h3>📱 Sidebar Lateral</h3>
+                                    <p>Panel lateral full height. Perfecto para intranets y sistemas de gestión.</p>
+                                </div>
+                                <span class="template-check">✓</span>
+                            </label>
+
+                            <!-- Template 8: Boxed -->
+                            <label class="imagina-template-card <?php echo $selected_template === 'boxed' ? 'active' : ''; ?>">
+                                <input type="radio" name="il_login_template" value="boxed" <?php checked($selected_template, 'boxed'); ?>>
+                                <div class="template-preview">
+                                    <div class="template-mockup boxed-mockup">
+                                        <div class="mockup-boxed-container">
+                                            <div class="mockup-boxed-header"></div>
+                                            <div class="mockup-boxed-content">
+                                                <div class="mock-input"></div>
+                                                <div class="mock-input"></div>
+                                                <div class="mock-button"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="template-info">
+                                    <h3>📦 Centrado Compacto</h3>
+                                    <p>Caja pequeña flotante sobre fondo. Ideal para sitios minimalistas.</p>
                                 </div>
                                 <span class="template-check">✓</span>
                             </label>
@@ -1882,6 +1977,127 @@ function il_settings_page_html() {
         height: 14px;
         border-radius: 4px;
         margin-top: 4px;
+    }
+
+    /* Mockup Full Screen */
+    .fullscreen-mockup {
+        grid-template-columns: 1fr;
+        grid-template-rows: 35px 1fr 20px;
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    }
+
+    .mockup-full-header {
+        background: rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .mockup-full-content {
+        padding: 15px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .fullscreen-mockup .mock-input {
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .fullscreen-mockup .mock-button {
+        background: rgba(255, 255, 255, 0.95);
+    }
+
+    .mockup-full-footer {
+        background: rgba(0, 0, 0, 0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Mockup Glassmorphism */
+    .glass-preview {
+        background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+    }
+
+    .glass-mockup {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .mockup-glass-header {
+        background: rgba(255, 255, 255, 0.05);
+        height: 35px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .mockup-glass-content {
+        padding: 12px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .glass-mockup .mock-input {
+        background: rgba(255, 255, 255, 0.6);
+    }
+
+    .glass-mockup .mock-button {
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Mockup Sidebar */
+    .sidebar-mockup {
+        grid-template-columns: 2fr 1fr;
+        position: relative;
+    }
+
+    .mockup-sidebar-bg {
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    }
+
+    .mockup-sidebar-panel {
+        background: white;
+        padding: 12px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        justify-content: center;
+        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Mockup Boxed */
+    .boxed-mockup {
+        grid-template-columns: 1fr;
+        background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mockup-boxed-container {
+        width: 75%;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: 30px 1fr;
+    }
+
+    .mockup-boxed-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .mockup-boxed-content {
+        padding: 10px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        justify-content: center;
     }
 
     .template-info h3 {
