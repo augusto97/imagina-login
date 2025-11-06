@@ -1,14 +1,14 @@
 === Imagina Login ===
 Contributors: augusto97
-Tags: login, custom login, login page, login background, login logo
+Tags: login, custom login, login page, login background, login logo, login templates
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 1.0.0
+Stable tag: 2.2.3
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Personaliza la página de inicio de sesión de WordPress con tu propio logo, imágenes de fondo y colores de marca.
+Personaliza la página de inicio de sesión de WordPress con múltiples diseños, logo, imágenes de fondo, videos y colores de marca.
 
 == Description ==
 
@@ -16,13 +16,15 @@ Transforma por completo la aburrida página de inicio de sesión de WordPress (`
 
 **Características principales:**
 
-* **Doble fondo personalizable:** Sube una imagen de fondo para la página completa (`<body>`) y otra imagen diferente para el contenedor del logo, creando un efecto de diseño profesional.
-* **Integración con el logo de tu tema:** El plugin utiliza automáticamente el logo o el icono del sitio que ya tienes configurado en tu tema. Si no tienes uno, muestra el título del sitio para que nunca se vea vacío.
-* **Colores dinámicos:** Adapta los colores de los botones y enlaces del formulario utilizando el "color primario" definido en el personalizador de tu tema, asegurando una integración perfecta.
-* **Interfaz de administración sencilla:** Utiliza el cargador de medios nativo de WordPress para subir y gestionar las imágenes de fondo de forma fácil y rápida desde una nueva página de opciones en tu panel de administración.
-* **Diseño responsive:** La página de login se verá increíble tanto en ordenadores de escritorio como en dispositivos móviles.
-* **Seguridad mejorada:** Incluye un icono moderno y funcional para mostrar u ocultar la contraseña, mejorando la experiencia de usuario.
-* **Ligero y optimizado:** Carga solo los estilos y scripts necesarios, sin sobrecargar tu sitio.
+* **🎭 4 Diseños Profesionales:** Elige entre 4 templates modernos (Clásico, Minimalista, Logo Superior y Pantalla Dividida) que se adaptan a diferentes estilos de marca.
+* **🖼️ Fondos Personalizables:** Usa colores sólidos, degradados lineales/radiales, imágenes o videos de fondo tanto para la página como para el área del logo.
+* **🎨 Sistema de Colores Completo:** Personaliza colores de etiquetas, botones, enlaces y estados hover de forma independiente o usa los colores de tu tema.
+* **✨ Transiciones Animadas:** 3 tipos de animaciones (Fade, Slide Down, Zoom) con duración personalizable para una experiencia suave.
+* **🎬 Videos de Fondo:** Sube videos que se reproducen automáticamente con overlay ajustable para mejor legibilidad.
+* **📱 100% Responsive:** Todos los diseños se adaptan perfectamente a tablets y móviles con optimizaciones específicas.
+* **⚡ Alto Rendimiento:** Código optimizado con cache inteligente, batch queries y auto-disconnect de observers.
+* **🔒 Seguridad Mejorada:** Toggle moderno para mostrar/ocultar contraseñas con iconos SVG optimizados.
+* **🎯 Interfaz Intuitiva:** Panel de administración moderno con previsualizaciones en tiempo real y tooltips explicativos.
 
 Dale a tus usuarios y clientes una bienvenida profesional desde el primer momento con "Imagina Login".
 
@@ -60,14 +62,37 @@ Sí, el plugin funciona correctamente en instalaciones de WordPress Multisite.
 
 == Changelog ==
 
+= 2.2.3 =
+* 🎭 **NUEVO:** Sistema de templates con 4 diseños profesionales
+* 🏢 **NUEVO:** Template Clásico Dos Columnas (mejorado del diseño original)
+* ✨ **NUEVO:** Template Centrado Minimalista
+* 🎯 **NUEVO:** Template Logo Superior
+* 🎨 **NUEVO:** Template Pantalla Dividida 60/40
+* ⚡ **OPTIMIZACIÓN:** Batch get_option() reduce queries de 13-18 a 1 sola
+* ⚡ **OPTIMIZACIÓN:** Cache clearing consolidado de 25 hooks a 1 hook único
+* ⚡ **OPTIMIZACIÓN:** MutationObserver con auto-disconnect después de 3s
+* 🎨 **MEJORA:** Panel de administración reorganizado y más amigable
+* 🎨 **MEJORA:** Selector visual de templates con preview animado
+* 🎨 **MEJORA:** Estilos mejorados para cards de templates
+* 📱 **MEJORA:** Todos los templates responsive para móviles
+* 🐛 **FIX:** Mejor manejo de cache en memoria
+* 📦 **ACTUALIZADO:** Versión del plugin a 2.2.3
+
+= 2.2.2 =
+* Mejoras de compatibilidad y correcciones menores
+* Sistema de transiciones mejorado
+
 = 1.0.0 =
 * ¡Lanzamiento inicial del plugin!
-* Personalización de fondo para el body y el contenedor del logo.
-* Integración automática de logo y colores del tema.
-* Panel de administración para gestión de imágenes.
-* Diseño responsive.
+* Personalización de fondo para el body y el contenedor del logo
+* Integración automática de logo y colores del tema
+* Panel de administración para gestión de imágenes
+* Diseño responsive
 
 == Upgrade Notice ==
+
+= 2.2.3 =
+¡Actualización mayor! Ahora incluye 4 diseños profesionales y optimizaciones de rendimiento significativas. Totalmente compatible con versiones anteriores.
 
 = 1.0.0 =
 Esta es la primera versión del plugin. ¡Gracias por probarlo!

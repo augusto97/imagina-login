@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Imagina Login
  * Plugin URI:  https://imaginawp.com
- * Description: Customized wp login with advanced background options
- * Version:     2.2.2
+ * Description: Customized wp login with multiple templates and advanced background options
+ * Version:     2.2.3
  * Author:      IMAGINA WP
  * Author URI:  https://imaginawp.com/
  * License:     GPLv2 or later
@@ -39,18 +39,82 @@ if (!function_exists('adjustBrightness')) {
 }
 
 /**
+ * Obtener todas las opciones de Imagina Login en una sola consulta (OPTIMIZACIÓN)
+ */
+function il_get_all_options() {
+    static $cached_options = null;
+
+    if ($cached_options !== null) {
+        return $cached_options;
+    }
+
+    // Lista de todas las opciones del plugin
+    $option_keys = [
+        'il_login_template',
+        'il_body_bg_type', 'il_body_bg_color', 'il_body_background_image', 'il_body_background_video',
+        'il_body_gradient_type', 'il_body_gradient_direction', 'il_body_gradient_color1', 'il_body_gradient_color2',
+        'il_video_overlay_color',
+        'il_logo_bg_type', 'il_logo_bg_color', 'il_logo_background_image',
+        'il_logo_gradient_type', 'il_logo_gradient_direction', 'il_logo_gradient_color1', 'il_logo_gradient_color2',
+        'il_logo_overlay_color',
+        'il_use_custom_colors', 'il_label_color', 'il_button_color', 'il_button_hover_color', 'il_link_color',
+        'il_enable_transitions', 'il_transition_type', 'il_transition_duration'
+    ];
+
+    // Valores por defecto
+    $defaults = [
+        'il_login_template' => 'classic',
+        'il_body_bg_type' => 'color',
+        'il_body_bg_color' => '#009bde',
+        'il_body_background_image' => '',
+        'il_body_background_video' => '',
+        'il_body_gradient_type' => 'linear',
+        'il_body_gradient_direction' => 'vertical',
+        'il_body_gradient_color1' => '#009bde',
+        'il_body_gradient_color2' => '#0056b3',
+        'il_video_overlay_color' => 'rgba(0,0,0,0.3)',
+        'il_logo_bg_type' => 'color',
+        'il_logo_bg_color' => '#f9f9f9',
+        'il_logo_background_image' => '',
+        'il_logo_gradient_type' => 'linear',
+        'il_logo_gradient_direction' => 'vertical',
+        'il_logo_gradient_color1' => '#f9f9f9',
+        'il_logo_gradient_color2' => '#e9ecef',
+        'il_logo_overlay_color' => 'transparent',
+        'il_use_custom_colors' => false,
+        'il_label_color' => '#009bde',
+        'il_button_color' => '#009bde',
+        'il_button_hover_color' => '#007ab8',
+        'il_link_color' => '#009bde',
+        'il_enable_transitions' => true,
+        'il_transition_type' => 'fade',
+        'il_transition_duration' => '0.5'
+    ];
+
+    // Obtener todas las opciones de una vez
+    $options = [];
+    foreach ($option_keys as $key) {
+        $value = get_option($key);
+        $options[$key] = ($value !== false) ? $value : $defaults[$key];
+    }
+
+    $cached_options = $options;
+    return $options;
+}
+
+/**
  * Función para generar CSS de degradado - CORREGIDA
  */
 function il_generate_gradient_css($type, $direction, $color1, $color2) {
     if (!$color1 || !$color2) return '';
-    
+
     $direction_map = [
         'horizontal' => 'to right',
         'vertical' => 'to bottom',
         'diagonal1' => '45deg',
         'diagonal2' => '-45deg'
     ];
-    
+
     if ($type === 'radial') {
         return "radial-gradient(circle, {$color1}, {$color2})";
     } else {
@@ -60,48 +124,51 @@ function il_generate_gradient_css($type, $direction, $color1, $color2) {
 }
 
 /**
- * Cache para los estilos dinámicos
+ * Cache para los estilos dinámicos (OPTIMIZADO)
  */
 function il_get_cached_dynamic_styles() {
-    $cache_key = 'imagina_login_dynamic_styles_v5';
+    $cache_key = 'imagina_login_dynamic_styles_v6';
     $cached = get_transient($cache_key);
-    
+
     if ($cached !== false) {
         return $cached;
     }
-    
+
     // Generar estilos dinámicos
     $styles = il_generate_dynamic_styles();
-    
+
     // Cache por 1 hora
     set_transient($cache_key, $styles, HOUR_IN_SECONDS);
-    
+
     return $styles;
 }
 
 /**
- * Generar estilos dinámicos - MEJORADA
+ * Generar estilos dinámicos - OPTIMIZADA
  */
 function il_generate_dynamic_styles() {
+    // Obtener todas las opciones de una vez (OPTIMIZACIÓN)
+    $opts = il_get_all_options();
+
     // Configuración del fondo del body
-    $body_bg_type = get_option('il_body_bg_type', 'color');
-    $body_bg_color = get_option('il_body_bg_color', '#009bde');
-    $body_bg_image = get_option('il_body_background_image');
-    $body_gradient_type = get_option('il_body_gradient_type', 'linear');
-    $body_gradient_direction = get_option('il_body_gradient_direction', 'vertical');
-    $body_gradient_color1 = get_option('il_body_gradient_color1', '#009bde');
-    $body_gradient_color2 = get_option('il_body_gradient_color2', '#0056b3');
-    $video_overlay_color = get_option('il_video_overlay_color', 'rgba(0,0,0,0.3)');
+    $body_bg_type = $opts['il_body_bg_type'];
+    $body_bg_color = $opts['il_body_bg_color'];
+    $body_bg_image = $opts['il_body_background_image'];
+    $body_gradient_type = $opts['il_body_gradient_type'];
+    $body_gradient_direction = $opts['il_body_gradient_direction'];
+    $body_gradient_color1 = $opts['il_body_gradient_color1'];
+    $body_gradient_color2 = $opts['il_body_gradient_color2'];
+    $video_overlay_color = $opts['il_video_overlay_color'];
 
     // Configuración del fondo del logo
-    $logo_bg_type = get_option('il_logo_bg_type', 'color');
-    $logo_bg_color = get_option('il_logo_bg_color', '#f9f9f9');
-    $logo_bg_image = get_option('il_logo_background_image');
-    $logo_gradient_type = get_option('il_logo_gradient_type', 'linear');
-    $logo_gradient_direction = get_option('il_logo_gradient_direction', 'vertical');
-    $logo_gradient_color1 = get_option('il_logo_gradient_color1', '#f9f9f9');
-    $logo_gradient_color2 = get_option('il_logo_gradient_color2', '#e9ecef');
-    $logo_overlay_color = get_option('il_logo_overlay_color', 'transparent');
+    $logo_bg_type = $opts['il_logo_bg_type'];
+    $logo_bg_color = $opts['il_logo_bg_color'];
+    $logo_bg_image = $opts['il_logo_background_image'];
+    $logo_gradient_type = $opts['il_logo_gradient_type'];
+    $logo_gradient_direction = $opts['il_logo_gradient_direction'];
+    $logo_gradient_color1 = $opts['il_logo_gradient_color1'];
+    $logo_gradient_color2 = $opts['il_logo_gradient_color2'];
+    $logo_overlay_color = $opts['il_logo_overlay_color'];
 
     $css = ':root {';
     
@@ -168,41 +235,31 @@ function il_generate_dynamic_styles() {
         'logo_overlay_color' => $logo_overlay_color,
         'body_bg_type' => $body_bg_type,
         'logo_bg_type' => $logo_bg_type,
-        'body_bg_video' => get_option('il_body_background_video')
+        'body_bg_video' => $opts['il_body_background_video'],
+        'template' => $opts['il_login_template']
     ];
 }
 
 /**
- * Limpiar cache cuando se guardan opciones - ACTUALIZADA
+ * Limpiar cache cuando se guardan opciones - OPTIMIZADO CON BATCH CLEARING
  */
 function il_clear_styles_cache() {
-    delete_transient('imagina_login_dynamic_styles_v5');
+    delete_transient('imagina_login_dynamic_styles_v6');
+    // Limpiar también el cache de opciones en memoria
+    global $cached_options;
+    $cached_options = null;
 }
-add_action('update_option_il_body_bg_type', 'il_clear_styles_cache');
-add_action('update_option_il_body_bg_color', 'il_clear_styles_cache');
-add_action('update_option_il_body_background_image', 'il_clear_styles_cache');
-add_action('update_option_il_body_background_video', 'il_clear_styles_cache');
-add_action('update_option_il_body_gradient_type', 'il_clear_styles_cache');
-add_action('update_option_il_body_gradient_direction', 'il_clear_styles_cache');
-add_action('update_option_il_body_gradient_color1', 'il_clear_styles_cache');
-add_action('update_option_il_body_gradient_color2', 'il_clear_styles_cache');
-add_action('update_option_il_video_overlay_color', 'il_clear_styles_cache');
-add_action('update_option_il_logo_bg_type', 'il_clear_styles_cache');
-add_action('update_option_il_logo_bg_color', 'il_clear_styles_cache');
-add_action('update_option_il_logo_background_image', 'il_clear_styles_cache');
-add_action('update_option_il_logo_gradient_type', 'il_clear_styles_cache');
-add_action('update_option_il_logo_gradient_direction', 'il_clear_styles_cache');
-add_action('update_option_il_logo_gradient_color1', 'il_clear_styles_cache');
-add_action('update_option_il_logo_gradient_color2', 'il_clear_styles_cache');
-add_action('update_option_il_logo_overlay_color', 'il_clear_styles_cache');
-add_action('update_option_il_use_custom_colors', 'il_clear_styles_cache');
-add_action('update_option_il_label_color', 'il_clear_styles_cache');
-add_action('update_option_il_button_color', 'il_clear_styles_cache');
-add_action('update_option_il_button_hover_color', 'il_clear_styles_cache');
-add_action('update_option_il_link_color', 'il_clear_styles_cache');
-add_action('update_option_il_enable_transitions', 'il_clear_styles_cache');
-add_action('update_option_il_transition_type', 'il_clear_styles_cache');
-add_action('update_option_il_transition_duration', 'il_clear_styles_cache');
+
+/**
+ * Hook único que escucha cambios en cualquier opción del plugin (OPTIMIZACIÓN)
+ */
+function il_handle_option_update($option_name) {
+    // Solo limpiar cache si la opción pertenece a nuestro plugin
+    if (strpos($option_name, 'il_') === 0) {
+        il_clear_styles_cache();
+    }
+}
+add_action('updated_option', 'il_handle_option_update', 10, 1);
 
 /**
  * Inyectar estilos críticos en el head TEMPRANO
@@ -240,17 +297,54 @@ function il_inject_critical_styles() {
 add_action('login_head', 'il_inject_critical_styles', 1);
 
 /**
- * Función para añadir los estilos y scripts a la página de login.
+ * Función para añadir los estilos y scripts a la página de login - OPTIMIZADA
  */
 function my_custom_login_assets() {
+    // Obtener todas las opciones de una vez (OPTIMIZACIÓN)
+    $opts = il_get_all_options();
+    $cached_styles = il_get_cached_dynamic_styles();
+
+    // Cargar CSS base
     wp_enqueue_style(
         'imagina-login',
         plugin_dir_url( __FILE__ ) . 'css/styles.css',
         array(),
-        '2.2.2'
+        '2.2.3'
     );
 
-    // --- Lógica de logo y colores (MEJORADA) ---
+    // Cargar CSS del template seleccionado
+    $template = $cached_styles['template'];
+    $template_file = '';
+    switch ($template) {
+        case 'minimal':
+            $template_file = 'template-minimal.css';
+            break;
+        case 'top-logo':
+            $template_file = 'template-top-logo.css';
+            break;
+        case 'split':
+            $template_file = 'template-split.css';
+            break;
+        case 'classic':
+        default:
+            $template_file = 'template-classic.css';
+            break;
+    }
+
+    wp_enqueue_style(
+        'imagina-login-template',
+        plugin_dir_url( __FILE__ ) . 'css/templates/' . $template_file,
+        array('imagina-login'),
+        '2.2.3'
+    );
+
+    // Agregar clase del template al body
+    add_filter('login_body_class', function($classes) use ($template) {
+        $classes[] = 'template-' . $template;
+        return $classes;
+    });
+
+    // --- Lógica de logo ---
     $custom_logo_id = get_theme_mod('custom_logo');
     $logo_url = '';
     if ($custom_logo_id) {
@@ -265,16 +359,16 @@ function my_custom_login_assets() {
             $logo_url = $site_icon_url;
         }
     }
-    
-    // *** SISTEMA DE COLORES MEJORADO ***
-    $use_custom_colors = get_option('il_use_custom_colors', false);
-    
+
+    // *** SISTEMA DE COLORES OPTIMIZADO ***
+    $use_custom_colors = $opts['il_use_custom_colors'];
+
     if ($use_custom_colors) {
         // Usar colores personalizados del plugin
-        $primary_color = get_option('il_label_color', '#009bde');
-        $button_color = get_option('il_button_color', '#009bde');
-        $button_hover_color = get_option('il_button_hover_color', '#007ab8');
-        $link_color = get_option('il_link_color', '#009bde');
+        $primary_color = $opts['il_label_color'];
+        $button_color = $opts['il_button_color'];
+        $button_hover_color = $opts['il_button_hover_color'];
+        $link_color = $opts['il_link_color'];
     } else {
         // Usar colores del tema (comportamiento original)
         $primary_color = get_theme_mod('primary_color', '#009bde');
@@ -287,9 +381,9 @@ function my_custom_login_assets() {
     }
 
     // *** CONFIGURACIÓN DE TRANSICIONES ***
-    $enable_transitions = get_option('il_enable_transitions', true);
-    $transition_type = get_option('il_transition_type', 'fade');
-    $transition_duration = get_option('il_transition_duration', '0.5');
+    $enable_transitions = $opts['il_enable_transitions'];
+    $transition_type = $opts['il_transition_type'];
+    $transition_duration = $opts['il_transition_duration'];
 
     // --- SVGs para los iconos (URL-encoded) ---
     $svg_eye_visible = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'%3E%3C/path%3E%3Ccircle cx='12' cy='12' r='3'%3E%3C/circle%3E%3C/svg%3E";
@@ -670,7 +764,8 @@ function my_custom_login_assets() {
 
         initPasswordToggle();
         setTimeout(initPasswordToggle, 100);
-        
+
+        // MutationObserver optimizado con auto-disconnect (OPTIMIZACIÓN)
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -682,17 +777,23 @@ function my_custom_login_assets() {
                 }
             });
         });
-        
+
         observer.observe(document.body, {
             childList: true,
             subtree: true
         });
-        
-        console.log('🎉 Imagina Login v2.2.2 inicializado completamente');
+
+        // Auto-disconnect después de 3 segundos para evitar consumo innecesario de recursos
+        setTimeout(function() {
+            observer.disconnect();
+            console.log('🔌 MutationObserver desconectado (optimización de performance)');
+        }, 3000);
+
+        console.log('🎉 Imagina Login v2.2.3 inicializado completamente');
     });
     ";
     
-    wp_register_script('imagina-login-toggle', '', array('jquery'), '2.2.2', true);
+    wp_register_script('imagina-login-toggle', '', array('jquery'), '2.2.3', true);
     wp_enqueue_script('imagina-login-toggle');
     wp_add_inline_script('imagina-login-toggle', $script);
 }
@@ -800,6 +901,9 @@ add_action('admin_menu', 'il_create_admin_menu');
  * Registrar todos los ajustes
  */
 function il_register_settings() {
+    // Template seleccionado
+    register_setting('imagina_login_options', 'il_login_template', ['type' => 'string', 'default' => 'classic']);
+
     // Configuración del fondo del body
     register_setting('imagina_login_options', 'il_body_bg_type', ['type' => 'string', 'default' => 'color']);
     register_setting('imagina_login_options', 'il_body_bg_color', ['type' => 'string', 'default' => '#009bde']);
@@ -834,6 +938,7 @@ function il_register_settings() {
     register_setting('imagina_login_options', 'il_transition_duration', ['type' => 'string', 'default' => '0.5']);
 
     // Secciones
+    add_settings_section('il_template_section', 'Diseño del Login', null, 'imagina-login-settings');
     add_settings_section('il_body_section', 'Configuración del Fondo de la Página', null, 'imagina-login-settings');
     add_settings_section('il_logo_section', 'Configuración del Fondo del Logo', null, 'imagina-login-settings');
     add_settings_section('il_colors_section', 'Colores del Formulario', null, 'imagina-login-settings');
@@ -842,10 +947,11 @@ function il_register_settings() {
 add_action('admin_init', 'il_register_settings');
 
 /**
- * HTML de la página de configuración moderna
+ * HTML de la página de configuración moderna - ACTUALIZADA CON TEMPLATES
  */
 function il_settings_page_html() {
     // Obtener valores actuales
+    $selected_template = get_option('il_login_template', 'classic');
     $body_bg_type = get_option('il_body_bg_type', 'color');
     $logo_bg_type = get_option('il_logo_bg_type', 'color');
     $use_custom_colors = get_option('il_use_custom_colors', false);
@@ -869,7 +975,100 @@ function il_settings_page_html() {
 
         <form action="options.php" method="post" class="imagina-form">
             <?php settings_fields('imagina_login_options'); ?>
-            
+
+            <div class="imagina-sections">
+                <!-- NUEVA SECCIÓN: SELECTOR DE TEMPLATES -->
+                <div class="imagina-section imagina-template-section">
+                    <div class="imagina-section-header">
+                        <h2><span class="section-icon">🎭</span> Diseño del Login</h2>
+                        <p>Elige el diseño que mejor se adapte a tu marca</p>
+                    </div>
+
+                    <div class="imagina-section-content">
+                        <div class="imagina-template-grid">
+                            <!-- Template 1: Clásico -->
+                            <label class="imagina-template-card <?php echo $selected_template === 'classic' ? 'active' : ''; ?>">
+                                <input type="radio" name="il_login_template" value="classic" <?php checked($selected_template, 'classic'); ?>>
+                                <div class="template-preview">
+                                    <div class="template-mockup classic-mockup">
+                                        <div class="mockup-left"></div>
+                                        <div class="mockup-right">
+                                            <div class="mock-input"></div>
+                                            <div class="mock-input"></div>
+                                            <div class="mock-button"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="template-info">
+                                    <h3>🏢 Clásico Dos Columnas</h3>
+                                    <p>Logo a la izquierda, formulario a la derecha. Ideal para empresas corporativas.</p>
+                                </div>
+                                <span class="template-check">✓</span>
+                            </label>
+
+                            <!-- Template 2: Minimalista -->
+                            <label class="imagina-template-card <?php echo $selected_template === 'minimal' ? 'active' : ''; ?>">
+                                <input type="radio" name="il_login_template" value="minimal" <?php checked($selected_template, 'minimal'); ?>>
+                                <div class="template-preview">
+                                    <div class="template-mockup minimal-mockup">
+                                        <div class="mockup-logo-mini"></div>
+                                        <div class="mockup-form-centered">
+                                            <div class="mock-input"></div>
+                                            <div class="mock-input"></div>
+                                            <div class="mock-button"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="template-info">
+                                    <h3>✨ Centrado Minimalista</h3>
+                                    <p>Todo fluye en una columna. Perfecto para startups y blogs modernos.</p>
+                                </div>
+                                <span class="template-check">✓</span>
+                            </label>
+
+                            <!-- Template 3: Logo Superior -->
+                            <label class="imagina-template-card <?php echo $selected_template === 'top-logo' ? 'active' : ''; ?>">
+                                <input type="radio" name="il_login_template" value="top-logo" <?php checked($selected_template, 'top-logo'); ?>>
+                                <div class="template-preview">
+                                    <div class="template-mockup toplogo-mockup">
+                                        <div class="mockup-logo-top"></div>
+                                        <div class="mockup-form-centered">
+                                            <div class="mock-input"></div>
+                                            <div class="mock-input"></div>
+                                            <div class="mock-button"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="template-info">
+                                    <h3>🎯 Logo Superior</h3>
+                                    <p>Banner superior con logo. Excelente para e-commerce y portfolios.</p>
+                                </div>
+                                <span class="template-check">✓</span>
+                            </label>
+
+                            <!-- Template 4: Pantalla Dividida -->
+                            <label class="imagina-template-card <?php echo $selected_template === 'split' ? 'active' : ''; ?>">
+                                <input type="radio" name="il_login_template" value="split" <?php checked($selected_template, 'split'); ?>>
+                                <div class="template-preview">
+                                    <div class="template-mockup split-mockup">
+                                        <div class="mockup-left-big"></div>
+                                        <div class="mockup-right-small">
+                                            <div class="mock-input"></div>
+                                            <div class="mock-input"></div>
+                                            <div class="mock-button"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="template-info">
+                                    <h3>🎨 Pantalla Dividida</h3>
+                                    <p>Split 60/40 con efecto visual impactante. Para agencias creativas.</p>
+                                </div>
+                                <span class="template-check">✓</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
             <div class="imagina-sections">
                 <!-- Sección Fondo de Página -->
                 <div class="imagina-section">
@@ -1020,6 +1219,9 @@ function il_settings_page_html() {
             <h3><span class="dashicons dashicons-lightbulb"></span> Consejos útiles</h3>
             <div class="imagina-tips">
                 <div class="imagina-tip">
+                    <strong>🎭 Templates:</strong> Cada diseño se adapta automáticamente a móviles. Prueba varios antes de decidir.
+                </div>
+                <div class="imagina-tip">
                     <strong>🎨 Colores:</strong> Usa colores que combinen con tu marca para mantener consistencia visual.
                 </div>
                 <div class="imagina-tip">
@@ -1029,7 +1231,7 @@ function il_settings_page_html() {
                     <strong>🎬 Videos:</strong> Los videos se reproducen automáticamente sin sonido. Formato recomendado: MP4.
                 </div>
                 <div class="imagina-tip">
-                    <strong>📱 Móviles:</strong> Todos los fondos se adaptan automáticamente a dispositivos móviles.
+                    <strong>📱 Móviles:</strong> Todos los fondos y templates se adaptan automáticamente a dispositivos móviles.
                 </div>
                 <div class="imagina-tip">
                     <strong>✨ Transiciones:</strong> Las animaciones crean una secuencia: fondo (0.1s) → logo (0.3s) → formulario (0.5s).
@@ -1542,6 +1744,196 @@ function il_settings_page_html() {
         line-height: 1.5;
     }
 
+    /* *** ESTILOS PARA SELECTOR DE TEMPLATES *** */
+    .imagina-template-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin-top: 20px;
+    }
+
+    .imagina-template-card {
+        position: relative;
+        background: white;
+        border: 3px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        overflow: hidden;
+    }
+
+    .imagina-template-card:hover {
+        border-color: #d1d5db;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    .imagina-template-card.active {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+    }
+
+    .imagina-template-card input[type="radio"] {
+        display: none;
+    }
+
+    .template-preview {
+        background: #f3f4f6;
+        border-radius: 12px;
+        padding: 20px;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .template-mockup {
+        width: 100%;
+        max-width: 200px;
+        height: 130px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        display: grid;
+        overflow: hidden;
+    }
+
+    /* Mockup Clásico */
+    .classic-mockup {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .mockup-left {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .mockup-right {
+        padding: 15px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    /* Mockup Minimalista */
+    .minimal-mockup {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+
+    .mockup-logo-mini {
+        background: #f3f4f6;
+        height: 35px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mockup-form-centered {
+        padding: 12px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    /* Mockup Logo Superior */
+    .toplogo-mockup {
+        grid-template-columns: 1fr;
+        grid-template-rows: 45px 1fr;
+    }
+
+    .mockup-logo-top {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    /* Mockup Split */
+    .split-mockup {
+        grid-template-columns: 1.5fr 1fr;
+    }
+
+    .mockup-left-big {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .mockup-right-small {
+        padding: 12px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    /* Elementos del mockup */
+    .mock-input {
+        background: #e5e7eb;
+        height: 12px;
+        border-radius: 4px;
+    }
+
+    .mock-button {
+        background: #667eea;
+        height: 14px;
+        border-radius: 4px;
+        margin-top: 4px;
+    }
+
+    .template-info h3 {
+        margin: 0 0 8px 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .template-info p {
+        margin: 0;
+        font-size: 14px;
+        color: #6b7280;
+        line-height: 1.5;
+    }
+
+    .template-check {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 32px;
+        height: 32px;
+        background: #667eea;
+        color: white;
+        border-radius: 50%;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .imagina-template-card.active .template-check {
+        display: flex;
+        animation: checkPop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    @keyframes checkPop {
+        0% { transform: scale(0); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+    .imagina-template-section {
+        border: 2px solid #667eea;
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
         .imagina-header {
@@ -1580,6 +1972,10 @@ function il_settings_page_html() {
             grid-template-columns: 1fr;
         }
 
+        .imagina-template-grid {
+            grid-template-columns: 1fr;
+        }
+
         .imagina-actions {
             flex-direction: column;
             align-items: center;
@@ -1594,6 +1990,20 @@ function il_settings_page_html() {
     <script>
     // JavaScript para el panel moderno
     document.addEventListener('DOMContentLoaded', function() {
+        // Manejar selección de templates
+        const templateCards = document.querySelectorAll('.imagina-template-card');
+        templateCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remover clase active de todas las cards
+                templateCards.forEach(c => c.classList.remove('active'));
+                // Agregar clase active a la card seleccionada
+                this.classList.add('active');
+                // Marcar el radio button
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+            });
+        });
+
         // Manejar cambios en los radio buttons
         const radioButtons = document.querySelectorAll('input[type="radio"][name^="il_"]');
         radioButtons.forEach(radio => {

@@ -1,0 +1,174 @@
+/*
+ * Template: Pantalla Completa Dividida
+ * Descripción: Split screen 60/40 con logo ocupando más espacio, efecto visual impactante
+ * Ideal para: Agencias creativas, fotógrafos, portfolios artísticos
+ */
+
+body.login.template-split div#login {
+    width: min(90vw, 900px);
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+        "logo form"
+        "logo messages"
+        "links links";
+    min-height: 500px;
+}
+
+body.login.template-split div#login h1 {
+    grid-area: logo;
+    min-height: 500px;
+    padding: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.login.template-split div#login h1 a {
+    max-width: 280px;
+    max-height: 280px;
+    width: 70%;
+    height: 70%;
+}
+
+body.login.template-split div#login form#loginform,
+body.login.template-split div#login form#lostpasswordform,
+body.login.template-split div#login form#magicloginform {
+    grid-area: form;
+    padding: 50px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: white;
+}
+
+/* Mensajes se muestran junto al formulario */
+body.login.template-split .login p.message,
+body.login.template-split .login #login_error,
+body.login.template-split #login-message,
+body.login.template-split .notice.notice-info.message {
+    grid-area: messages;
+    background: white;
+    margin: 0;
+    padding: 16px 40px;
+}
+
+/* Magic Login - cambiar a una columna */
+body.login.template-split.login-action-checkemail div#login {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+        "logo"
+        "form"
+        "messages"
+        "links";
+    max-width: 500px;
+    min-height: auto;
+}
+
+body.login.template-split.login-action-checkemail div#login h1 {
+    min-height: 200px;
+    padding: 40px;
+}
+
+body.login.template-split.login-action-checkemail div#login h1 a {
+    max-width: 140px;
+    max-height: 140px;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    body.login.template-split div#login {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    body.login.template-split div#login h1 {
+        min-height: 450px;
+        padding: 40px;
+    }
+
+    body.login.template-split div#login h1 a {
+        max-width: 200px;
+        max-height: 200px;
+    }
+
+    body.login.template-split div#login form#loginform,
+    body.login.template-split div#login form#lostpasswordform,
+    body.login.template-split div#login form#magicloginform {
+        padding: 40px 30px;
+    }
+
+    body.login.template-split .login p.message,
+    body.login.template-split .login #login_error,
+    body.login.template-split #login-message,
+    body.login.template-split .notice.notice-info.message {
+        padding: 16px 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    body.login.template-split div#login {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "logo"
+            "form"
+            "messages"
+            "links";
+        width: 100%;
+        max-width: 450px;
+        min-height: auto;
+    }
+
+    body.login.template-split div#login h1 {
+        min-height: 200px;
+        padding: 30px 20px;
+    }
+
+    body.login.template-split div#login h1 a {
+        max-width: 160px;
+        max-height: 160px;
+    }
+
+    body.login.template-split div#login form#loginform,
+    body.login.template-split div#login form#lostpasswordform,
+    body.login.template-split div#login form#magicloginform {
+        padding: 35px 25px;
+    }
+
+    body.login.template-split .login p.message,
+    body.login.template-split .login #login_error,
+    body.login.template-split #login-message,
+    body.login.template-split .notice.notice-info.message {
+        padding: 16px 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    body.login.template-split div#login {
+        max-width: 100%;
+    }
+
+    body.login.template-split div#login h1 {
+        min-height: 150px;
+        padding: 25px 15px;
+    }
+
+    body.login.template-split div#login h1 a {
+        max-width: 130px;
+        max-height: 130px;
+    }
+
+    body.login.template-split div#login form#loginform,
+    body.login.template-split div#login form#lostpasswordform,
+    body.login.template-split div#login form#magicloginform {
+        padding: 25px 20px;
+    }
+
+    body.login.template-split .login p.message,
+    body.login.template-split .login #login_error,
+    body.login.template-split #login-message,
+    body.login.template-split .notice.notice-info.message {
+        padding: 14px 20px;
+    }
+}

@@ -1,0 +1,75 @@
+/*
+ * Template: Clásico Dos Columnas
+ * Descripción: Diseño clásico con logo a la izquierda y formulario a la derecha
+ * Ideal para: Empresas corporativas, sitios profesionales
+ */
+
+body.login.template-classic div#login {
+    width: min(90vw, 800px);
+    max-width: 800px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+        "logo form"
+        "messages messages"
+        "links links";
+    min-height: 400px;
+}
+
+body.login.template-classic div#login h1 {
+    grid-area: logo;
+    min-height: 350px;
+}
+
+body.login.template-classic div#login form#loginform,
+body.login.template-classic div#login form#lostpasswordform,
+body.login.template-classic div#login form#magicloginform {
+    grid-area: form;
+    padding: 40px 30px;
+}
+
+/* Magic Login y email check */
+body.login.template-classic.login-action-checkemail div#login {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+        "logo"
+        "form"
+        "messages"
+        "links";
+    max-width: 400px;
+}
+
+body.login.template-classic.login-action-checkemail div#login h1 {
+    min-height: 200px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body.login.template-classic div#login {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "logo"
+            "form"
+            "messages"
+            "links";
+        width: 100%;
+        max-width: 400px;
+    }
+
+    body.login.template-classic div#login h1 {
+        min-height: 180px;
+        padding: 20px;
+    }
+
+    body.login.template-classic div#login h1 a {
+        max-width: 150px;
+        max-height: 150px;
+    }
+
+    body.login.template-classic div#login form#loginform,
+    body.login.template-classic div#login form#lostpasswordform,
+    body.login.template-classic div#login form#magicloginform {
+        padding: 30px 20px;
+    }
+}

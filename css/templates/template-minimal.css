@@ -1,0 +1,81 @@
+/*
+ * Template: Centrado Minimalista
+ * Descripción: Diseño minimalista con todo centrado, logo arriba del formulario sin división visual
+ * Ideal para: Startups, blogs personales, sitios modernos
+ */
+
+body.login.template-minimal div#login {
+    width: min(90vw, 450px);
+    max-width: 450px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+        "logo"
+        "form"
+        "messages"
+        "links";
+    min-height: auto;
+}
+
+body.login.template-minimal div#login h1 {
+    grid-area: logo;
+    min-height: 200px;
+    background: transparent !important;
+    padding: 30px 20px 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+body.login.template-minimal div#login h1 a {
+    max-width: 120px;
+    max-height: 120px;
+}
+
+body.login.template-minimal div#login form#loginform,
+body.login.template-minimal div#login form#lostpasswordform,
+body.login.template-minimal div#login form#magicloginform {
+    grid-area: form;
+    padding: 40px 35px;
+    background: white;
+}
+
+/* Magic Login y email check - igual que el diseño normal */
+body.login.template-minimal.login-action-checkemail div#login h1 {
+    min-height: 180px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body.login.template-minimal div#login {
+        width: 100%;
+        max-width: 380px;
+    }
+
+    body.login.template-minimal div#login h1 {
+        min-height: 150px;
+        padding: 25px 15px 15px;
+    }
+
+    body.login.template-minimal div#login h1 a {
+        max-width: 100px;
+        max-height: 100px;
+    }
+
+    body.login.template-minimal div#login form#loginform,
+    body.login.template-minimal div#login form#lostpasswordform,
+    body.login.template-minimal div#login form#magicloginform {
+        padding: 30px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    body.login.template-minimal div#login {
+        max-width: 100%;
+    }
+
+    body.login.template-minimal div#login form#loginform,
+    body.login.template-minimal div#login form#lostpasswordform,
+    body.login.template-minimal div#login form#magicloginform {
+        padding: 20px 15px;
+    }
+}

@@ -1,0 +1,95 @@
+/*
+ * Template: Logo Superior
+ * Descripción: Logo en banner superior full-width con formulario centrado debajo
+ * Ideal para: E-commerce, portfolios, sitios con identidad visual fuerte
+ */
+
+body.login.template-top-logo div#login {
+    width: min(90vw, 500px);
+    max-width: 500px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+        "logo"
+        "form"
+        "messages"
+        "links";
+    min-height: auto;
+}
+
+body.login.template-top-logo div#login h1 {
+    grid-area: logo;
+    min-height: 180px;
+    width: 100%;
+    padding: 40px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.login.template-top-logo div#login h1 a {
+    max-width: 180px;
+    max-height: 120px;
+    width: 60%;
+}
+
+body.login.template-top-logo div#login form#loginform,
+body.login.template-top-logo div#login form#lostpasswordform,
+body.login.template-top-logo div#login form#magicloginform {
+    grid-area: form;
+    padding: 35px 40px 40px;
+    background: white;
+}
+
+/* Magic Login */
+body.login.template-top-logo.login-action-checkemail div#login h1 {
+    min-height: 150px;
+    padding: 30px 25px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body.login.template-top-logo div#login {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    body.login.template-top-logo div#login h1 {
+        min-height: 140px;
+        padding: 30px 20px;
+    }
+
+    body.login.template-top-logo div#login h1 a {
+        max-width: 140px;
+        max-height: 100px;
+    }
+
+    body.login.template-top-logo div#login form#loginform,
+    body.login.template-top-logo div#login form#lostpasswordform,
+    body.login.template-top-logo div#login form#magicloginform {
+        padding: 30px 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    body.login.template-top-logo div#login {
+        max-width: 100%;
+    }
+
+    body.login.template-top-logo div#login h1 {
+        min-height: 120px;
+        padding: 25px 15px;
+    }
+
+    body.login.template-top-logo div#login h1 a {
+        max-width: 120px;
+        max-height: 80px;
+    }
+
+    body.login.template-top-logo div#login form#loginform,
+    body.login.template-top-logo div#login form#lostpasswordform,
+    body.login.template-top-logo div#login form#magicloginform {
+        padding: 25px 20px;
+    }
+}
