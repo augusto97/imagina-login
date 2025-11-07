@@ -3,7 +3,7 @@
  * Plugin Name: Imagina Login
  * Plugin URI:  https://imaginawp.com
  * Description: Customized wp login with 9 professional templates and advanced background options
- * Version:     2.3.5
+ * Version:     2.3.6
  * Author:      IMAGINA WP
  * Author URI:  https://imaginawp.com/
  * License:     GPLv2 or later
@@ -58,7 +58,9 @@ function il_get_all_options() {
         'il_logo_gradient_type', 'il_logo_gradient_direction', 'il_logo_gradient_color1', 'il_logo_gradient_color2',
         'il_logo_overlay_color',
         'il_use_custom_colors', 'il_label_color', 'il_button_color', 'il_button_hover_color', 'il_link_color',
-        'il_enable_transitions', 'il_transition_type', 'il_transition_duration'
+        'il_enable_transitions', 'il_transition_type', 'il_transition_duration',
+        'il_logo_transition_duration', 'il_logo_transition_delay',
+        'il_form_transition_duration', 'il_form_transition_delay'
     ];
 
     // Valores por defecto
@@ -88,7 +90,11 @@ function il_get_all_options() {
         'il_link_color' => '#009bde',
         'il_enable_transitions' => true,
         'il_transition_type' => 'fade',
-        'il_transition_duration' => '0.5'
+        'il_transition_duration' => '0.5',
+        'il_logo_transition_duration' => '0.4',
+        'il_logo_transition_delay' => '0.05',
+        'il_form_transition_duration' => '0.4',
+        'il_form_transition_delay' => '0.15'
     ];
 
     // Obtener todas las opciones de una vez
@@ -127,7 +133,7 @@ function il_generate_gradient_css($type, $direction, $color1, $color2) {
  * Cache para los estilos dinámicos (OPTIMIZADO)
  */
 function il_get_cached_dynamic_styles() {
-    $cache_key = 'imagina_login_dynamic_styles_v8';
+    $cache_key = 'imagina_login_dynamic_styles_v9';
     $cached = get_transient($cache_key);
 
     if ($cached !== false) {
@@ -248,7 +254,7 @@ function il_generate_dynamic_styles() {
  * Limpiar cache cuando se guardan opciones - OPTIMIZADO CON BATCH CLEARING
  */
 function il_clear_styles_cache() {
-    delete_transient('imagina_login_dynamic_styles_v8');
+    delete_transient('imagina_login_dynamic_styles_v9');
     // Limpiar también el cache de opciones en memoria
     global $cached_options;
     $cached_options = null;
@@ -274,8 +280,8 @@ function il_inject_critical_styles() {
     echo '<style id="imagina-login-critical-css">' . $cached_styles['css'] . '</style>';
 
     // Preload del CSS principal
-    echo '<link rel="preload" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.5" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
-    echo '<noscript><link rel="stylesheet" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.5"></noscript>';
+    echo '<link rel="preload" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.6" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
+    echo '<noscript><link rel="stylesheet" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.6"></noscript>';
 
     // NO precargar imágenes para evitar que se vean antes de cargar todo
 }
@@ -294,7 +300,7 @@ function my_custom_login_assets() {
         'imagina-login',
         plugin_dir_url( __FILE__ ) . 'css/styles.css',
         array(),
-        '2.3.5'
+        '2.3.6'
     );
 
     // Cargar CSS del template seleccionado
@@ -335,7 +341,7 @@ function my_custom_login_assets() {
         'imagina-login-template',
         plugin_dir_url( __FILE__ ) . 'css/templates/' . $template_file,
         array('imagina-login'),
-        '2.3.5'
+        '2.3.6'
     );
 
     // Agregar clase del template al body y clase de transiciones
@@ -390,6 +396,10 @@ function my_custom_login_assets() {
     $enable_transitions = $opts['il_enable_transitions'];
     $transition_type = $opts['il_transition_type'];
     $transition_duration = $opts['il_transition_duration'];
+    $logo_duration = $opts['il_logo_transition_duration'];
+    $logo_delay = $opts['il_logo_transition_delay'];
+    $form_duration = $opts['il_form_transition_duration'];
+    $form_delay = $opts['il_form_transition_delay'];
 
     // --- SVGs para los iconos (URL-encoded) ---
     $svg_eye_visible = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'%3E%3C/path%3E%3Ccircle cx='12' cy='12' r='3'%3E%3C/circle%3E%3C/svg%3E";
@@ -407,6 +417,10 @@ function my_custom_login_assets() {
             --svg-eye-hidden: url(\"" . $svg_eye_hidden . "\");
             --fallback-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
             --transition-duration: " . esc_attr($transition_duration) . "s;
+            --logo-duration: " . esc_attr($logo_duration) . "s;
+            --logo-delay: " . esc_attr($logo_delay) . "s;
+            --form-duration: " . esc_attr($form_duration) . "s;
+            --form-delay: " . esc_attr($form_delay) . "s;
         }
         
         /* Aplicar colores personalizados */
@@ -485,8 +499,8 @@ function my_custom_login_assets() {
                     body.login div#login h1 {
                         opacity: 0;
                         transform: translateY(20px) scale(0.95);
-                        transition: opacity calc(var(--transition-duration) * 0.8) cubic-bezier(0.4, 0, 0.2, 1),
-                                    transform calc(var(--transition-duration) * 0.8) cubic-bezier(0.34, 1.56, 0.64, 1);
+                        transition: opacity var(--logo-duration) cubic-bezier(0.4, 0, 0.2, 1) var(--logo-delay),
+                                    transform var(--logo-duration) cubic-bezier(0.34, 1.56, 0.64, 1) var(--logo-delay);
                     }
 
                     body.login.logo-loaded div#login h1 {
@@ -498,8 +512,8 @@ function my_custom_login_assets() {
                     body.login div#login form {
                         opacity: 0;
                         transform: translateX(20px);
-                        transition: opacity calc(var(--transition-duration) * 0.8) cubic-bezier(0.4, 0, 0.2, 1) 0.15s,
-                                    transform calc(var(--transition-duration) * 0.8) cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s;
+                        transition: opacity var(--form-duration) cubic-bezier(0.4, 0, 0.2, 1) var(--form-delay),
+                                    transform var(--form-duration) cubic-bezier(0.34, 1.56, 0.64, 1) var(--form-delay);
                     }
 
                     body.login.form-loaded div#login form {
@@ -543,8 +557,8 @@ function my_custom_login_assets() {
                     body.login div#login h1 {
                         opacity: 0;
                         transform: translateY(-60px);
-                        transition: opacity calc(var(--transition-duration) * 0.9) cubic-bezier(0.4, 0, 0.2, 1),
-                                    transform calc(var(--transition-duration) * 0.9) cubic-bezier(0.34, 1.56, 0.64, 1);
+                        transition: opacity var(--logo-duration) cubic-bezier(0.4, 0, 0.2, 1) var(--logo-delay),
+                                    transform var(--logo-duration) cubic-bezier(0.34, 1.56, 0.64, 1) var(--logo-delay);
                     }
 
                     body.login.logo-loaded div#login h1 {
@@ -556,8 +570,8 @@ function my_custom_login_assets() {
                     body.login div#login form {
                         opacity: 0;
                         transform: translateY(-40px);
-                        transition: opacity calc(var(--transition-duration) * 0.9) cubic-bezier(0.4, 0, 0.2, 1) 0.12s,
-                                    transform calc(var(--transition-duration) * 0.9) cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s;
+                        transition: opacity var(--form-duration) cubic-bezier(0.4, 0, 0.2, 1) var(--form-delay),
+                                    transform var(--form-duration) cubic-bezier(0.34, 1.56, 0.64, 1) var(--form-delay);
                     }
 
                     body.login.form-loaded div#login form {
@@ -601,8 +615,8 @@ function my_custom_login_assets() {
                     body.login div#login h1 {
                         opacity: 0;
                         transform: scale(0.85);
-                        transition: opacity calc(var(--transition-duration) * 0.85) cubic-bezier(0.4, 0, 0.2, 1),
-                                    transform calc(var(--transition-duration) * 0.85) cubic-bezier(0.34, 1.56, 0.64, 1);
+                        transition: opacity var(--logo-duration) cubic-bezier(0.4, 0, 0.2, 1) var(--logo-delay),
+                                    transform var(--logo-duration) cubic-bezier(0.34, 1.56, 0.64, 1) var(--logo-delay);
                     }
 
                     body.login.logo-loaded div#login h1 {
@@ -614,8 +628,8 @@ function my_custom_login_assets() {
                     body.login div#login form {
                         opacity: 0;
                         transform: scale(0.92);
-                        transition: opacity calc(var(--transition-duration) * 0.85) cubic-bezier(0.4, 0, 0.2, 1) 0.1s,
-                                    transform calc(var(--transition-duration) * 0.85) cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s;
+                        transition: opacity var(--form-duration) cubic-bezier(0.4, 0, 0.2, 1) var(--form-delay),
+                                    transform var(--form-duration) cubic-bezier(0.34, 1.56, 0.64, 1) var(--form-delay);
                     }
 
                     body.login.form-loaded div#login form {
@@ -784,11 +798,11 @@ function my_custom_login_assets() {
             console.log('🔌 MutationObserver desconectado (optimización de performance)');
         }, 3000);
 
-        console.log('🎉 Imagina Login v2.3.5 inicializado completamente');
+        console.log('🎉 Imagina Login v2.3.6 inicializado completamente');
     });
     ";
 
-    wp_register_script('imagina-login-toggle', '', array('jquery'), '2.3.5', true);
+    wp_register_script('imagina-login-toggle', '', array('jquery'), '2.3.6', true);
     wp_enqueue_script('imagina-login-toggle');
     wp_add_inline_script('imagina-login-toggle', $script);
 }
@@ -931,6 +945,10 @@ function il_register_settings() {
     register_setting('imagina_login_options', 'il_enable_transitions', ['type' => 'boolean', 'default' => true]);
     register_setting('imagina_login_options', 'il_transition_type', ['type' => 'string', 'default' => 'fade']);
     register_setting('imagina_login_options', 'il_transition_duration', ['type' => 'string', 'default' => '0.5']);
+    register_setting('imagina_login_options', 'il_logo_transition_duration', ['type' => 'string', 'default' => '0.4']);
+    register_setting('imagina_login_options', 'il_logo_transition_delay', ['type' => 'string', 'default' => '0.05']);
+    register_setting('imagina_login_options', 'il_form_transition_duration', ['type' => 'string', 'default' => '0.4']);
+    register_setting('imagina_login_options', 'il_form_transition_delay', ['type' => 'string', 'default' => '0.15']);
 
     // Secciones
     add_settings_section('il_template_section', 'Diseño del Login', null, 'imagina-login-settings');
@@ -2758,7 +2776,11 @@ function il_render_color_controls() {
 function il_render_transition_controls() {
     $transition_type = get_option('il_transition_type', 'fade');
     $transition_duration = get_option('il_transition_duration', '0.5');
-    
+    $logo_duration = get_option('il_logo_transition_duration', '0.4');
+    $logo_delay = get_option('il_logo_transition_delay', '0.05');
+    $form_duration = get_option('il_form_transition_duration', '0.4');
+    $form_delay = get_option('il_form_transition_delay', '0.15');
+
     echo '<div class="imagina-transition-grid">
         <div class="imagina-control-group">
             <label class="imagina-control-label">
@@ -2771,26 +2793,99 @@ function il_render_transition_controls() {
                 <option value="zoom"' . selected($transition_type, 'zoom', false) . '>🔍 Zoom suave</option>
             </select>
             <p style="margin: 8px 0 0 0; font-size: 12px; color: #6b7280;">
-                Controla cómo aparecen el fondo, logo y formulario en secuencia
+                Controla cómo aparecen el fondo, logo y formulario
             </p>
         </div>
-        
-        <div class="imagina-control-group">
-            <label class="imagina-control-label">
-                <span class="dashicons dashicons-clock"></span>
-                Duración de la transición
-            </label>
-            <div class="imagina-slider-container">
-                <input type="range" name="il_transition_duration" 
-                       class="imagina-slider" 
-                       min="0.1" max="2.0" step="0.1" 
-                       value="' . esc_attr($transition_duration) . '"
-                       oninput="updateDurationDisplay(this)">
-                <span class="imagina-slider-value">' . esc_html($transition_duration) . 's</span>
+    </div>
+
+    <!-- Controles separados para Logo y Formulario -->
+    <div style="margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <!-- Controles del Logo -->
+        <div style="padding: 20px; background: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb;">
+            <h4 style="margin: 0 0 15px 0; color: #374151; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-admin-appearance" style="color: #667eea;"></span>
+                🏢 Animación del Logo
+            </h4>
+
+            <div class="imagina-control-group" style="margin-bottom: 15px;">
+                <label class="imagina-control-label">
+                    <span class="dashicons dashicons-clock"></span>
+                    Velocidad
+                </label>
+                <div class="imagina-slider-container">
+                    <input type="range" name="il_logo_transition_duration"
+                           class="imagina-slider"
+                           min="0.1" max="1.5" step="0.05"
+                           value="' . esc_attr($logo_duration) . '"
+                           oninput="updateDurationDisplay(this)">
+                    <span class="imagina-slider-value">' . esc_html($logo_duration) . 's</span>
+                </div>
+                <p style="margin: 5px 0 0 0; font-size: 11px; color: #6b7280;">
+                    Duración de la animación (0.1 - 1.5s)
+                </p>
             </div>
-            <p style="margin: 8px 0 0 0; font-size: 12px; color: #6b7280;">
-                Tiempo base para cada elemento (0.1 - 2.0 segundos)
-            </p>
+
+            <div class="imagina-control-group">
+                <label class="imagina-control-label">
+                    <span class="dashicons dashicons-backup"></span>
+                    Delay (Retraso)
+                </label>
+                <div class="imagina-slider-container">
+                    <input type="range" name="il_logo_transition_delay"
+                           class="imagina-slider"
+                           min="0" max="1.0" step="0.05"
+                           value="' . esc_attr($logo_delay) . '"
+                           oninput="updateDurationDisplay(this)">
+                    <span class="imagina-slider-value">' . esc_html($logo_delay) . 's</span>
+                </div>
+                <p style="margin: 5px 0 0 0; font-size: 11px; color: #6b7280;">
+                    Tiempo antes de iniciar (0 - 1.0s)
+                </p>
+            </div>
+        </div>
+
+        <!-- Controles del Formulario -->
+        <div style="padding: 20px; background: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb;">
+            <h4 style="margin: 0 0 15px 0; color: #374151; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-feedback" style="color: #10b981;"></span>
+                📝 Animación del Formulario
+            </h4>
+
+            <div class="imagina-control-group" style="margin-bottom: 15px;">
+                <label class="imagina-control-label">
+                    <span class="dashicons dashicons-clock"></span>
+                    Velocidad
+                </label>
+                <div class="imagina-slider-container">
+                    <input type="range" name="il_form_transition_duration"
+                           class="imagina-slider"
+                           min="0.1" max="1.5" step="0.05"
+                           value="' . esc_attr($form_duration) . '"
+                           oninput="updateDurationDisplay(this)">
+                    <span class="imagina-slider-value">' . esc_html($form_duration) . 's</span>
+                </div>
+                <p style="margin: 5px 0 0 0; font-size: 11px; color: #6b7280;">
+                    Duración de la animación (0.1 - 1.5s)
+                </p>
+            </div>
+
+            <div class="imagina-control-group">
+                <label class="imagina-control-label">
+                    <span class="dashicons dashicons-backup"></span>
+                    Delay (Retraso)
+                </label>
+                <div class="imagina-slider-container">
+                    <input type="range" name="il_form_transition_delay"
+                           class="imagina-slider"
+                           min="0" max="1.0" step="0.05"
+                           value="' . esc_attr($form_delay) . '"
+                           oninput="updateDurationDisplay(this)">
+                    <span class="imagina-slider-value">' . esc_html($form_delay) . 's</span>
+                </div>
+                <p style="margin: 5px 0 0 0; font-size: 11px; color: #6b7280;">
+                    Tiempo antes de iniciar (0 - 1.0s)
+                </p>
+            </div>
         </div>
     </div>
     
