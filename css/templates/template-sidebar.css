@@ -39,9 +39,6 @@ body.login.template-sidebar div#login h1 {
     min-height: auto;
     padding: 60px 40px 30px;
     background: var(--logo-background-fallback, #f9f9f9);
-    background-size: cover !important;
-    background-position: center center !important;
-    background-repeat: no-repeat !important;
     border-bottom: 1px solid #e3e8ee;
 }
 
