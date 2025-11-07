@@ -3,7 +3,7 @@
  * Plugin Name: Imagina Login
  * Plugin URI:  https://imaginawp.com
  * Description: Customized wp login with 9 professional templates and advanced background options
- * Version:     2.3.4
+ * Version:     2.3.5
  * Author:      IMAGINA WP
  * Author URI:  https://imaginawp.com/
  * License:     GPLv2 or later
@@ -127,7 +127,7 @@ function il_generate_gradient_css($type, $direction, $color1, $color2) {
  * Cache para los estilos dinámicos (OPTIMIZADO)
  */
 function il_get_cached_dynamic_styles() {
-    $cache_key = 'imagina_login_dynamic_styles_v7';
+    $cache_key = 'imagina_login_dynamic_styles_v8';
     $cached = get_transient($cache_key);
 
     if ($cached !== false) {
@@ -248,7 +248,7 @@ function il_generate_dynamic_styles() {
  * Limpiar cache cuando se guardan opciones - OPTIMIZADO CON BATCH CLEARING
  */
 function il_clear_styles_cache() {
-    delete_transient('imagina_login_dynamic_styles_v7');
+    delete_transient('imagina_login_dynamic_styles_v8');
     // Limpiar también el cache de opciones en memoria
     global $cached_options;
     $cached_options = null;
@@ -274,8 +274,8 @@ function il_inject_critical_styles() {
     echo '<style id="imagina-login-critical-css">' . $cached_styles['css'] . '</style>';
 
     // Preload del CSS principal
-    echo '<link rel="preload" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.4" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
-    echo '<noscript><link rel="stylesheet" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.4"></noscript>';
+    echo '<link rel="preload" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.5" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
+    echo '<noscript><link rel="stylesheet" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.5"></noscript>';
 
     // NO precargar imágenes para evitar que se vean antes de cargar todo
 }
@@ -294,7 +294,7 @@ function my_custom_login_assets() {
         'imagina-login',
         plugin_dir_url( __FILE__ ) . 'css/styles.css',
         array(),
-        '2.3.4'
+        '2.3.5'
     );
 
     // Cargar CSS del template seleccionado
@@ -335,7 +335,7 @@ function my_custom_login_assets() {
         'imagina-login-template',
         plugin_dir_url( __FILE__ ) . 'css/templates/' . $template_file,
         array('imagina-login'),
-        '2.3.4'
+        '2.3.5'
     );
 
     // Agregar clase del template al body y clase de transiciones
@@ -481,12 +481,12 @@ function my_custom_login_assets() {
                         opacity: 1;
                     }
 
-                    /* Transición del logo con delay */
+                    /* Transición del logo - aparece primero con movimiento sutil */
                     body.login div#login h1 {
                         opacity: 0;
-                        transform: translateY(30px) scale(0.9);
-                        transition: all var(--transition-duration) ease-out;
-                        transition-delay: 0.2s;
+                        transform: translateY(20px) scale(0.95);
+                        transition: opacity calc(var(--transition-duration) * 0.8) cubic-bezier(0.4, 0, 0.2, 1),
+                                    transform calc(var(--transition-duration) * 0.8) cubic-bezier(0.34, 1.56, 0.64, 1);
                     }
 
                     body.login.logo-loaded div#login h1 {
@@ -494,12 +494,12 @@ function my_custom_login_assets() {
                         transform: translateY(0) scale(1);
                     }
 
-                    /* Transición del formulario con más delay */
+                    /* Transición del formulario - aparece después con slide suave */
                     body.login div#login form {
                         opacity: 0;
-                        transform: translateX(30px);
-                        transition: all var(--transition-duration) ease-out;
-                        transition-delay: 0.4s;
+                        transform: translateX(20px);
+                        transition: opacity calc(var(--transition-duration) * 0.8) cubic-bezier(0.4, 0, 0.2, 1) 0.15s,
+                                    transform calc(var(--transition-duration) * 0.8) cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s;
                     }
 
                     body.login.form-loaded div#login form {
@@ -539,28 +539,30 @@ function my_custom_login_assets() {
                         opacity: 1;
                     }
 
-                    /* Transición del logo deslizando desde arriba */
+                    /* Transición del logo deslizando desde arriba - más natural */
                     body.login div#login h1 {
-                        transform: translateY(-100%);
-                        transition: transform var(--transition-duration) ease-out;
-                        transition-delay: 0.2s;
+                        opacity: 0;
+                        transform: translateY(-60px);
+                        transition: opacity calc(var(--transition-duration) * 0.9) cubic-bezier(0.4, 0, 0.2, 1),
+                                    transform calc(var(--transition-duration) * 0.9) cubic-bezier(0.34, 1.56, 0.64, 1);
                     }
 
                     body.login.logo-loaded div#login h1 {
+                        opacity: 1;
                         transform: translateY(0);
                     }
 
-                    /* Transición del formulario */
+                    /* Transición del formulario deslizando desde arriba - sincronizado */
                     body.login div#login form {
-                        transform: translateY(-50px);
                         opacity: 0;
-                        transition: all var(--transition-duration) ease-out;
-                        transition-delay: 0.4s;
+                        transform: translateY(-40px);
+                        transition: opacity calc(var(--transition-duration) * 0.9) cubic-bezier(0.4, 0, 0.2, 1) 0.12s,
+                                    transform calc(var(--transition-duration) * 0.9) cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s;
                     }
 
                     body.login.form-loaded div#login form {
-                        transform: translateY(0);
                         opacity: 1;
+                        transform: translateY(0);
                     }
                 ";
                 break;
@@ -595,30 +597,30 @@ function my_custom_login_assets() {
                         opacity: 1;
                     }
 
-                    /* Transición del logo con zoom */
+                    /* Transición del logo con zoom - más sutil y suave */
                     body.login div#login h1 {
-                        transform: scale(0.7);
                         opacity: 0;
-                        transition: all var(--transition-duration) ease-out;
-                        transition-delay: 0.2s;
+                        transform: scale(0.85);
+                        transition: opacity calc(var(--transition-duration) * 0.85) cubic-bezier(0.4, 0, 0.2, 1),
+                                    transform calc(var(--transition-duration) * 0.85) cubic-bezier(0.34, 1.56, 0.64, 1);
                     }
 
                     body.login.logo-loaded div#login h1 {
-                        transform: scale(1);
                         opacity: 1;
+                        transform: scale(1);
                     }
 
-                    /* Transición del formulario con zoom */
+                    /* Transición del formulario con zoom - sincronizado */
                     body.login div#login form {
-                        transform: scale(0.9);
                         opacity: 0;
-                        transition: all var(--transition-duration) ease-out;
-                        transition-delay: 0.4s;
+                        transform: scale(0.92);
+                        transition: opacity calc(var(--transition-duration) * 0.85) cubic-bezier(0.4, 0, 0.2, 1) 0.1s,
+                                    transform calc(var(--transition-duration) * 0.85) cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s;
                     }
 
                     body.login.form-loaded div#login form {
-                        transform: scale(1);
                         opacity: 1;
+                        transform: scale(1);
                     }
                 ";
                 break;
@@ -664,18 +666,12 @@ function my_custom_login_assets() {
         if (enableTransitions) {
             console.log('✨ Iniciando transiciones suaves...');
 
-            // Fondo ya está visible inmediatamente (::after con opacity: 1)
-            // Animar logo con delay de 200ms
+            // Fondo ya visible (::after opacity: 1)
+            // Activar ambas animaciones casi inmediatamente - el CSS maneja los delays internos
             setTimeout(function() {
-                document.body.classList.add('logo-loaded');
-                console.log('🏢 Logo animado');
-            }, 100);
-
-            // Animar formulario con delay de 400ms
-            setTimeout(function() {
-                document.body.classList.add('form-loaded');
-                console.log('📝 Formulario animado');
-            }, 300);
+                document.body.classList.add('logo-loaded', 'form-loaded');
+                console.log('🎨 Animaciones activadas');
+            }, 50);
 
             // Aplicar transición a videos si existen
             const video = document.querySelector('#login-background-video');
@@ -788,11 +784,11 @@ function my_custom_login_assets() {
             console.log('🔌 MutationObserver desconectado (optimización de performance)');
         }, 3000);
 
-        console.log('🎉 Imagina Login v2.3.4 inicializado completamente');
+        console.log('🎉 Imagina Login v2.3.5 inicializado completamente');
     });
     ";
 
-    wp_register_script('imagina-login-toggle', '', array('jquery'), '2.3.4', true);
+    wp_register_script('imagina-login-toggle', '', array('jquery'), '2.3.5', true);
     wp_enqueue_script('imagina-login-toggle');
     wp_add_inline_script('imagina-login-toggle', $script);
 }

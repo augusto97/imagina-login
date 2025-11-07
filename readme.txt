@@ -3,7 +3,7 @@ Contributors: augusto97
 Tags: login, custom login, login page, login background, login logo, login templates, fullscreen login, sidebar login
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 2.3.4
+Stable tag: 2.3.5
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,17 @@ Sí, el plugin funciona correctamente en instalaciones de WordPress Multisite.
 5.  Ejemplo del selector de contraseña visible/oculto.
 
 == Changelog ==
+
+= 2.3.5 =
+* 🎬 **MEJORA MAYOR:** Transiciones completamente reoptimizadas con timings naturales
+* ✨ **NUEVO:** Curvas de animación cubic-bezier para movimientos más fluidos y profesionales
+* ⏱️ **OPTIMIZACIÓN:** Delays reducidos y sincronizados (150ms, 120ms, 100ms según tipo)
+* 🎯 **MEJORA:** Movimientos más sutiles (20px en lugar de 30px, scale 0.95 en lugar de 0.9)
+* 🎨 **MEJORA:** Duración de animaciones ajustada (80-90% de la duración base)
+* 🎭 **MEJORA:** Efecto "bounce" sutil en animaciones con cubic-bezier(0.34, 1.56, 0.64, 1)
+* ⚡ **PERFORMANCE:** Activación simultánea de animaciones a los 50ms (delays en CSS)
+* 📦 **CÓDIGO:** Cache key actualizado a v8 para regeneración de estilos
+* 📦 **ACTUALIZADO:** Versión del plugin a 2.3.5
 
 = 2.3.4 =
 * ✨ **MEJORA:** Restauradas animaciones individuales del logo y formulario con delays
