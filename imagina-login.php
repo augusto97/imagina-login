@@ -671,20 +671,15 @@ function my_custom_login_assets() {
     // JavaScript MEJORADO con transiciones del logo CORREGIDAS
     $script = "
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('🔧 Iniciando Imagina Login v2.2.2...');
-        
         // *** SISTEMA DE TRANSICIONES OPTIMIZADO ***
         const enableTransitions = " . ($enable_transitions ? 'true' : 'false') . ";
         const transitionDuration = " . floatval($transition_duration) . " * 1000;
 
         if (enableTransitions) {
-            console.log('✨ Iniciando transiciones suaves...');
-
             // Fondo ya visible (::after opacity: 1)
             // Activar ambas animaciones casi inmediatamente - el CSS maneja los delays internos
             setTimeout(function() {
                 document.body.classList.add('logo-loaded', 'form-loaded');
-                console.log('🎨 Animaciones activadas');
             }, 50);
 
             // Aplicar transición a videos si existen
@@ -692,7 +687,6 @@ function my_custom_login_assets() {
             if (video) {
                 video.addEventListener('loadeddata', function() {
                     video.classList.add('loaded');
-                    console.log('🎬 Video cargado con transición');
                 });
 
                 video.addEventListener('canplay', function() {
@@ -702,13 +696,11 @@ function my_custom_login_assets() {
         } else {
             // Si las transiciones están desactivadas, mostrar todo inmediatamente
             document.body.classList.add('logo-loaded', 'form-loaded');
-            console.log('⚡ Transiciones desactivadas - mostrando todo inmediatamente');
         }
-        
+
         // *** TOGGLE DE CONTRASEÑA (mantener funcional) ***
         function initPasswordToggle() {
             const passwordInputs = document.querySelectorAll('input[type=\"password\"]');
-            console.log('👀 Campos de contraseña encontrados:', passwordInputs.length);
             
             passwordInputs.forEach(function(passwordInput, index) {
                 const wrapper = passwordInput.closest('.wp-pwd') || passwordInput.closest('p');
@@ -767,8 +759,6 @@ function my_custom_login_assets() {
             if (rememberCheckbox) {
                 rememberCheckbox.setAttribute('aria-describedby', 'remember-description');
             }
-            
-            console.log('✅ Toggle de contraseña inicializado');
         }
 
         initPasswordToggle();
@@ -795,10 +785,7 @@ function my_custom_login_assets() {
         // Auto-disconnect después de 3 segundos para evitar consumo innecesario de recursos
         setTimeout(function() {
             observer.disconnect();
-            console.log('🔌 MutationObserver desconectado (optimización de performance)');
         }, 3000);
-
-        console.log('🎉 Imagina Login v2.3.6 inicializado completamente');
     });
     ";
 

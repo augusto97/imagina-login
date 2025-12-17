@@ -22,8 +22,6 @@ jQuery(document).ready(function($) {
 
     // Función CORREGIDA para actualizar previews de gradientes
     function updateGradientPreviews() {
-        console.log('🎨 Actualizando previews de gradientes...');
-        
         // Preview del body
         const bodyType = $('select[name="il_body_gradient_type"]').val();
         const bodyDirection = $('select[name="il_body_gradient_direction"]').val();
@@ -35,7 +33,6 @@ jQuery(document).ready(function($) {
             const bodyPreview = $('.imagina-option-panel[data-type="gradient"][data-target="body"] .imagina-gradient-preview');
             if (bodyPreview.length) {
                 bodyPreview.css('background', bodyGradientCSS);
-                console.log('✅ Preview del body actualizado:', bodyGradientCSS);
             }
         }
         
@@ -50,7 +47,6 @@ jQuery(document).ready(function($) {
             const logoPreview = $('.imagina-option-panel[data-type="gradient"][data-target="logo"] .imagina-gradient-preview');
             if (logoPreview.length) {
                 logoPreview.css('background', logoGradientCSS);
-                console.log('✅ Preview del logo actualizado:', logoGradientCSS);
             }
         }
     }
@@ -386,12 +382,8 @@ jQuery(document).ready(function($) {
                 updateGradientPreviews();
             }, 100);
         });
-        
-        console.log('🎛️ Monitoreando cambios en el panel...');
     }
-    
+
     // Inicializar monitoreo
     monitorPanelChanges();
-    
-    console.log('✅ Media Uploader inicializado correctamente');
 });
