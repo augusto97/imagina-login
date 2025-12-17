@@ -388,12 +388,6 @@ body.login div#login form input[type=password] {
 }
 /* === FIN ESTILOS ICONO CONTRASEÑA (SVG) === */
 
-/* === Ocultar aviso Caps Lock de extensiones del navegador === */
-.login .caps-warning,
-.login #caps-warning {
-    display: none !important;
-}
-
 /* Mensajes y Errores */
 .login p.message,
 .login #login_error, 
@@ -592,3 +586,22 @@ body.login div#login form .button-primary {
     will-change: auto;
 }
 /* --- FIN ESTILOS RESPONSIVE --- */
+
+/* === Ocultar aviso Caps Lock inyectado por extensiones del navegador === */
+body.login .caps-warning,
+body.login #caps-warning,
+body.login div#login .caps-warning,
+body.login div#login #caps-warning,
+body.login div#login form .caps-warning,
+body.login div#login form #caps-warning,
+.caps-warning,
+#caps-warning {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    pointer-events: none !important;
+}
