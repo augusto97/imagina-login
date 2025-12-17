@@ -671,6 +671,23 @@ function my_custom_login_assets() {
     // JavaScript MEJORADO con transiciones del logo CORREGIDAS
     $script = "
     document.addEventListener('DOMContentLoaded', function() {
+        // *** OCULTAR CAPS-WARNING DE EXTENSIONES DEL NAVEGADOR ***
+        function hideCapsWarning() {
+            var capsElements = document.querySelectorAll('.caps-warning, #caps-warning');
+            capsElements.forEach(function(el) {
+                el.style.cssText = 'display:none!important;visibility:hidden!important;height:0!important;width:0!important;overflow:hidden!important;position:absolute!important;';
+            });
+        }
+
+        // Ejecutar inmediatamente y observar cambios
+        hideCapsWarning();
+
+        var capsObserver = new MutationObserver(function(mutations) {
+            hideCapsWarning();
+        });
+
+        capsObserver.observe(document.body, { childList: true, subtree: true });
+
         // *** SISTEMA DE TRANSICIONES OPTIMIZADO ***
         const enableTransitions = " . ($enable_transitions ? 'true' : 'false') . ";
         const transitionDuration = " . floatval($transition_duration) . " * 1000;
