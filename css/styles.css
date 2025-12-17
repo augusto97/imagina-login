@@ -388,6 +388,44 @@ body.login div#login form input[type=password] {
 }
 /* === FIN ESTILOS ICONO CONTRASEÑA (SVG) === */
 
+/* === ESTILOS AVISO CAPS LOCK === */
+.login .caps-warning,
+.login #caps-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    margin-top: 8px;
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #856404;
+    line-height: 1.4;
+}
+
+.login .caps-warning .caps-icon,
+.login #caps-warning .caps-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login .caps-warning .caps-icon svg,
+.login #caps-warning .caps-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: #856404;
+    stroke: #856404;
+}
+
+.login .caps-warning .caps-warning-text,
+.login #caps-warning .caps-warning-text {
+    flex: 1;
+}
+/* === FIN ESTILOS AVISO CAPS LOCK === */
+
 /* Mensajes y Errores */
 .login p.message,
 .login #login_error, 
