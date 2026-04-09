@@ -51,8 +51,8 @@ body.login.template-boxed div#login h1::before {
 }
 
 body.login.template-boxed div#login h1 a {
-    max-width: var(--logo-max-size, 100px);
-    max-height: var(--logo-max-size, 100px);
+    max-width: 100px;
+    max-height: 100px;
     position: relative;
     z-index: 2;
     filter: brightness(1.1) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));

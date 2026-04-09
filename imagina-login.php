@@ -447,7 +447,6 @@ function my_custom_login_assets() {
             --button-hover-color: " . esc_attr($button_hover_color) . ";
             --link-color: " . esc_attr($link_color) . ";
             --logo-url: url('" . esc_url($logo_url) . "');
-            --logo-max-size: " . intval($logo_max_size) . "px;
             --svg-eye-visible: url(\"" . $svg_eye_visible . "\");
             --svg-eye-hidden: url(\"" . $svg_eye_hidden . "\");
             --fallback-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
@@ -493,19 +492,24 @@ function my_custom_login_assets() {
             border-color: var(--primary-color) !important;
         }
 
-        /* Forzar tamaño del logo */
+        /* Forzar tamaño del logo solo si el usuario lo configuró */
+        " . (intval($logo_max_size) !== 200 ? "
         body.login div#login h1 a {
-            width: " . intval($logo_max_size) . "px !important;
-            height: " . intval($logo_max_size) . "px !important;
             max-width: " . intval($logo_max_size) . "px !important;
             max-height: " . intval($logo_max_size) . "px !important;
-        }
+        }" : "") . "
 
-        /* Altura del área del logo */
+        /* Altura del área del logo solo si se configuró */
+        " . (intval($logo_area_height) > 0 ? "
         body.login div#login h1 {
-            " . (intval($logo_area_height) > 0 ? "min-height: " . intval($logo_area_height) . "px !important;" : "min-height: auto !important;") . "
-            " . (!empty($logo_area_border_color) ? "border-bottom: 1px solid " . esc_attr($logo_area_border_color) . " !important;" : "border-bottom: none !important;") . "
-        }
+            min-height: " . intval($logo_area_height) . "px !important;
+        }" : "") . "
+
+        /* Borde del área del logo solo si se configuró */
+        " . (!empty($logo_area_border_color) ? "
+        body.login div#login h1 {
+            border-bottom: 1px solid " . esc_attr($logo_area_border_color) . " !important;
+        }" : "") . "
     ";
 
     // *** CSS DE TRANSICIONES CORREGIDO CON TRANSICIÓN DEL LOGO ***
