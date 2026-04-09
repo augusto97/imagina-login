@@ -62,6 +62,7 @@ function il_get_all_options($reset = false) {
         'il_logo_bg_type', 'il_logo_bg_color', 'il_logo_background_image',
         'il_logo_gradient_type', 'il_logo_gradient_direction', 'il_logo_gradient_color1', 'il_logo_gradient_color2',
         'il_logo_overlay_color', 'il_logo_max_size', 'il_custom_logo',
+        'il_logo_area_height', 'il_logo_area_border_color',
         'il_use_custom_colors', 'il_label_color', 'il_button_color', 'il_button_hover_color', 'il_link_color',
         'il_enable_transitions', 'il_transition_type', 'il_transition_duration',
         'il_logo_transition_duration', 'il_logo_transition_delay',
@@ -90,6 +91,8 @@ function il_get_all_options($reset = false) {
         'il_logo_overlay_color' => 'transparent',
         'il_logo_max_size' => '200',
         'il_custom_logo' => '',
+        'il_logo_area_height' => '0',
+        'il_logo_area_border_color' => '',
         'il_use_custom_colors' => false,
         'il_label_color' => '#009bde',
         'il_button_color' => '#009bde',
@@ -420,6 +423,8 @@ function my_custom_login_assets() {
 
     // *** TAMAÑO DEL LOGO ***
     $logo_max_size = $opts['il_logo_max_size'];
+    $logo_area_height = $opts['il_logo_area_height'];
+    $logo_area_border_color = $opts['il_logo_area_border_color'];
 
     // *** CONFIGURACIÓN DE TRANSICIONES ***
     $enable_transitions = $opts['il_enable_transitions'];
@@ -494,6 +499,12 @@ function my_custom_login_assets() {
             height: " . intval($logo_max_size) . "px !important;
             max-width: " . intval($logo_max_size) . "px !important;
             max-height: " . intval($logo_max_size) . "px !important;
+        }
+
+        /* Altura del área del logo */
+        body.login div#login h1 {
+            " . (intval($logo_area_height) > 0 ? "min-height: " . intval($logo_area_height) . "px !important;" : "min-height: auto !important;") . "
+            " . (!empty($logo_area_border_color) ? "border-bottom: 1px solid " . esc_attr($logo_area_border_color) . " !important;" : "border-bottom: none !important;") . "
         }
     ";
 
@@ -1092,6 +1103,8 @@ function il_register_settings() {
     register_setting('imagina_login_options', 'il_logo_overlay_color', ['type' => 'string', 'default' => 'transparent']);
     register_setting('imagina_login_options', 'il_logo_max_size', ['type' => 'string', 'default' => '200']);
     register_setting('imagina_login_options', 'il_custom_logo', ['type' => 'integer', 'sanitize_callback' => 'absint']);
+    register_setting('imagina_login_options', 'il_logo_area_height', ['type' => 'string', 'default' => '0']);
+    register_setting('imagina_login_options', 'il_logo_area_border_color', ['type' => 'string', 'default' => '']);
 
     // *** NUEVOS AJUSTES DE COLORES ***
     register_setting('imagina_login_options', 'il_use_custom_colors', ['type' => 'boolean', 'default' => false]);
@@ -1439,6 +1452,33 @@ function il_settings_page_html() {
                                     <span class="imagina-slider-value"><?php echo esc_html(get_option('il_logo_max_size', '200')); ?>px</span>
                                 </div>
                                 <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;">Ajusta entre 60px y 400px.</p>
+                            </div>
+                        </div>
+
+                        <?php
+                        $logo_area_height = get_option('il_logo_area_height', '0');
+                        $logo_area_border_color = get_option('il_logo_area_border_color', '');
+                        ?>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div class="imagina-control-group">
+                                <label class="imagina-control-label">Altura del área del logo</label>
+                                <div class="imagina-slider-container">
+                                    <input type="range" name="il_logo_area_height" class="imagina-slider" min="0" max="600" step="10" value="<?php echo esc_attr($logo_area_height); ?>" oninput="this.parentNode.querySelector('.imagina-slider-value').textContent = this.value == 0 ? 'Auto' : this.value + 'px'">
+                                    <span class="imagina-slider-value"><?php echo intval($logo_area_height) === 0 ? 'Auto' : esc_html($logo_area_height) . 'px'; ?></span>
+                                </div>
+                                <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;">0 = altura automática según contenido.</p>
+                            </div>
+
+                            <div class="imagina-control-group">
+                                <label class="imagina-control-label">Borde separador</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="<?php echo empty($logo_area_border_color) ? 'hidden' : 'color'; ?>" name="il_logo_area_border_color" value="<?php echo esc_attr(!empty($logo_area_border_color) ? $logo_area_border_color : ''); ?>" class="imagina-color-input" style="width: 36px; height: 36px;">
+                                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #374151; cursor: pointer;">
+                                        <input type="checkbox" id="il_border_toggle" <?php echo !empty($logo_area_border_color) ? 'checked' : ''; ?> onchange="toggleBorderColor(this)" style="width: 16px; height: 16px;">
+                                        Mostrar borde
+                                    </label>
+                                </div>
+                                <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;">Línea entre el logo y el formulario.</p>
                             </div>
                         </div>
 
@@ -2394,6 +2434,17 @@ function il_settings_page_html() {
             controls.style.animation = 'fadeInUp 0.3s ease';
         } else {
             controls.style.display = 'none';
+        }
+    }
+
+    function toggleBorderColor(checkbox) {
+        const colorInput = checkbox.closest('.imagina-control-group').querySelector('input[name="il_logo_area_border_color"]');
+        if (!checkbox.checked) {
+            colorInput.value = '';
+            colorInput.type = 'hidden';
+        } else {
+            colorInput.type = 'color';
+            if (!colorInput.value || colorInput.value === '') colorInput.value = '#e3e8ee';
         }
     }
 
