@@ -61,7 +61,7 @@ function il_get_all_options($reset = false) {
         'il_video_overlay_color',
         'il_logo_bg_type', 'il_logo_bg_color', 'il_logo_background_image',
         'il_logo_gradient_type', 'il_logo_gradient_direction', 'il_logo_gradient_color1', 'il_logo_gradient_color2',
-        'il_logo_overlay_color',
+        'il_logo_overlay_color', 'il_logo_max_size',
         'il_use_custom_colors', 'il_label_color', 'il_button_color', 'il_button_hover_color', 'il_link_color',
         'il_enable_transitions', 'il_transition_type', 'il_transition_duration',
         'il_logo_transition_duration', 'il_logo_transition_delay',
@@ -88,6 +88,7 @@ function il_get_all_options($reset = false) {
         'il_logo_gradient_color1' => '#f9f9f9',
         'il_logo_gradient_color2' => '#e9ecef',
         'il_logo_overlay_color' => 'transparent',
+        'il_logo_max_size' => '200',
         'il_use_custom_colors' => false,
         'il_label_color' => '#009bde',
         'il_button_color' => '#009bde',
@@ -407,6 +408,9 @@ function my_custom_login_assets() {
         $link_color = $primary_color;
     }
 
+    // *** TAMAÑO DEL LOGO ***
+    $logo_max_size = $opts['il_logo_max_size'];
+
     // *** CONFIGURACIÓN DE TRANSICIONES ***
     $enable_transitions = $opts['il_enable_transitions'];
     $transition_type = $opts['il_transition_type'];
@@ -428,6 +432,7 @@ function my_custom_login_assets() {
             --button-hover-color: " . esc_attr($button_hover_color) . ";
             --link-color: " . esc_attr($link_color) . ";
             --logo-url: url('" . esc_url($logo_url) . "');
+            --logo-max-size: " . intval($logo_max_size) . "px;
             --svg-eye-visible: url(\"" . $svg_eye_visible . "\");
             --svg-eye-hidden: url(\"" . $svg_eye_hidden . "\");
             --fallback-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
@@ -1058,6 +1063,7 @@ function il_register_settings() {
     register_setting('imagina_login_options', 'il_logo_gradient_color1', ['type' => 'string', 'default' => '#f9f9f9']);
     register_setting('imagina_login_options', 'il_logo_gradient_color2', ['type' => 'string', 'default' => '#e9ecef']);
     register_setting('imagina_login_options', 'il_logo_overlay_color', ['type' => 'string', 'default' => 'transparent']);
+    register_setting('imagina_login_options', 'il_logo_max_size', ['type' => 'string', 'default' => '200']);
 
     // *** NUEVOS AJUSTES DE COLORES ***
     register_setting('imagina_login_options', 'il_use_custom_colors', ['type' => 'boolean', 'default' => false]);
@@ -1387,6 +1393,17 @@ function il_settings_page_html() {
 
                         <div class="imagina-options-container">
                             <?php il_render_modern_logo_options(); ?>
+                        </div>
+
+                        <div class="imagina-control-group" style="margin-top: 16px;">
+                            <label class="imagina-control-label">Tamaño del logo</label>
+                            <div class="imagina-slider-container">
+                                <span style="font-size: 12px; color: #6b7280;">60px</span>
+                                <input type="range" name="il_logo_max_size" class="imagina-slider" min="60" max="400" step="10" value="<?php echo esc_attr(get_option('il_logo_max_size', '200')); ?>" oninput="this.parentNode.querySelector('.imagina-slider-value').textContent = this.value + 'px'">
+                                <span style="font-size: 12px; color: #6b7280;">400px</span>
+                                <span class="imagina-slider-value"><?php echo esc_html(get_option('il_logo_max_size', '200')); ?>px</span>
+                            </div>
+                            <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 12px;">Ajusta el tamaño máximo del logo según tus necesidades.</p>
                         </div>
                     </div>
                 </div>

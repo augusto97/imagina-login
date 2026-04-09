@@ -41,8 +41,8 @@ body.login.template-fullscreen div#login h1 {
 }
 
 body.login.template-fullscreen div#login h1 a {
-    max-width: 140px;
-    max-height: 140px;
+    max-width: var(--logo-max-size, 140px);
+    max-height: var(--logo-max-size, 140px);
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
 }
 
