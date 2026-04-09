@@ -837,6 +837,27 @@ function dequeue_default_login_styles() {
 }
 add_action('login_enqueue_scripts', 'dequeue_default_login_styles', 11);
 
+/**
+ * Modo preview: mostrar el login aunque el usuario esté logueado.
+ * Intercepta la redirección que wp-login.php hace cuando detecta sesión activa.
+ */
+function il_handle_login_preview() {
+    if (!isset($_GET['il_preview']) || $_GET['il_preview'] !== '1') {
+        return;
+    }
+    if (!is_user_logged_in() || !current_user_can('manage_options')) {
+        return;
+    }
+    // Bloquear la redirección automática de wp-login.php para usuarios logueados
+    add_filter('wp_redirect', function($location) {
+        if (isset($_GET['il_preview']) && $_GET['il_preview'] === '1') {
+            return false;
+        }
+        return $location;
+    }, 999);
+}
+add_action('login_init', 'il_handle_login_preview');
+
 // --- Filtros para el comportamiento del logo y el formulario ---
 add_filter('login_display_language_dropdown', '__return_false');
 
@@ -910,17 +931,15 @@ function il_inject_dynamic_elements() {
 add_action('login_footer', 'il_inject_dynamic_elements', 5);
 
 /**
- * Crear la página en el menú de administrador
+ * Crear la página dentro del menú de Ajustes
  */
 function il_create_admin_menu() {
-    add_menu_page(
-        'Opciones de Imagina Login',
+    add_options_page(
+        'Imagina Login',
         'Imagina Login',
         'manage_options',
         'imagina-login-settings',
-        'il_settings_page_html',
-        'dashicons-format-image',
-        100
+        'il_settings_page_html'
     );
 }
 add_action('admin_menu', 'il_create_admin_menu');
@@ -997,7 +1016,7 @@ function il_settings_page_html() {
                     <p class="imagina-subtitle">Personaliza tu página de login de WordPress</p>
                 </div>
                 <div class="imagina-preview-section">
-                    <a href="<?php echo esc_url(add_query_arg('reauth', '1', wp_login_url())); ?>" target="_blank" class="imagina-preview-btn">
+                    <a href="<?php echo esc_url(add_query_arg('il_preview', '1', wp_login_url())); ?>" target="_blank" class="imagina-preview-btn">
                         <span class="dashicons dashicons-visibility"></span>
                         Ver Login
                     </a>
@@ -2716,7 +2735,7 @@ function il_render_transition_controls() {
  * Enqueue scripts para el admin
  */
 function il_enqueue_admin_scripts($hook_suffix) {
-    if ($hook_suffix != 'toplevel_page_imagina-login-settings') {
+    if ($hook_suffix != 'settings_page_imagina-login-settings') {
         return;
     }
     
