@@ -50,8 +50,8 @@ body.login.template-glass div#login h1 {
 }
 
 body.login.template-glass div#login h1 a {
-    max-width: 120px;
-    max-height: 120px;
+    max-width: var(--logo-max-size, 120px);
+    max-height: var(--logo-max-size, 120px);
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 }
 

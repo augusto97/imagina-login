@@ -43,8 +43,8 @@ body.login.template-sidebar-left div#login h1 {
 }
 
 body.login.template-sidebar-left div#login h1 a {
-    max-width: 140px;
-    max-height: 140px;
+    max-width: var(--logo-max-size, 140px);
+    max-height: var(--logo-max-size, 140px);
 }
 
 body.login.template-sidebar-left div#login form#loginform,

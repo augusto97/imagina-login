@@ -27,10 +27,8 @@ body.login.template-split div#login h1 {
 }
 
 body.login.template-split div#login h1 a {
-    max-width: 280px;
-    max-height: 280px;
-    width: 70%;
-    height: 70%;
+    max-width: var(--logo-max-size, 280px);
+    max-height: var(--logo-max-size, 280px);
 }
 
 body.login.template-split div#login form#loginform,
