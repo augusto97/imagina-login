@@ -499,10 +499,12 @@ function my_custom_login_assets() {
             max-height: " . intval($logo_max_size) . "px !important;
         }" : "") . "
 
-        /* Altura del área del logo solo si se configuró */
+        /* Padding del área del logo solo si se configuró */
         " . (intval($logo_area_height) > 0 ? "
         body.login div#login h1 {
-            min-height: " . intval($logo_area_height) . "px !important;
+            padding-top: " . intval($logo_area_height) . "px !important;
+            padding-bottom: " . intval($logo_area_height) . "px !important;
+            min-height: auto !important;
         }" : "") . "
 
         /* Borde del área del logo solo si se configuró */
@@ -1465,12 +1467,12 @@ function il_settings_page_html() {
                         ?>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div class="imagina-control-group">
-                                <label class="imagina-control-label">Altura del área del logo</label>
+                                <label class="imagina-control-label">Espacio vertical del logo</label>
                                 <div class="imagina-slider-container">
-                                    <input type="range" name="il_logo_area_height" class="imagina-slider" min="0" max="600" step="10" value="<?php echo esc_attr($logo_area_height); ?>" oninput="this.parentNode.querySelector('.imagina-slider-value').textContent = this.value == 0 ? 'Auto' : this.value + 'px'">
+                                    <input type="range" name="il_logo_area_height" class="imagina-slider" min="0" max="80" step="5" value="<?php echo esc_attr($logo_area_height); ?>" oninput="this.parentNode.querySelector('.imagina-slider-value').textContent = this.value == 0 ? 'Auto' : this.value + 'px'">
                                     <span class="imagina-slider-value"><?php echo intval($logo_area_height) === 0 ? 'Auto' : esc_html($logo_area_height) . 'px'; ?></span>
                                 </div>
-                                <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;">0 = altura automática según contenido.</p>
+                                <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;">0 = usa el padding del template. Ajusta el espacio arriba y abajo del logo.</p>
                             </div>
 
                             <div class="imagina-control-group">
