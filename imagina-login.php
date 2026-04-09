@@ -259,22 +259,32 @@ function il_generate_dynamic_styles() {
  * Limpiar cache cuando se guardan opciones - OPTIMIZADO CON BATCH CLEARING
  */
 function il_clear_styles_cache() {
+    static $already_cleared = false;
+    if ($already_cleared) {
+        return;
+    }
+    $already_cleared = true;
     delete_transient('imagina_login_dynamic_styles_v10');
-    // Limpiar también el cache de opciones en memoria (static)
     il_get_all_options(true);
 }
 
 /**
- * Hook único que escucha cambios en cualquier opción del plugin (OPTIMIZACIÓN)
+ * Hook que escucha cambios en opciones del plugin - solo en admin
  */
 function il_handle_option_update($option_name) {
-    // Solo limpiar cache si la opción pertenece a nuestro plugin
     if (strpos($option_name, 'il_') === 0) {
         il_clear_styles_cache();
     }
 }
-add_action('updated_option', 'il_handle_option_update', 10, 1);
-add_action('added_option', 'il_handle_option_update', 10, 1);
+
+/**
+ * Registrar hooks de cache solo en admin para no afectar el frontend
+ */
+function il_register_cache_hooks() {
+    add_action('updated_option', 'il_handle_option_update', 10, 1);
+    add_action('added_option', 'il_handle_option_update', 10, 1);
+}
+add_action('admin_init', 'il_register_cache_hooks');
 
 /**
  * Inyectar estilos críticos en el head TEMPRANO
@@ -987,7 +997,7 @@ function il_settings_page_html() {
                     <p class="imagina-subtitle">Personaliza tu página de login de WordPress</p>
                 </div>
                 <div class="imagina-preview-section">
-                    <a href="<?php echo wp_login_url(); ?>" target="_blank" class="imagina-preview-btn">
+                    <a href="<?php echo esc_url(add_query_arg('reauth', '1', wp_login_url())); ?>" target="_blank" class="imagina-preview-btn">
                         <span class="dashicons dashicons-visibility"></span>
                         Ver Login
                     </a>
