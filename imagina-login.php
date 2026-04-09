@@ -493,11 +493,13 @@ function my_custom_login_assets() {
         }
 
         /* Forzar tamaño del logo solo si el usuario lo configuró */
-        " . (intval($logo_max_size) !== 200 ? "
+        /* Tamaño del logo */
         body.login div#login h1 a {
-            max-width: " . intval($logo_max_size) . "px !important;
-            max-height: " . intval($logo_max_size) . "px !important;
-        }" : "") . "
+            width: " . intval($logo_max_size) . "px !important;
+            height: " . intval($logo_max_size) . "px !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
+        }
 
         /* Padding del área del logo solo si se configuró */
         " . (intval($logo_area_height) > 0 ? "
