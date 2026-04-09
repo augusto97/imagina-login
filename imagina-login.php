@@ -61,7 +61,7 @@ function il_get_all_options($reset = false) {
         'il_video_overlay_color',
         'il_logo_bg_type', 'il_logo_bg_color', 'il_logo_background_image',
         'il_logo_gradient_type', 'il_logo_gradient_direction', 'il_logo_gradient_color1', 'il_logo_gradient_color2',
-        'il_logo_overlay_color', 'il_logo_max_size', 'il_custom_logo',
+        'il_logo_overlay_color', 'il_logo_max_size', 'il_logo_height', 'il_custom_logo',
         'il_logo_area_height', 'il_logo_area_border_color',
         'il_use_custom_colors', 'il_label_color', 'il_button_color', 'il_button_hover_color', 'il_link_color',
         'il_enable_transitions', 'il_transition_type', 'il_transition_duration',
@@ -90,6 +90,7 @@ function il_get_all_options($reset = false) {
         'il_logo_gradient_color2' => '#e9ecef',
         'il_logo_overlay_color' => 'transparent',
         'il_logo_max_size' => '200',
+        'il_logo_height' => '80',
         'il_custom_logo' => '',
         'il_logo_area_height' => '0',
         'il_logo_area_border_color' => '',
@@ -423,6 +424,7 @@ function my_custom_login_assets() {
 
     // *** TAMAÑO DEL LOGO ***
     $logo_max_size = $opts['il_logo_max_size'];
+    $logo_height = $opts['il_logo_height'];
     $logo_area_height = $opts['il_logo_area_height'];
     $logo_area_border_color = $opts['il_logo_area_border_color'];
 
@@ -496,9 +498,8 @@ function my_custom_login_assets() {
         /* Tamaño del logo */
         body.login div#login h1 a {
             width: " . intval($logo_max_size) . "px !important;
-            height: " . intval($logo_max_size) . "px !important;
+            height: " . intval($logo_height) . "px !important;
             max-width: 100% !important;
-            max-height: 100% !important;
         }
 
         /* Padding del área del logo solo si se configuró */
@@ -1110,6 +1111,7 @@ function il_register_settings() {
     register_setting('imagina_login_options', 'il_logo_gradient_color2', ['type' => 'string', 'default' => '#e9ecef']);
     register_setting('imagina_login_options', 'il_logo_overlay_color', ['type' => 'string', 'default' => 'transparent']);
     register_setting('imagina_login_options', 'il_logo_max_size', ['type' => 'string', 'default' => '200']);
+    register_setting('imagina_login_options', 'il_logo_height', ['type' => 'string', 'default' => '80']);
     register_setting('imagina_login_options', 'il_custom_logo', ['type' => 'integer', 'sanitize_callback' => 'absint']);
     register_setting('imagina_login_options', 'il_logo_area_height', ['type' => 'string', 'default' => '0']);
     register_setting('imagina_login_options', 'il_logo_area_border_color', ['type' => 'string', 'default' => '']);
@@ -1454,12 +1456,18 @@ function il_settings_page_html() {
                             </div>
 
                             <div class="imagina-control-group">
-                                <label class="imagina-control-label">Tamaño del logo</label>
+                                <label class="imagina-control-label">Ancho del logo</label>
                                 <div class="imagina-slider-container">
-                                    <input type="range" name="il_logo_max_size" class="imagina-slider" min="60" max="400" step="10" value="<?php echo esc_attr(get_option('il_logo_max_size', '200')); ?>" oninput="this.parentNode.querySelector('.imagina-slider-value').textContent = this.value + 'px'">
+                                    <input type="range" name="il_logo_max_size" class="imagina-slider" min="40" max="400" step="10" value="<?php echo esc_attr(get_option('il_logo_max_size', '200')); ?>" oninput="this.parentNode.querySelector('.imagina-slider-value').textContent = this.value + 'px'">
                                     <span class="imagina-slider-value"><?php echo esc_html(get_option('il_logo_max_size', '200')); ?>px</span>
                                 </div>
-                                <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;">Ajusta entre 60px y 400px.</p>
+                            </div>
+                            <div class="imagina-control-group">
+                                <label class="imagina-control-label">Alto del logo</label>
+                                <div class="imagina-slider-container">
+                                    <input type="range" name="il_logo_height" class="imagina-slider" min="30" max="300" step="10" value="<?php echo esc_attr(get_option('il_logo_height', '80')); ?>" oninput="this.parentNode.querySelector('.imagina-slider-value').textContent = this.value + 'px'">
+                                    <span class="imagina-slider-value"><?php echo esc_html(get_option('il_logo_height', '80')); ?>px</span>
+                                </div>
                             </div>
                         </div>
 
