@@ -61,7 +61,7 @@ function il_get_all_options($reset = false) {
         'il_video_overlay_color',
         'il_logo_bg_type', 'il_logo_bg_color', 'il_logo_background_image',
         'il_logo_gradient_type', 'il_logo_gradient_direction', 'il_logo_gradient_color1', 'il_logo_gradient_color2',
-        'il_logo_overlay_color', 'il_logo_max_size',
+        'il_logo_overlay_color', 'il_logo_max_size', 'il_custom_logo',
         'il_use_custom_colors', 'il_label_color', 'il_button_color', 'il_button_hover_color', 'il_link_color',
         'il_enable_transitions', 'il_transition_type', 'il_transition_duration',
         'il_logo_transition_duration', 'il_logo_transition_delay',
@@ -89,6 +89,7 @@ function il_get_all_options($reset = false) {
         'il_logo_gradient_color2' => '#e9ecef',
         'il_logo_overlay_color' => 'transparent',
         'il_logo_max_size' => '200',
+        'il_custom_logo' => '',
         'il_use_custom_colors' => false,
         'il_label_color' => '#009bde',
         'il_button_color' => '#009bde',
@@ -372,13 +373,22 @@ function my_custom_login_assets() {
         return $classes;
     });
 
-    // --- Lógica de logo ---
-    $custom_logo_id = get_theme_mod('custom_logo');
+    // --- Lógica de logo: prioridad custom > tema > icono ---
     $logo_url = '';
-    if ($custom_logo_id) {
-        $logo_data = wp_get_attachment_image_src($custom_logo_id, 'full');
+    $plugin_logo_id = $opts['il_custom_logo'];
+    if ($plugin_logo_id) {
+        $logo_data = wp_get_attachment_image_src($plugin_logo_id, 'full');
         if ($logo_data && isset($logo_data[0])) {
             $logo_url = $logo_data[0];
+        }
+    }
+    if (empty($logo_url)) {
+        $custom_logo_id = get_theme_mod('custom_logo');
+        if ($custom_logo_id) {
+            $logo_data = wp_get_attachment_image_src($custom_logo_id, 'full');
+            if ($logo_data && isset($logo_data[0])) {
+                $logo_url = $logo_data[0];
+            }
         }
     }
     if (empty($logo_url)) {
@@ -476,6 +486,14 @@ function my_custom_login_assets() {
         body.login div#login form input[type=checkbox]:checked {
             background-color: var(--primary-color) !important;
             border-color: var(--primary-color) !important;
+        }
+
+        /* Forzar tamaño del logo */
+        body.login div#login h1 a {
+            width: " . intval($logo_max_size) . "px !important;
+            height: " . intval($logo_max_size) . "px !important;
+            max-width: " . intval($logo_max_size) . "px !important;
+            max-height: " . intval($logo_max_size) . "px !important;
         }
     ";
 
@@ -876,13 +894,22 @@ function il_render_login_preview() {
         $body_classes[] = 'has-transitions';
     }
 
-    // Obtener el logo
-    $custom_logo_id = get_theme_mod('custom_logo');
+    // Obtener el logo (misma lógica que my_custom_login_assets)
     $logo_url = '';
-    if ($custom_logo_id) {
-        $logo_data = wp_get_attachment_image_src($custom_logo_id, 'full');
+    $plugin_logo_id = $opts['il_custom_logo'];
+    if ($plugin_logo_id) {
+        $logo_data = wp_get_attachment_image_src($plugin_logo_id, 'full');
         if ($logo_data && isset($logo_data[0])) {
             $logo_url = $logo_data[0];
+        }
+    }
+    if (empty($logo_url)) {
+        $custom_logo_id = get_theme_mod('custom_logo');
+        if ($custom_logo_id) {
+            $logo_data = wp_get_attachment_image_src($custom_logo_id, 'full');
+            if ($logo_data && isset($logo_data[0])) {
+                $logo_url = $logo_data[0];
+            }
         }
     }
     if (empty($logo_url)) {
@@ -891,7 +918,7 @@ function il_render_login_preview() {
             $logo_url = $site_icon_url;
         }
     }
-    $logo_text = empty($logo_url) ? get_bloginfo('name') : '';
+    $logo_text = get_bloginfo('name');
 
     ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -1064,6 +1091,7 @@ function il_register_settings() {
     register_setting('imagina_login_options', 'il_logo_gradient_color2', ['type' => 'string', 'default' => '#e9ecef']);
     register_setting('imagina_login_options', 'il_logo_overlay_color', ['type' => 'string', 'default' => 'transparent']);
     register_setting('imagina_login_options', 'il_logo_max_size', ['type' => 'string', 'default' => '200']);
+    register_setting('imagina_login_options', 'il_custom_logo', ['type' => 'integer', 'sanitize_callback' => 'absint']);
 
     // *** NUEVOS AJUSTES DE COLORES ***
     register_setting('imagina_login_options', 'il_use_custom_colors', ['type' => 'boolean', 'default' => false]);
@@ -1360,16 +1388,62 @@ function il_settings_page_html() {
                     </div>
                 </div>
 
-                <!-- Sección Fondo del Logo -->
+                <!-- Sección Logo e Imagen -->
                 <div class="imagina-section">
                     <div class="imagina-section-header">
-                        <h2><span class="section-icon">🏢</span> Área del Logo</h2>
-                        <p>Personaliza el fondo del área donde aparece tu logo</p>
+                        <h2><span class="section-icon">🏢</span> Logo y Área del Logo</h2>
+                        <p>Sube tu logo y personaliza el fondo del área donde aparece</p>
                     </div>
-                    
+
                     <div class="imagina-section-content">
+                        <?php
+                        $custom_logo_id = get_option('il_custom_logo', '');
+                        $current_logo_url = '';
+                        if ($custom_logo_id) {
+                            $current_logo_url = wp_get_attachment_image_url($custom_logo_id, 'medium');
+                        }
+                        ?>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div class="imagina-control-group">
+                                <label class="imagina-control-label">Imagen del logo</label>
+                                <div class="imagina-media-uploader">
+                                    <input type="hidden" name="il_custom_logo" value="<?php echo esc_attr($custom_logo_id); ?>">
+                                    <button type="button" class="imagina-upload-btn upload-image-button" style="margin-bottom: 8px;">
+                                        <span class="dashicons dashicons-upload"></span>
+                                        <?php echo $custom_logo_id ? 'Cambiar Logo' : 'Subir Logo'; ?>
+                                    </button>
+                                    <?php if ($custom_logo_id): ?>
+                                    <button type="button" class="imagina-upload-btn remove-image-button" style="background: #ef4444; margin-bottom: 8px;">
+                                        <span class="dashicons dashicons-trash"></span>
+                                        Quitar
+                                    </button>
+                                    <?php endif; ?>
+                                    <div class="imagina-media-preview">
+                                        <?php if ($current_logo_url): ?>
+                                            <img src="<?php echo esc_url($current_logo_url); ?>" style="max-width: 100%; max-height: 120px; border-radius: 6px; display: block;">
+                                        <?php else: ?>
+                                            <div style="padding: 20px; text-align: center; color: #9ca3af; border: 2px dashed #d1d5db; border-radius: 6px;">
+                                                <span class="dashicons dashicons-format-image" style="font-size: 24px; display: block; margin-bottom: 4px;"></span>
+                                                <p style="margin: 0; font-size: 12px;">Usa el logo del tema</p>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;">Si no subes uno, se usa el logo del tema o el icono del sitio.</p>
+                                </div>
+                            </div>
+
+                            <div class="imagina-control-group">
+                                <label class="imagina-control-label">Tamaño del logo</label>
+                                <div class="imagina-slider-container">
+                                    <input type="range" name="il_logo_max_size" class="imagina-slider" min="60" max="400" step="10" value="<?php echo esc_attr(get_option('il_logo_max_size', '200')); ?>" oninput="this.parentNode.querySelector('.imagina-slider-value').textContent = this.value + 'px'">
+                                    <span class="imagina-slider-value"><?php echo esc_html(get_option('il_logo_max_size', '200')); ?>px</span>
+                                </div>
+                                <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;">Ajusta entre 60px y 400px.</p>
+                            </div>
+                        </div>
+
                         <div class="imagina-type-selector">
-                            <label class="imagina-main-label">Tipo de fondo:</label>
+                            <label class="imagina-main-label">Fondo del área del logo:</label>
                             <div class="imagina-type-tabs">
                                 <input type="radio" name="il_logo_bg_type" value="color" id="logo-color" <?php checked($logo_bg_type, 'color'); ?>>
                                 <label for="logo-color" class="imagina-tab">
@@ -1393,17 +1467,6 @@ function il_settings_page_html() {
 
                         <div class="imagina-options-container">
                             <?php il_render_modern_logo_options(); ?>
-                        </div>
-
-                        <div class="imagina-control-group" style="margin-top: 16px;">
-                            <label class="imagina-control-label">Tamaño del logo</label>
-                            <div class="imagina-slider-container">
-                                <span style="font-size: 12px; color: #6b7280;">60px</span>
-                                <input type="range" name="il_logo_max_size" class="imagina-slider" min="60" max="400" step="10" value="<?php echo esc_attr(get_option('il_logo_max_size', '200')); ?>" oninput="this.parentNode.querySelector('.imagina-slider-value').textContent = this.value + 'px'">
-                                <span style="font-size: 12px; color: #6b7280;">400px</span>
-                                <span class="imagina-slider-value"><?php echo esc_html(get_option('il_logo_max_size', '200')); ?>px</span>
-                            </div>
-                            <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 12px;">Ajusta el tamaño máximo del logo según tus necesidades.</p>
                         </div>
                     </div>
                 </div>
