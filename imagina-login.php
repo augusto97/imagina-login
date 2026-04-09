@@ -3,7 +3,7 @@
  * Plugin Name: Imagina Login
  * Plugin URI:  https://imaginawp.com
  * Description: Customized wp login with 9 professional templates and advanced background options
- * Version:     2.3.6
+ * Version:     2.3.7
  * Author:      IMAGINA WP
  * Author URI:  https://imaginawp.com/
  * License:     GPLv2 or later
@@ -41,8 +41,13 @@ if (!function_exists('adjustBrightness')) {
 /**
  * Obtener todas las opciones de Imagina Login en una sola consulta (OPTIMIZACIÓN)
  */
-function il_get_all_options() {
+function il_get_all_options($reset = false) {
     static $cached_options = null;
+
+    if ($reset) {
+        $cached_options = null;
+        return [];
+    }
 
     if ($cached_options !== null) {
         return $cached_options;
@@ -133,7 +138,7 @@ function il_generate_gradient_css($type, $direction, $color1, $color2) {
  * Cache para los estilos dinámicos (OPTIMIZADO)
  */
 function il_get_cached_dynamic_styles() {
-    $cache_key = 'imagina_login_dynamic_styles_v9';
+    $cache_key = 'imagina_login_dynamic_styles_v10';
     $cached = get_transient($cache_key);
 
     if ($cached !== false) {
@@ -254,22 +259,32 @@ function il_generate_dynamic_styles() {
  * Limpiar cache cuando se guardan opciones - OPTIMIZADO CON BATCH CLEARING
  */
 function il_clear_styles_cache() {
-    delete_transient('imagina_login_dynamic_styles_v9');
-    // Limpiar también el cache de opciones en memoria
-    global $cached_options;
-    $cached_options = null;
+    static $already_cleared = false;
+    if ($already_cleared) {
+        return;
+    }
+    $already_cleared = true;
+    delete_transient('imagina_login_dynamic_styles_v10');
+    il_get_all_options(true);
 }
 
 /**
- * Hook único que escucha cambios en cualquier opción del plugin (OPTIMIZACIÓN)
+ * Hook que escucha cambios en opciones del plugin - solo en admin
  */
 function il_handle_option_update($option_name) {
-    // Solo limpiar cache si la opción pertenece a nuestro plugin
     if (strpos($option_name, 'il_') === 0) {
         il_clear_styles_cache();
     }
 }
-add_action('updated_option', 'il_handle_option_update', 10, 1);
+
+/**
+ * Registrar hooks de cache solo en admin para no afectar el frontend
+ */
+function il_register_cache_hooks() {
+    add_action('updated_option', 'il_handle_option_update', 10, 1);
+    add_action('added_option', 'il_handle_option_update', 10, 1);
+}
+add_action('admin_init', 'il_register_cache_hooks');
 
 /**
  * Inyectar estilos críticos en el head TEMPRANO
@@ -280,8 +295,8 @@ function il_inject_critical_styles() {
     echo '<style id="imagina-login-critical-css">' . $cached_styles['css'] . '</style>';
 
     // Preload del CSS principal
-    echo '<link rel="preload" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.6" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
-    echo '<noscript><link rel="stylesheet" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.6"></noscript>';
+    echo '<link rel="preload" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.7" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
+    echo '<noscript><link rel="stylesheet" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.7"></noscript>';
 
     // NO precargar imágenes para evitar que se vean antes de cargar todo
 }
@@ -300,7 +315,7 @@ function my_custom_login_assets() {
         'imagina-login',
         plugin_dir_url( __FILE__ ) . 'css/styles.css',
         array(),
-        '2.3.6'
+        '2.3.7'
     );
 
     // Cargar CSS del template seleccionado
@@ -341,7 +356,7 @@ function my_custom_login_assets() {
         'imagina-login-template',
         plugin_dir_url( __FILE__ ) . 'css/templates/' . $template_file,
         array('imagina-login'),
-        '2.3.6'
+        '2.3.7'
     );
 
     // Agregar clase del template al body y clase de transiciones
@@ -806,7 +821,7 @@ function my_custom_login_assets() {
     });
     ";
 
-    wp_register_script('imagina-login-toggle', '', array('jquery'), '2.3.6', true);
+    wp_register_script('imagina-login-toggle', '', array('jquery'), '2.3.7', true);
     wp_enqueue_script('imagina-login-toggle');
     wp_add_inline_script('imagina-login-toggle', $script);
 }
@@ -982,7 +997,7 @@ function il_settings_page_html() {
                     <p class="imagina-subtitle">Personaliza tu página de login de WordPress</p>
                 </div>
                 <div class="imagina-preview-section">
-                    <a href="<?php echo wp_login_url(); ?>" target="_blank" class="imagina-preview-btn">
+                    <a href="<?php echo esc_url(add_query_arg('reauth', '1', wp_login_url())); ?>" target="_blank" class="imagina-preview-btn">
                         <span class="dashicons dashicons-visibility"></span>
                         Ver Login
                     </a>
@@ -1361,26 +1376,22 @@ function il_settings_page_html() {
     </div>
 
     <style>
-    /* Estilos del panel moderno */
+    /* Estilos del panel compacto */
     .imagina-login-admin {
         max-width: none;
         margin: 0;
         padding: 0;
         background: #f0f2f5;
-        min-height: 100vh;
     }
 
-    .imagina-login-admin .wrap {
-        margin: 0;
-        padding: 0;
-    }
+    .imagina-login-admin .wrap { margin: 0; padding: 0; }
 
     .imagina-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 30px 40px;
-        margin: 0 0 30px 0;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        padding: 16px 30px;
+        margin: 0 0 20px 0;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.1);
     }
 
     .imagina-header-content {
@@ -1393,45 +1404,39 @@ function il_settings_page_html() {
 
     .imagina-logo-section h1 {
         margin: 0;
-        font-size: 32px;
+        font-size: 22px;
         font-weight: 700;
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 10px;
         color: white;
     }
 
-    .imagina-icon {
-        font-size: 40px;
-        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
-    }
+    .imagina-icon { font-size: 26px; }
 
     .imagina-subtitle {
-        margin: 8px 0 0 55px;
+        margin: 2px 0 0 36px;
         opacity: 0.9;
-        font-size: 16px;
-        font-weight: 400;
+        font-size: 13px;
     }
 
     .imagina-preview-btn {
         background: rgba(255,255,255,0.2);
         color: white;
-        padding: 12px 24px;
-        border: 2px solid rgba(255,255,255,0.3);
-        border-radius: 25px;
+        padding: 8px 18px;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
         text-decoration: none;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         font-weight: 600;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
+        font-size: 13px;
+        transition: all 0.2s ease;
     }
 
     .imagina-preview-btn:hover {
         background: rgba(255,255,255,0.3);
-        border-color: rgba(255,255,255,0.5);
-        transform: translateY(-2px);
         color: white;
         text-decoration: none;
     }
@@ -1439,277 +1444,221 @@ function il_settings_page_html() {
     .imagina-form {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 0 40px;
+        padding: 0 30px;
     }
 
     .imagina-sections {
         display: grid;
-        gap: 30px;
+        gap: 16px;
     }
 
     .imagina-section {
         background: white;
-        border-radius: 16px;
+        border-radius: 10px;
         overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        transition: box-shadow 0.3s ease;
-    }
-
-    .imagina-section:hover {
-        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
 
     .imagina-section-header {
         background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
-        padding: 25px 30px;
+        padding: 14px 20px;
         border-bottom: 1px solid #e3e8ee;
     }
 
     .imagina-section-header h2 {
-        margin: 0 0 8px 0;
-        font-size: 24px;
+        margin: 0 0 2px 0;
+        font-size: 17px;
         font-weight: 700;
         color: #2c3e50;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
     }
 
-    .section-icon {
-        font-size: 28px;
-    }
+    .section-icon { font-size: 20px; }
 
     .imagina-section-header p {
         margin: 0;
         color: #64748b;
-        font-size: 15px;
+        font-size: 12px;
     }
 
-    .imagina-section-content {
-        padding: 30px;
-    }
+    .imagina-section-content { padding: 16px 20px; }
 
     .imagina-main-label {
         display: block;
-        font-size: 18px;
+        font-size: 14px;
         font-weight: 600;
         color: #374151;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
 
     .imagina-type-tabs {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 12px;
-        margin-bottom: 30px;
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
     }
 
-    .imagina-type-tabs input[type="radio"] {
-        display: none;
-    }
+    .imagina-type-tabs input[type="radio"] { display: none; }
 
     .imagina-tab {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        gap: 8px;
-        padding: 20px 16px;
+        gap: 6px;
+        padding: 8px 14px;
         border: 2px solid #e5e7eb;
-        border-radius: 12px;
+        border-radius: 8px;
         background: #f9fafb;
         cursor: pointer;
-        transition: all 0.3s ease;
-        text-align: center;
+        transition: all 0.2s ease;
         font-weight: 600;
+        font-size: 13px;
         color: #6b7280;
     }
 
     .imagina-tab:hover {
         border-color: #d1d5db;
         background: #f3f4f6;
-        transform: translateY(-2px);
     }
 
     .imagina-type-tabs input[type="radio"]:checked + .imagina-tab {
         border-color: #667eea;
         background: linear-gradient(135deg, #667eea15, #764ba215);
         color: #667eea;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
     }
 
-    .tab-icon {
-        font-size: 28px;
-        display: block;
-    }
-
-    .tab-text {
-        font-size: 14px;
-        font-weight: 600;
-    }
+    .tab-icon { font-size: 16px; }
+    .tab-text { font-size: 13px; font-weight: 600; }
 
     .imagina-options-container {
         background: #f8f9fa;
-        border-radius: 12px;
-        padding: 25px;
-        border: 2px dashed #dee2e6;
-        min-height: 200px;
+        border-radius: 8px;
+        padding: 16px;
+        border: 1px dashed #dee2e6;
     }
 
-    .imagina-option-panel {
-        display: none;
-        animation: fadeInUp 0.3s ease;
-    }
-
-    .imagina-option-panel.active {
-        display: block;
-    }
+    .imagina-option-panel { display: none; }
+    .imagina-option-panel.active { display: block; }
 
     @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    /* *** NUEVOS ESTILOS PARA TOGGLES *** */
+    /* Toggles */
     .imagina-toggle-section {
-        margin-bottom: 25px;
-        padding: 20px;
+        margin-bottom: 14px;
+        padding: 12px 16px;
         background: #f8f9fa;
-        border-radius: 12px;
+        border-radius: 8px;
         border: 1px solid #e9ecef;
     }
 
     .imagina-toggle-container {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 12px;
         cursor: pointer;
         font-weight: 600;
         color: #374151;
-        font-size: 16px;
+        font-size: 14px;
     }
 
-    .imagina-toggle-container input[type="checkbox"] {
-        display: none;
-    }
+    .imagina-toggle-container input[type="checkbox"] { display: none; }
 
     .imagina-toggle-slider {
         position: relative;
-        width: 50px;
-        height: 26px;
+        width: 42px;
+        height: 22px;
         background: #ccc;
-        border-radius: 26px;
+        border-radius: 22px;
         transition: 0.3s;
         cursor: pointer;
+        flex-shrink: 0;
     }
 
     .imagina-toggle-slider:before {
         content: "";
         position: absolute;
-        height: 20px;
-        width: 20px;
+        height: 16px;
+        width: 16px;
         left: 3px;
         bottom: 3px;
         background-color: white;
         border-radius: 50%;
         transition: 0.3s;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
-    .imagina-toggle-container input:checked + .imagina-toggle-slider {
-        background: #667eea;
-    }
-
-    .imagina-toggle-container input:checked + .imagina-toggle-slider:before {
-        transform: translateX(24px);
-    }
+    .imagina-toggle-container input:checked + .imagina-toggle-slider { background: #667eea; }
+    .imagina-toggle-container input:checked + .imagina-toggle-slider:before { transform: translateX(20px); }
 
     .imagina-toggle-description {
-        margin: 10px 0 0 0;
+        margin: 6px 0 0 0;
         color: #6b7280;
-        font-size: 14px;
-        line-height: 1.5;
+        font-size: 12px;
+        line-height: 1.4;
     }
 
-    /* *** ESTILOS PARA CONTROLES DE COLOR *** */
-    .imagina-color-controls {
-        animation: fadeInUp 0.3s ease;
-    }
+    /* Controles de color */
+    .imagina-color-controls { animation: fadeInUp 0.2s ease; }
 
     .imagina-color-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
     }
 
     .imagina-color-picker {
         display: grid;
         grid-template-columns: auto 1fr auto;
-        gap: 15px;
+        gap: 10px;
         align-items: center;
         background: white;
-        padding: 20px;
+        padding: 10px 14px;
         border-radius: 8px;
         border: 1px solid #e5e7eb;
     }
 
     .imagina-color-input {
-        width: 60px;
-        height: 60px;
+        width: 36px;
+        height: 36px;
         border: none;
         border-radius: 50%;
         cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        transition: transform 0.2s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.12);
     }
 
-    .imagina-color-input:hover {
-        transform: scale(1.1);
-    }
+    .imagina-color-input:hover { transform: scale(1.1); }
 
-    .imagina-color-info {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
+    .imagina-color-info { display: flex; flex-direction: column; gap: 2px; }
 
-    .imagina-color-label {
-        font-weight: 600;
-        color: #374151;
-    }
+    .imagina-color-label { font-weight: 600; color: #374151; font-size: 13px; }
 
     .imagina-color-value {
         font-family: 'Monaco', 'Menlo', monospace;
-        font-size: 13px;
+        font-size: 11px;
         color: #6b7280;
         background: #f3f4f6;
-        padding: 4px 8px;
-        border-radius: 4px;
-        display: inline-block;
-        min-width: 80px;
+        padding: 2px 6px;
+        border-radius: 3px;
     }
 
-    /* *** ESTILOS PARA CONTROLES DE TRANSICIÓN *** */
-    .imagina-transition-controls {
-        animation: fadeInUp 0.3s ease;
-    }
+    /* Controles de transicion */
+    .imagina-transition-controls { animation: fadeInUp 0.2s ease; }
 
     .imagina-transition-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
     }
 
     .imagina-control-group {
         background: white;
-        padding: 20px;
+        padding: 12px 14px;
         border-radius: 8px;
         border: 1px solid #e5e7eb;
     }
@@ -1718,195 +1667,188 @@ function il_settings_page_html() {
         display: block;
         font-weight: 600;
         color: #374151;
-        margin-bottom: 10px;
-        font-size: 14px;
+        margin-bottom: 6px;
+        font-size: 13px;
     }
 
     .imagina-select {
         width: 100%;
-        padding: 10px 12px;
-        border: 2px solid #e5e7eb;
+        padding: 7px 10px;
+        border: 1px solid #e5e7eb;
         border-radius: 6px;
         background: white;
         color: #374151;
-        font-size: 14px;
-        transition: border-color 0.2s ease;
+        font-size: 13px;
     }
 
     .imagina-select:focus {
         outline: none;
         border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
     }
 
-    .imagina-slider-container {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
+    .imagina-slider-container { display: flex; align-items: center; gap: 8px; }
 
     .imagina-slider {
         flex: 1;
-        height: 6px;
+        height: 5px;
         border-radius: 3px;
         background: #e5e7eb;
         outline: none;
-        transition: background 0.2s ease;
     }
 
     .imagina-slider::-webkit-slider-thumb {
         appearance: none;
-        width: 20px;
-        height: 20px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
         background: #667eea;
         cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
     .imagina-slider::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
         background: #667eea;
         cursor: pointer;
         border: none;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
     .imagina-slider-value {
         font-weight: 600;
         color: #374151;
-        min-width: 40px;
+        min-width: 32px;
         text-align: center;
+        font-size: 13px;
     }
 
     .imagina-actions {
         display: flex;
         justify-content: center;
-        gap: 20px;
-        padding: 40px 0;
-        margin-top: 30px;
-        border-top: 2px solid #e5e7eb;
+        gap: 14px;
+        padding: 24px 0;
+        margin-top: 16px;
+        border-top: 1px solid #e5e7eb;
     }
 
     .imagina-save-btn {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
         border: none;
-        padding: 16px 32px;
-        border-radius: 12px;
+        padding: 10px 24px;
+        border-radius: 8px;
         font-weight: 700;
-        font-size: 16px;
+        font-size: 14px;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
         display: flex;
         align-items: center;
-        gap: 8px;
-        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+        gap: 6px;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
     }
 
     .imagina-save-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
     }
 
     .imagina-reset-btn {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
         border: none;
-        padding: 16px 32px;
-        border-radius: 12px;
+        padding: 10px 24px;
+        border-radius: 8px;
         font-weight: 700;
-        font-size: 16px;
+        font-size: 14px;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
         display: flex;
         align-items: center;
-        gap: 8px;
-        box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+        gap: 6px;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
     }
 
     .imagina-reset-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
     }
 
     .imagina-help-section {
         max-width: 1200px;
-        margin: 40px auto;
-        padding: 0 40px;
+        margin: 20px auto;
+        padding: 0 30px;
     }
 
     .imagina-help-section h3 {
         color: #374151;
-        font-size: 20px;
+        font-size: 15px;
         font-weight: 700;
-        margin-bottom: 20px;
+        margin-bottom: 12px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
     }
 
     .imagina-tips {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
     }
 
     .imagina-tip {
         background: white;
-        padding: 20px;
-        border-radius: 12px;
-        border-left: 4px solid #667eea;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        font-size: 14px;
-        line-height: 1.5;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border-left: 3px solid #667eea;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        font-size: 12px;
+        line-height: 1.4;
     }
 
-    /* *** ESTILOS PARA SELECTOR DE TEMPLATES *** */
+    /* Selector de templates */
     .imagina-template-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 25px;
-        margin-top: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+        margin-top: 10px;
     }
 
     .imagina-template-card {
         position: relative;
         background: white;
-        border: 3px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 20px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 10px;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 8px;
         overflow: hidden;
     }
 
     .imagina-template-card:hover {
         border-color: #d1d5db;
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     .imagina-template-card.active {
         border-color: #667eea;
         background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
-        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
     }
 
-    .imagina-template-card input[type="radio"] {
-        display: none;
-    }
+    .imagina-template-card input[type="radio"] { display: none; }
 
     .template-preview {
         background: #f3f4f6;
-        border-radius: 12px;
-        padding: 20px;
-        min-height: 160px;
+        border-radius: 8px;
+        padding: 12px;
+        min-height: 90px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1914,249 +1856,167 @@ function il_settings_page_html() {
 
     .template-mockup {
         width: 100%;
-        max-width: 200px;
-        height: 130px;
+        max-width: 160px;
+        height: 80px;
         background: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         display: grid;
         overflow: hidden;
     }
 
-    /* Mockup Clásico */
-    .classic-mockup {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .mockup-left {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
+    /* Mockups */
+    .classic-mockup { grid-template-columns: 1fr 1fr; }
+    .mockup-left { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     .mockup-right {
-        padding: 15px 10px;
+        padding: 10px 6px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 5px;
         justify-content: center;
     }
 
-    /* Mockup Minimalista */
-    .minimal-mockup {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
-    }
-
+    .minimal-mockup { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
     .mockup-logo-mini {
         background: #f3f4f6;
-        height: 35px;
+        height: 25px;
         border-bottom: 1px solid #e5e7eb;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-
     .mockup-form-centered {
-        padding: 12px 10px;
+        padding: 8px 6px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 5px;
         justify-content: center;
     }
 
-    /* Mockup Logo Superior */
-    .toplogo-mockup {
-        grid-template-columns: 1fr;
-        grid-template-rows: 45px 1fr;
-    }
+    .toplogo-mockup { grid-template-columns: 1fr; grid-template-rows: 30px 1fr; }
+    .mockup-logo-top { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
 
-    .mockup-logo-top {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    }
-
-    /* Mockup Split */
-    .split-mockup {
-        grid-template-columns: 1.5fr 1fr;
-    }
-
-    .mockup-left-big {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    }
-
+    .split-mockup { grid-template-columns: 1.5fr 1fr; }
+    .mockup-left-big { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
     .mockup-right-small {
-        padding: 12px 8px;
+        padding: 8px 5px;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 4px;
         justify-content: center;
     }
 
-    /* Elementos del mockup */
-    .mock-input {
-        background: #e5e7eb;
-        height: 12px;
-        border-radius: 4px;
-    }
+    .mock-input { background: #e5e7eb; height: 8px; border-radius: 3px; }
+    .mock-button { background: #667eea; height: 10px; border-radius: 3px; margin-top: 2px; }
 
-    .mock-button {
-        background: #667eea;
-        height: 14px;
-        border-radius: 4px;
-        margin-top: 4px;
-    }
-
-    /* Mockup Full Screen */
     .fullscreen-mockup {
         grid-template-columns: 1fr;
-        grid-template-rows: 35px 1fr 20px;
+        grid-template-rows: 22px 1fr 14px;
         background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
     }
-
-    .mockup-full-header {
-        background: rgba(255, 255, 255, 0.1);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
+    .mockup-full-header { background: rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); }
     .mockup-full-content {
-        padding: 15px 12px;
+        padding: 8px 6px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 5px;
         justify-content: center;
     }
+    .fullscreen-mockup .mock-input { background: rgba(255,255,255,0.9); }
+    .fullscreen-mockup .mock-button { background: rgba(255,255,255,0.95); }
+    .mockup-full-footer { background: rgba(0,0,0,0.05); border-top: 1px solid rgba(255,255,255,0.1); }
 
-    .fullscreen-mockup .mock-input {
-        background: rgba(255, 255, 255, 0.9);
-    }
-
-    .fullscreen-mockup .mock-button {
-        background: rgba(255, 255, 255, 0.95);
-    }
-
-    .mockup-full-footer {
-        background: rgba(0, 0, 0, 0.05);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* Mockup Glassmorphism */
-    .glass-preview {
-        background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
-    }
-
+    .glass-preview { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); }
     .glass-mockup {
         grid-template-columns: 1fr;
         grid-template-rows: auto 1fr;
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(255,255,255,0.2);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255,255,255,0.3);
     }
-
     .mockup-glass-header {
-        background: rgba(255, 255, 255, 0.05);
-        height: 35px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255,255,255,0.05);
+        height: 22px;
+        border-bottom: 1px solid rgba(255,255,255,0.15);
     }
-
     .mockup-glass-content {
-        padding: 12px 10px;
+        padding: 8px 6px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 5px;
         justify-content: center;
     }
+    .glass-mockup .mock-input { background: rgba(255,255,255,0.6); }
+    .glass-mockup .mock-button { background: rgba(255,255,255,0.8); }
 
-    .glass-mockup .mock-input {
-        background: rgba(255, 255, 255, 0.6);
-    }
-
-    .glass-mockup .mock-button {
-        background: rgba(255, 255, 255, 0.8);
-    }
-
-    /* Mockup Sidebar */
-    .sidebar-mockup {
-        grid-template-columns: 2fr 1fr;
-        position: relative;
-    }
-
-    .mockup-sidebar-bg {
-        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-    }
-
+    .sidebar-mockup { grid-template-columns: 2fr 1fr; position: relative; }
+    .mockup-sidebar-bg { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
     .mockup-sidebar-panel {
         background: white;
-        padding: 12px 8px;
+        padding: 8px 5px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 5px;
         justify-content: center;
-        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+        box-shadow: -2px 0 6px rgba(0,0,0,0.08);
     }
 
-    /* Mockup Boxed */
     .boxed-mockup {
         grid-template-columns: 1fr;
         background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-        padding: 15px;
+        padding: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-
     .mockup-boxed-container {
         width: 75%;
         background: white;
-        border-radius: 8px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         overflow: hidden;
         display: grid;
-        grid-template-rows: 30px 1fr;
+        grid-template-rows: 20px 1fr;
     }
-
-    .mockup-boxed-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
+    .mockup-boxed-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     .mockup-boxed-content {
-        padding: 10px 8px;
+        padding: 6px 5px;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 4px;
         justify-content: center;
     }
 
     .template-info h3 {
-        margin: 0 0 8px 0;
-        font-size: 17px;
+        margin: 0 0 2px 0;
+        font-size: 13px;
         font-weight: 700;
         color: #374151;
-        display: flex;
-        align-items: center;
-        gap: 8px;
     }
 
     .template-info p {
         margin: 0;
-        font-size: 14px;
+        font-size: 11px;
         color: #6b7280;
-        line-height: 1.5;
+        line-height: 1.3;
     }
 
     .template-check {
         position: absolute;
-        top: 15px;
-        right: 15px;
-        width: 32px;
-        height: 32px;
+        top: 8px;
+        right: 8px;
+        width: 24px;
+        height: 24px;
         background: #667eea;
         color: white;
         border-radius: 50%;
         display: none;
         align-items: center;
         justify-content: center;
-        font-size: 18px;
+        font-size: 14px;
         font-weight: bold;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
     }
 
     .imagina-template-card.active .template-check {
@@ -2172,59 +2032,22 @@ function il_settings_page_html() {
 
     .imagina-template-section {
         border: 2px solid #667eea;
-        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+        box-shadow: 0 2px 12px rgba(102, 126, 234, 0.12);
     }
 
     /* Responsive */
     @media (max-width: 768px) {
-        .imagina-header {
-            padding: 20px;
-        }
-
-        .imagina-header-content {
-            flex-direction: column;
-            text-align: center;
-            gap: 20px;
-        }
-
-        .imagina-logo-section h1 {
-            font-size: 28px;
-        }
-
-        .imagina-subtitle {
-            margin-left: 0;
-        }
-
-        .imagina-form,
-        .imagina-help-section {
-            padding: 0 20px;
-        }
-
-        .imagina-section-content {
-            padding: 20px;
-        }
-
-        .imagina-type-tabs {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .imagina-color-grid,
-        .imagina-transition-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .imagina-template-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .imagina-actions {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .imagina-tips {
-            grid-template-columns: 1fr;
-        }
+        .imagina-header { padding: 12px 16px; }
+        .imagina-header-content { flex-direction: column; text-align: center; gap: 12px; }
+        .imagina-logo-section h1 { font-size: 20px; }
+        .imagina-subtitle { margin-left: 0; }
+        .imagina-form, .imagina-help-section { padding: 0 12px; }
+        .imagina-section-content { padding: 12px; }
+        .imagina-type-tabs { flex-wrap: wrap; }
+        .imagina-color-grid, .imagina-transition-grid { grid-template-columns: 1fr; }
+        .imagina-template-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+        .imagina-actions { flex-direction: column; align-items: center; }
+        .imagina-tips { grid-template-columns: 1fr; }
     }
     </style>
 
@@ -2787,173 +2610,78 @@ function il_render_transition_controls() {
 
     echo '<div class="imagina-transition-grid">
         <div class="imagina-control-group">
-            <label class="imagina-control-label">
-                <span class="dashicons dashicons-image-filter"></span>
-                Tipo de transición
-            </label>
+            <label class="imagina-control-label">Tipo de transición</label>
             <select name="il_transition_type" class="imagina-select" onchange="updateTransitionPreview()">
-                <option value="fade"' . selected($transition_type, 'fade', false) . '>✨ Aparición gradual (Fade)</option>
-                <option value="slidedown"' . selected($transition_type, 'slidedown', false) . '>⬇️ Deslizar desde arriba</option>
-                <option value="zoom"' . selected($transition_type, 'zoom', false) . '>🔍 Zoom suave</option>
+                <option value="fade"' . selected($transition_type, 'fade', false) . '>Aparición gradual (Fade)</option>
+                <option value="slidedown"' . selected($transition_type, 'slidedown', false) . '>Deslizar desde arriba</option>
+                <option value="zoom"' . selected($transition_type, 'zoom', false) . '>Zoom suave</option>
             </select>
-            <p style="margin: 8px 0 0 0; font-size: 12px; color: #6b7280;">
-                Controla cómo aparecen el fondo, logo y formulario
-            </p>
         </div>
     </div>
 
-    <!-- Controles separados para Logo y Formulario -->
-    <div style="margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-        <!-- Controles del Logo -->
-        <div style="padding: 20px; background: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb;">
-            <h4 style="margin: 0 0 15px 0; color: #374151; font-size: 15px; display: flex; align-items: center; gap: 8px;">
-                <span class="dashicons dashicons-admin-appearance" style="color: #667eea;"></span>
-                🏢 Animación del Logo
-            </h4>
-
-            <div class="imagina-control-group" style="margin-bottom: 15px;">
-                <label class="imagina-control-label">
-                    <span class="dashicons dashicons-clock"></span>
-                    Velocidad
-                </label>
+    <div style="margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="padding: 14px; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+            <h4 style="margin: 0 0 10px 0; color: #374151; font-size: 13px; font-weight: 700;">Logo</h4>
+            <div class="imagina-control-group" style="margin-bottom: 10px;">
+                <label class="imagina-control-label">Velocidad</label>
                 <div class="imagina-slider-container">
-                    <input type="range" name="il_logo_transition_duration"
-                           class="imagina-slider"
-                           min="0.1" max="1.5" step="0.05"
-                           value="' . esc_attr($logo_duration) . '"
-                           oninput="updateDurationDisplay(this)">
+                    <input type="range" name="il_logo_transition_duration" class="imagina-slider" min="0.1" max="1.5" step="0.05" value="' . esc_attr($logo_duration) . '" oninput="updateDurationDisplay(this)">
                     <span class="imagina-slider-value">' . esc_html($logo_duration) . 's</span>
                 </div>
-                <p style="margin: 5px 0 0 0; font-size: 11px; color: #6b7280;">
-                    Duración de la animación (0.1 - 1.5s)
-                </p>
             </div>
-
             <div class="imagina-control-group">
-                <label class="imagina-control-label">
-                    <span class="dashicons dashicons-backup"></span>
-                    Delay (Retraso)
-                </label>
+                <label class="imagina-control-label">Delay</label>
                 <div class="imagina-slider-container">
-                    <input type="range" name="il_logo_transition_delay"
-                           class="imagina-slider"
-                           min="0" max="1.0" step="0.05"
-                           value="' . esc_attr($logo_delay) . '"
-                           oninput="updateDurationDisplay(this)">
+                    <input type="range" name="il_logo_transition_delay" class="imagina-slider" min="0" max="1.0" step="0.05" value="' . esc_attr($logo_delay) . '" oninput="updateDurationDisplay(this)">
                     <span class="imagina-slider-value">' . esc_html($logo_delay) . 's</span>
                 </div>
-                <p style="margin: 5px 0 0 0; font-size: 11px; color: #6b7280;">
-                    Tiempo antes de iniciar (0 - 1.0s)
-                </p>
             </div>
         </div>
 
-        <!-- Controles del Formulario -->
-        <div style="padding: 20px; background: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb;">
-            <h4 style="margin: 0 0 15px 0; color: #374151; font-size: 15px; display: flex; align-items: center; gap: 8px;">
-                <span class="dashicons dashicons-feedback" style="color: #10b981;"></span>
-                📝 Animación del Formulario
-            </h4>
-
-            <div class="imagina-control-group" style="margin-bottom: 15px;">
-                <label class="imagina-control-label">
-                    <span class="dashicons dashicons-clock"></span>
-                    Velocidad
-                </label>
+        <div style="padding: 14px; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+            <h4 style="margin: 0 0 10px 0; color: #374151; font-size: 13px; font-weight: 700;">Formulario</h4>
+            <div class="imagina-control-group" style="margin-bottom: 10px;">
+                <label class="imagina-control-label">Velocidad</label>
                 <div class="imagina-slider-container">
-                    <input type="range" name="il_form_transition_duration"
-                           class="imagina-slider"
-                           min="0.1" max="1.5" step="0.05"
-                           value="' . esc_attr($form_duration) . '"
-                           oninput="updateDurationDisplay(this)">
+                    <input type="range" name="il_form_transition_duration" class="imagina-slider" min="0.1" max="1.5" step="0.05" value="' . esc_attr($form_duration) . '" oninput="updateDurationDisplay(this)">
                     <span class="imagina-slider-value">' . esc_html($form_duration) . 's</span>
                 </div>
-                <p style="margin: 5px 0 0 0; font-size: 11px; color: #6b7280;">
-                    Duración de la animación (0.1 - 1.5s)
-                </p>
             </div>
-
             <div class="imagina-control-group">
-                <label class="imagina-control-label">
-                    <span class="dashicons dashicons-backup"></span>
-                    Delay (Retraso)
-                </label>
+                <label class="imagina-control-label">Delay</label>
                 <div class="imagina-slider-container">
-                    <input type="range" name="il_form_transition_delay"
-                           class="imagina-slider"
-                           min="0" max="1.0" step="0.05"
-                           value="' . esc_attr($form_delay) . '"
-                           oninput="updateDurationDisplay(this)">
+                    <input type="range" name="il_form_transition_delay" class="imagina-slider" min="0" max="1.0" step="0.05" value="' . esc_attr($form_delay) . '" oninput="updateDurationDisplay(this)">
                     <span class="imagina-slider-value">' . esc_html($form_delay) . 's</span>
                 </div>
-                <p style="margin: 5px 0 0 0; font-size: 11px; color: #6b7280;">
-                    Tiempo antes de iniciar (0 - 1.0s)
-                </p>
             </div>
         </div>
     </div>
-    
-    <div style="margin-top: 25px; padding: 20px; background: #f3f4f6; border-radius: 12px; border: 2px dashed #d1d5db;">
-        <h4 style="margin: 0 0 15px 0; color: #374151; font-size: 16px; display: flex; align-items: center; gap: 8px;">
-            <span class="dashicons dashicons-format-video"></span>
-            Secuencia de animación
-        </h4>
-        <div style="display: grid; gap: 15px; margin-bottom: 20px;">
-            <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;">
-                <strong>🖼️ Fondo (0.1s):</strong> Aparece primero creando el contexto visual
-            </div>
-            <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
-                <strong>🏢 Logo (0.3s):</strong> Aparece segundo estableciendo la identidad
-            </div>
-            <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;">
-                <strong>📝 Formulario (0.5s):</strong> Aparece último para captar la atención
-            </div>
+
+    <div style="margin-top: 14px; padding: 12px; background: #f3f4f6; border-radius: 8px; border: 1px dashed #d1d5db;">
+        <h4 style="margin: 0 0 8px 0; color: #374151; font-size: 13px;">Secuencia de animación</h4>
+        <div style="display: flex; gap: 8px; font-size: 12px; color: #6b7280; flex-wrap: wrap;">
+            <span style="padding: 4px 10px; background: white; border-radius: 4px; border-left: 3px solid #667eea;">Fondo (0.1s)</span>
+            <span style="padding: 4px 10px; background: white; border-radius: 4px; border-left: 3px solid #10b981;">Logo (0.3s)</span>
+            <span style="padding: 4px 10px; background: white; border-radius: 4px; border-left: 3px solid #f59e0b;">Formulario (0.5s)</span>
         </div>
-        
-        <div id="transition-preview" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+
+        <div id="transition-preview" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px;">
             <div class="transition-demo" data-type="fade">
-                <div style="width: 100%; height: 80px; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px; animation: fadeDemo 3s infinite;">
-                    Fade In
-                </div>
-                <p style="text-align: center; margin: 8px 0 0 0; font-size: 12px; color: #6b7280;">Aparición gradual</p>
+                <div style="width: 100%; height: 40px; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 11px; animation: fadeDemo 3s infinite;">Fade</div>
             </div>
-            
             <div class="transition-demo" data-type="slidedown">
-                <div style="width: 100%; height: 80px; background: linear-gradient(45deg, #10b981, #059669); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px; animation: slideDemo 3s infinite;">
-                    Slide Down
-                </div>
-                <p style="text-align: center; margin: 8px 0 0 0; font-size: 12px; color: #6b7280;">Deslizar desde arriba</p>
+                <div style="width: 100%; height: 40px; background: linear-gradient(45deg, #10b981, #059669); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 11px; animation: slideDemo 3s infinite;">Slide</div>
             </div>
-            
             <div class="transition-demo" data-type="zoom">
-                <div style="width: 100%; height: 80px; background: linear-gradient(45deg, #f59e0b, #d97706); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px; animation: zoomDemo 3s infinite;">
-                    Zoom In
-                </div>
-                <p style="text-align: center; margin: 8px 0 0 0; font-size: 12px; color: #6b7280;">Zoom suave</p>
+                <div style="width: 100%; height: 40px; background: linear-gradient(45deg, #f59e0b, #d97706); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 11px; animation: zoomDemo 3s infinite;">Zoom</div>
             </div>
         </div>
-        
+
         <style>
-        @keyframes fadeDemo {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
-        @keyframes slideDemo {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-        
-        @keyframes zoomDemo {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(0.8); }
-        }
-        
-        .transition-demo.active {
-            border: 2px solid #667eea;
-            padding: 4px;
-            border-radius: 12px;
-        }
+        @keyframes fadeDemo { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes slideDemo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes zoomDemo { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.85); } }
+        .transition-demo.active { border: 2px solid #667eea; padding: 3px; border-radius: 8px; }
         </style>
     </div>
     
