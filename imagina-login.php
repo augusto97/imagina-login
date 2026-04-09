@@ -838,25 +838,112 @@ function dequeue_default_login_styles() {
 add_action('login_enqueue_scripts', 'dequeue_default_login_styles', 11);
 
 /**
- * Modo preview: mostrar el login aunque el usuario esté logueado.
- * Intercepta la redirección que wp-login.php hace cuando detecta sesión activa.
+ * Modo preview: cargar un template falso de login en el frontend.
+ * Usa template_include para servir una replica del login sin pasar por wp-login.php.
  */
-function il_handle_login_preview() {
-    if (!isset($_GET['il_preview']) || $_GET['il_preview'] !== '1') {
-        return;
+function il_login_preview_template($template) {
+    if (!isset($_GET['il_login_preview'])) {
+        return $template;
     }
     if (!is_user_logged_in() || !current_user_can('manage_options')) {
-        return;
+        return $template;
     }
-    // Bloquear la redirección automática de wp-login.php para usuarios logueados
-    add_filter('wp_redirect', function($location) {
-        if (isset($_GET['il_preview']) && $_GET['il_preview'] === '1') {
-            return false;
-        }
-        return $location;
-    }, 999);
+
+    // Servir la pagina de preview
+    il_render_login_preview();
+    exit;
 }
-add_action('login_init', 'il_handle_login_preview');
+add_filter('template_include', 'il_login_preview_template', 999);
+
+/**
+ * Renderizar la replica del login para preview
+ */
+function il_render_login_preview() {
+    // Disparar login_init para que nuestro plugin y otros carguen lo necesario
+    do_action('login_init');
+
+    // Simular las clases del body de wp-login.php
+    $opts = il_get_all_options();
+    $template = $opts['il_login_template'];
+    $body_classes = ['login', 'wp-core-ui', 'login-action-login'];
+    $body_classes[] = 'template-' . $template;
+    if ($opts['il_enable_transitions']) {
+        $body_classes[] = 'has-transitions';
+    }
+
+    // Obtener el logo
+    $custom_logo_id = get_theme_mod('custom_logo');
+    $logo_url = '';
+    if ($custom_logo_id) {
+        $logo_data = wp_get_attachment_image_src($custom_logo_id, 'full');
+        if ($logo_data && isset($logo_data[0])) {
+            $logo_url = $logo_data[0];
+        }
+    }
+    if (empty($logo_url)) {
+        $site_icon_url = get_site_icon_url();
+        if (!empty($site_icon_url)) {
+            $logo_url = $site_icon_url;
+        }
+    }
+    $logo_text = empty($logo_url) ? get_bloginfo('name') : '';
+
+    ?><!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+<meta charset="<?php bloginfo('charset'); ?>" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title><?php echo esc_html(get_bloginfo('name')); ?> &mdash; Login Preview</title>
+<?php
+    // Cargar estilos base de login de WordPress
+    wp_enqueue_style('login');
+    // Disparar hooks en el mismo orden que wp-login.php
+    do_action('login_enqueue_scripts');
+    wp_print_styles();
+    wp_print_head_scripts();
+    do_action('login_head');
+?>
+</head>
+<body class="<?php echo esc_attr(implode(' ', $body_classes)); ?>">
+<div id="login">
+    <h1>
+        <a href="<?php echo esc_url(home_url('/')); ?>"><?php echo esc_html($logo_text); ?></a>
+    </h1>
+    <form name="loginform" id="loginform" action="#" method="post">
+        <p>
+            <label for="user_login"><?php esc_html_e('Username or Email Address'); ?></label>
+            <input type="text" name="log" id="user_login" class="input" value="" size="20" autocapitalize="off" autocomplete="off" readonly />
+        </p>
+        <p>
+            <label for="user_pass"><?php esc_html_e('Password'); ?></label>
+            <div class="wp-pwd">
+                <input type="password" name="pwd" id="user_pass" class="input" value="" size="20" autocomplete="off" readonly />
+            </div>
+        </p>
+        <p class="forgetmenot">
+            <input name="rememberme" type="checkbox" id="rememberme" value="forever" />
+            <label for="rememberme"><?php esc_html_e('Remember Me'); ?></label>
+        </p>
+        <p class="submit">
+            <input type="button" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e('Log In'); ?>" />
+        </p>
+    </form>
+    <p id="nav">
+        <a href="#"><?php esc_html_e('Lost your password?'); ?></a>
+    </p>
+    <p id="backtoblog">
+        <a href="<?php echo esc_url(home_url('/')); ?>">&larr; <?php echo esc_html(sprintf(__('Go to %s'), get_bloginfo('name'))); ?></a>
+    </p>
+</div>
+<?php
+    do_action('login_footer');
+    wp_print_footer_scripts();
+?>
+</body>
+</html>
+<?php
+}
 
 // --- Filtros para el comportamiento del logo y el formulario ---
 add_filter('login_display_language_dropdown', '__return_false');
@@ -1016,7 +1103,7 @@ function il_settings_page_html() {
                     <p class="imagina-subtitle">Personaliza tu página de login de WordPress</p>
                 </div>
                 <div class="imagina-preview-section">
-                    <a href="<?php echo esc_url(add_query_arg('il_preview', '1', wp_login_url())); ?>" target="_blank" class="imagina-preview-btn">
+                    <a href="<?php echo esc_url(add_query_arg('il_login_preview', '1', home_url())); ?>" target="_blank" class="imagina-preview-btn">
                         <span class="dashicons dashicons-visibility"></span>
                         Ver Login
                     </a>
