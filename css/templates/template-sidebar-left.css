@@ -49,7 +49,7 @@ body.login.template-sidebar-left div#login h1 a {
 
 body.login.template-sidebar-left div#login form#loginform,
 body.login.template-sidebar-left div#login form#lostpasswordform,
-body.login.template-sidebar-left div#login form#magicloginform {
+body.login.template-sidebar-left div#login form#magicloginform, body.login.template-sidebar-left div#login form#registerform, body.login.template-sidebar-left div#login form#resetpassform {
     grid-area: form;
     padding: 50px 45px;
     background: white;
@@ -59,16 +59,16 @@ body.login.template-sidebar-left div#login form#magicloginform {
 }
 
 /* Mensajes */
-body.login.template-sidebar-left .login p.message,
-body.login.template-sidebar-left .login #login_error,
+body.login.template-sidebar-left p.message,
+body.login.template-sidebar-left #login_error,
 body.login.template-sidebar-left #login-message,
 body.login.template-sidebar-left .notice.notice-info.message {
     margin: 0;
 }
 
 /* Footer fijo en la parte inferior */
-body.login.template-sidebar-left .login #nav,
-body.login.template-sidebar-left .login #backtoblog {
+body.login.template-sidebar-left #nav,
+body.login.template-sidebar-left #backtoblog {
     background: #f8f9fa;
     border-top: 1px solid #e9ecef;
     padding: 20px 40px;
@@ -96,12 +96,12 @@ body.login.template-sidebar-left.login-action-checkemail div#login h1 {
 
     body.login.template-sidebar-left div#login form#loginform,
     body.login.template-sidebar-left div#login form#lostpasswordform,
-    body.login.template-sidebar-left div#login form#magicloginform {
+    body.login.template-sidebar-left div#login form#magicloginform, body.login.template-sidebar-left div#login form#registerform, body.login.template-sidebar-left div#login form#resetpassform {
         padding: 40px 35px;
     }
 
-    body.login.template-sidebar-left .login #nav,
-    body.login.template-sidebar-left .login #backtoblog {
+    body.login.template-sidebar-left #nav,
+    body.login.template-sidebar-left #backtoblog {
         padding: 18px 35px;
     }
 }
@@ -132,12 +132,12 @@ body.login.template-sidebar-left.login-action-checkemail div#login h1 {
 
     body.login.template-sidebar-left div#login form#loginform,
     body.login.template-sidebar-left div#login form#lostpasswordform,
-    body.login.template-sidebar-left div#login form#magicloginform {
+    body.login.template-sidebar-left div#login form#magicloginform, body.login.template-sidebar-left div#login form#registerform, body.login.template-sidebar-left div#login form#resetpassform {
         padding: 35px 25px;
     }
 
-    body.login.template-sidebar-left .login #nav,
-    body.login.template-sidebar-left .login #backtoblog {
+    body.login.template-sidebar-left #nav,
+    body.login.template-sidebar-left #backtoblog {
         padding: 16px 25px;
     }
 }
@@ -158,12 +158,12 @@ body.login.template-sidebar-left.login-action-checkemail div#login h1 {
 
     body.login.template-sidebar-left div#login form#loginform,
     body.login.template-sidebar-left div#login form#lostpasswordform,
-    body.login.template-sidebar-left div#login form#magicloginform {
+    body.login.template-sidebar-left div#login form#magicloginform, body.login.template-sidebar-left div#login form#registerform, body.login.template-sidebar-left div#login form#resetpassform {
         padding: 30px 20px;
     }
 
-    body.login.template-sidebar-left .login #nav,
-    body.login.template-sidebar-left .login #backtoblog {
+    body.login.template-sidebar-left #nav,
+    body.login.template-sidebar-left #backtoblog {
         padding: 14px 20px;
     }
 }

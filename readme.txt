@@ -3,7 +3,7 @@ Contributors: augusto97
 Tags: login, custom login, login page, login background, login logo, login templates, fullscreen login, sidebar login
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 2.3.8
+Stable tag: 2.3.9
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,23 @@ Sí, el plugin funciona correctamente en instalaciones de WordPress Multisite.
 5.  Ejemplo del selector de contraseña visible/oculto.
 
 == Changelog ==
+
+= 2.3.9 =
+* 🔐 **FIX:** Compatibilidad con plugins de 2FA: el campo del código ya no aparece antes de introducir usuario y contraseña. El plugin forzaba a mostrarse los campos que esos plugins ocultan.
+* 🔐 **FIX:** Se usa el botón de mostrar/ocultar contraseña de WordPress; antes se añadía a cualquier campo de contraseña, incluidos los de otros plugins.
+* 🐛 **FIX:** "¿Olvidaste tu contraseña?" y "Registro" quedaban tapados por "Volver al sitio" en todos los diseños.
+* 🐛 **FIX:** Sin JavaScript, el logo y el formulario quedaban invisibles y no se podía iniciar sesión.
+* 🐛 **FIX:** Error fatal si el tema u otro plugin definía funciones comunes como custom_login_logo_url(); todas las funciones usan ahora el prefijo il_.
+* 🐛 **FIX:** Los formularios de registro y de restablecer contraseña salían sin márgenes.
+* 🐛 **FIX:** En Pantalla Completa y Glassmorphism las etiquetas y el botón eran invisibles con los colores por defecto.
+* 🐛 **FIX:** 77 reglas CSS de los diseños nunca se aplicaban (pie, mensajes y enlaces).
+* 🐛 **FIX:** Sin logo, el nombre del sitio aparecía duplicado.
+* 🐛 **FIX:** El botón "Restaurar por Defecto" ahora funciona.
+* 🎨 **MEJORA:** Estilos para el tooltip de "Recuérdame" (WordPress 7), los botones de otros plugins y el medidor de seguridad de la contraseña.
+* 🔒 **SEGURIDAD:** Todos los ajustes se validan al guardarse y al leerse; un color manipulado ya no puede inyectar código en la página de login.
+* ⚡ **RENDIMIENTO:** styles.css se descargaba dos veces; se quitó jQuery y dos observadores de la página de login.
+* ⚡ **MEJORA:** La caché de estilos se renueva sola con cualquier cambio de ajustes (también desde WP-CLI).
+* 🧹 **NUEVO:** uninstall.php borra los ajustes al desinstalar el plugin.
 
 = 2.3.8 =
 * 🎬 **NUEVO:** Video de fondo desde enlace externo: YouTube, Vimeo o archivo directo (.mp4, .webm)

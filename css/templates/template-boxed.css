@@ -60,7 +60,7 @@ body.login.template-boxed div#login h1 a {
 
 body.login.template-boxed div#login form#loginform,
 body.login.template-boxed div#login form#lostpasswordform,
-body.login.template-boxed div#login form#magicloginform {
+body.login.template-boxed div#login form#magicloginform, body.login.template-boxed div#login form#registerform, body.login.template-boxed div#login form#resetpassform {
     grid-area: form;
     padding: 35px 35px 30px;
     background: white;
@@ -90,8 +90,8 @@ body.login.template-boxed div#login form .button-primary:focus {
 }
 
 /* Mensajes más compactos */
-body.login.template-boxed .login p.message,
-body.login.template-boxed .login #login_error,
+body.login.template-boxed p.message,
+body.login.template-boxed #login_error,
 body.login.template-boxed #login-message,
 body.login.template-boxed .notice.notice-info.message {
     padding: 14px 35px;
@@ -100,8 +100,8 @@ body.login.template-boxed .notice.notice-info.message {
 }
 
 /* Footer compacto */
-body.login.template-boxed .login #nav,
-body.login.template-boxed .login #backtoblog {
+body.login.template-boxed #nav,
+body.login.template-boxed #backtoblog {
     background: #fafbfc;
     border-top: 1px solid #e9ecef;
     padding: 18px 35px;
@@ -143,19 +143,19 @@ body.login.template-boxed.login-action-checkemail div#login h1 a {
 
     body.login.template-boxed div#login form#loginform,
     body.login.template-boxed div#login form#lostpasswordform,
-    body.login.template-boxed div#login form#magicloginform {
+    body.login.template-boxed div#login form#magicloginform, body.login.template-boxed div#login form#registerform, body.login.template-boxed div#login form#resetpassform {
         padding: 30px 25px;
     }
 
-    body.login.template-boxed .login p.message,
-    body.login.template-boxed .login #login_error,
+    body.login.template-boxed p.message,
+    body.login.template-boxed #login_error,
     body.login.template-boxed #login-message,
     body.login.template-boxed .notice.notice-info.message {
         padding: 12px 25px;
     }
 
-    body.login.template-boxed .login #nav,
-    body.login.template-boxed .login #backtoblog {
+    body.login.template-boxed #nav,
+    body.login.template-boxed #backtoblog {
         padding: 16px 25px;
     }
 }
@@ -182,20 +182,20 @@ body.login.template-boxed.login-action-checkemail div#login h1 a {
 
     body.login.template-boxed div#login form#loginform,
     body.login.template-boxed div#login form#lostpasswordform,
-    body.login.template-boxed div#login form#magicloginform {
+    body.login.template-boxed div#login form#magicloginform, body.login.template-boxed div#login form#registerform, body.login.template-boxed div#login form#resetpassform {
         padding: 25px 20px;
     }
 
-    body.login.template-boxed .login p.message,
-    body.login.template-boxed .login #login_error,
+    body.login.template-boxed p.message,
+    body.login.template-boxed #login_error,
     body.login.template-boxed #login-message,
     body.login.template-boxed .notice.notice-info.message {
         padding: 12px 20px;
         font-size: 12px;
     }
 
-    body.login.template-boxed .login #nav,
-    body.login.template-boxed .login #backtoblog {
+    body.login.template-boxed #nav,
+    body.login.template-boxed #backtoblog {
         padding: 14px 20px;
         flex-direction: column;
         gap: 8px;

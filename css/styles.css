@@ -3,10 +3,37 @@
  * Versión 2.2.1 - Con animación del logo
  */
 
-/* --- ESTILOS BASE Y TIPOGRAFÍA --- */
-h1.screen-reader-text {
+/*
+ * --- COMPATIBILIDAD CON OTROS PLUGINS (2FA, seguridad, membresías) ---
+ * El plugin desactiva las hojas de estilo del login de WordPress (login.css, forms.css),
+ * y con ellas se perdían las reglas que ocultan elementos. Los plugins de 2FA usan estas
+ * clases para esconder su campo de código hasta que se validan usuario y contraseña;
+ * sin ellas, el campo aparecía desde el principio.
+ */
+.screen-reader-text,
+.screen-reader-text span {
+    border: 0;
+    clip-path: inset(50%);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute !important;
+    width: 1px;
+    word-wrap: normal !important;
+}
+
+.hidden,
+.wp-core-ui .button.hidden,
+.no-js .hide-if-no-js,
+.js .hide-if-js,
+.pw-weak,
+#pass1-text,
+.show-password #pass1 {
     display: none;
 }
+
+/* --- ESTILOS BASE Y TIPOGRAFÍA --- */
 
 /*
  * Fondo del body - solo cuando NO hay transiciones activas
@@ -184,7 +211,7 @@ body.login div#login h1 a {
 
 body.login div#login form#loginform,
 form#lostpasswordform, 
-form#magicloginform {
+form#magicloginform, form#registerform, form#resetpassform {
     grid-area: form;
     box-sizing: border-box;
     padding: 40px 30px;
@@ -213,9 +240,14 @@ label {
     font-size: 0.9rem;
 }
 
-.login #nav, 
+/*
+ * Enlaces inferiores: cada uno ocupa su propia fila a todo el ancho.
+ * Antes compartían la misma celda (grid-area: links) y "#backtoblog" tapaba a "#nav"
+ * ("¿Olvidaste tu contraseña?" / "Registrarse" quedaban ocultos).
+ */
+.login #nav,
 .login #backtoblog {
-    grid-area: links;
+    grid-column: 1 / -1;
     padding: 15px 30px;
     text-align: center;
     margin: 0;
@@ -227,7 +259,13 @@ label {
     border-top: 1px solid #e9ecef;
 }
 
-.login #nav a, 
+/* Cuando ambos enlaces existen, se ven como un solo pie */
+.login #nav ~ #backtoblog {
+    border-top: 0;
+    padding-top: 0;
+}
+
+.login #nav a,
 .login #backtoblog a {
     color: #6c757d;
     text-decoration: none;
@@ -375,7 +413,10 @@ body.login div#login form .button-primary:active {
     position: absolute;
     top: 2px;
     right: 2px;
-    bottom: 2px;
+    /* Alto fijo (= alto del input): en "restablecer contraseña" el contenedor también
+       incluye el medidor de seguridad y el icono quedaba descentrado */
+    height: 48px;
+    min-height: 0;
     margin: 0;
     padding: 0 12px;
     border: none;
@@ -458,7 +499,7 @@ body.login div#login form input[type=password] {
 
 /* Enlace Privacidad */
 .login .privacy-policy-page-link {
-    grid-area: links;
+    grid-column: 1 / -1;
     padding: 10px 30px;
     text-align: center;
     margin: 0;
@@ -522,7 +563,7 @@ body.login div#login form input[type=password] {
 
     body.login div#login form#loginform,
     form#lostpasswordform, 
-    form#magicloginform {
+    form#magicloginform, form#registerform, form#resetpassform {
         padding: 30px 20px;
     }
 
@@ -574,7 +615,7 @@ body.login div#login form input[type=password] {
 
     body.login div#login form#loginform,
     form#lostpasswordform, 
-    form#magicloginform {
+    form#magicloginform, form#registerform, form#resetpassform {
         padding: 20px 15px;
     }
 
@@ -638,4 +679,23 @@ body.login div#login form #caps-warning,
     overflow: hidden !important;
     position: absolute !important;
     pointer-events: none !important;
+}
+/* === Restablecer contraseña: medidor de seguridad y botón "Generar contraseña" === */
+body.login #pass-strength-result {
+    margin: 8px 0 0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #f0f0f1;
+    color: #1d2327;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+}
+body.login #pass-strength-result.short { background: #ffabaf; }
+body.login #pass-strength-result.bad { background: #facfd2; }
+body.login #pass-strength-result.good { background: #f5e6ab; }
+body.login #pass-strength-result.strong { background: #b8e6bf; }
+
+body.login .wp-generate-pw {
+    margin-bottom: 12px;
 }

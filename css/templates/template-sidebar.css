@@ -49,7 +49,7 @@ body.login.template-sidebar div#login h1 a {
 
 body.login.template-sidebar div#login form#loginform,
 body.login.template-sidebar div#login form#lostpasswordform,
-body.login.template-sidebar div#login form#magicloginform {
+body.login.template-sidebar div#login form#magicloginform, body.login.template-sidebar div#login form#registerform, body.login.template-sidebar div#login form#resetpassform {
     grid-area: form;
     padding: 50px 45px;
     background: white;
@@ -59,16 +59,16 @@ body.login.template-sidebar div#login form#magicloginform {
 }
 
 /* Mensajes */
-body.login.template-sidebar .login p.message,
-body.login.template-sidebar .login #login_error,
+body.login.template-sidebar p.message,
+body.login.template-sidebar #login_error,
 body.login.template-sidebar #login-message,
 body.login.template-sidebar .notice.notice-info.message {
     margin: 0;
 }
 
 /* Footer fijo en la parte inferior */
-body.login.template-sidebar .login #nav,
-body.login.template-sidebar .login #backtoblog {
+body.login.template-sidebar #nav,
+body.login.template-sidebar #backtoblog {
     background: #f8f9fa;
     border-top: 1px solid #e9ecef;
     padding: 20px 40px;
@@ -105,12 +105,12 @@ body.login.template-sidebar.sidebar-left div#login {
 
     body.login.template-sidebar div#login form#loginform,
     body.login.template-sidebar div#login form#lostpasswordform,
-    body.login.template-sidebar div#login form#magicloginform {
+    body.login.template-sidebar div#login form#magicloginform, body.login.template-sidebar div#login form#registerform, body.login.template-sidebar div#login form#resetpassform {
         padding: 40px 35px;
     }
 
-    body.login.template-sidebar .login #nav,
-    body.login.template-sidebar .login #backtoblog {
+    body.login.template-sidebar #nav,
+    body.login.template-sidebar #backtoblog {
         padding: 18px 35px;
     }
 }
@@ -141,12 +141,12 @@ body.login.template-sidebar.sidebar-left div#login {
 
     body.login.template-sidebar div#login form#loginform,
     body.login.template-sidebar div#login form#lostpasswordform,
-    body.login.template-sidebar div#login form#magicloginform {
+    body.login.template-sidebar div#login form#magicloginform, body.login.template-sidebar div#login form#registerform, body.login.template-sidebar div#login form#resetpassform {
         padding: 35px 25px;
     }
 
-    body.login.template-sidebar .login #nav,
-    body.login.template-sidebar .login #backtoblog {
+    body.login.template-sidebar #nav,
+    body.login.template-sidebar #backtoblog {
         padding: 16px 25px;
     }
 }
@@ -167,12 +167,12 @@ body.login.template-sidebar.sidebar-left div#login {
 
     body.login.template-sidebar div#login form#loginform,
     body.login.template-sidebar div#login form#lostpasswordform,
-    body.login.template-sidebar div#login form#magicloginform {
+    body.login.template-sidebar div#login form#magicloginform, body.login.template-sidebar div#login form#registerform, body.login.template-sidebar div#login form#resetpassform {
         padding: 30px 20px;
     }
 
-    body.login.template-sidebar .login #nav,
-    body.login.template-sidebar .login #backtoblog {
+    body.login.template-sidebar #nav,
+    body.login.template-sidebar #backtoblog {
         padding: 14px 20px;
     }
 }
