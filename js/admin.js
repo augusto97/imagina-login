@@ -1,4 +1,5 @@
 /* Imagina Login — comportamiento del panel de ajustes */
+function ilT(key) { return (window.ilAdmin && ilAdmin.i18n && ilAdmin.i18n[key]) || key; }
     // JavaScript para el panel moderno
 document.addEventListener('DOMContentLoaded', function() {
     // Manejar selección de templates
@@ -171,7 +172,7 @@ function toggleBorderColor(checkbox) {
 }
 
 function confirmReset() {
-    if (confirm('¿Estás seguro de que quieres restaurar todas las configuraciones por defecto? Esta acción no se puede deshacer.')) {
+    if (confirm(ilT('confirmReset'))) {
         // URL sin escapar para HTML (wp_nonce_url convierte & en &amp; y rompe la URL en JS)
         window.location.href = ilAdmin.resetUrl;
     }
@@ -207,7 +208,7 @@ jQuery(function ($) {
         e.preventDefault();
         var $group = $(this).closest('.imagina-control-group');
         var $input = $group.find('input[name="il_body_slides"]');
-        var frame = wp.media({ title: 'Imágenes de la presentación', button: { text: 'Usar estas imágenes' }, multiple: 'add', library: { type: 'image' } });
+        var frame = wp.media({ title: ilT('slidesTitle'), button: { text: ilT('slidesButton') }, multiple: 'add', library: { type: 'image' } });
         frame.on('open', function () {
             var selection = frame.state().get('selection');
             ($input.val() || '').split(',').filter(Boolean).forEach(function (id) {
@@ -233,7 +234,7 @@ jQuery(function ($) {
         var duration = parseFloat($('[name="il_' + part + '_transition_duration"]').val()) || 0;
         $('[data-il-seq="' + part + '"]').text(label + ': ' + delay.toFixed(2) + 's → ' + (delay + duration).toFixed(2) + 's');
     }
-    function update() { seq('logo', 'Logo'); seq('form', 'Formulario'); }
+    function update() { seq('logo', ilT('logo')); seq('form', ilT('form')); }
     $(document).on('input change', '[name$="_transition_delay"], [name$="_transition_duration"]', update);
     update();
 });
@@ -264,15 +265,15 @@ jQuery(function ($) {
     function refresh() {
         if ($drawer.prop('hidden')) return;
         if (pending) pending.abort();
-        $status.text('Actualizando…');
+        $status.text(ilT('updating'));
         pending = $.post(ajaxurl, { action: 'il_preview_store', _ajax_nonce: ilAdmin.previewNonce, settings: collect() })
             .done(function (res) {
                 if (res && res.success) { $iframe.attr('src', res.data.url); }
-                else { $status.text('No se pudo actualizar'); }
+                else { $status.text(ilT('updateFailed')); }
             })
-            .fail(function (xhr) { if (xhr.statusText !== 'abort') $status.text('No se pudo actualizar'); });
+            .fail(function (xhr) { if (xhr.statusText !== 'abort') $status.text(ilT('updateFailed')); });
     }
-    $iframe.on('load', function () { $status.text('Actualizado'); });
+    $iframe.on('load', function () { $status.text(ilT('updated')); });
 
     function schedule() { clearTimeout(timer); timer = setTimeout(refresh, 600); }
 

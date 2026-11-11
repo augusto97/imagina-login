@@ -1,0 +1,1063 @@
+# Copyright (C) 2026 IMAGINA WP
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Imagina Login 2.4.0\n"
+"Report-Msgid-Bugs-To: https://github.com/augusto97/imagina-login/issues\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-11T22:35:23+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: imagina-login\n"
+
+#. Plugin Name of the plugin
+#: imagina-login.php
+msgid "Imagina Login"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: imagina-login.php
+msgid "https://imaginawp.com"
+msgstr ""
+
+#. Description of the plugin
+#: imagina-login.php
+msgid "Personaliza la página de login de WordPress: 9 diseños, fondos con imagen, video o presentación, vista previa en vivo, modo oscuro, tipografías y textos propios."
+msgstr ""
+
+#. Author of the plugin
+#: imagina-login.php
+msgid "IMAGINA WP"
+msgstr ""
+
+#. Author URI of the plugin
+#: imagina-login.php
+msgid "https://imaginawp.com/"
+msgstr ""
+
+#. translators: %d: HTTP status code
+#: imagina-login.php:1017
+#, php-format
+msgid "Google Fonts respondió %d"
+msgstr ""
+
+#. translators: %s: font file name
+#: imagina-login.php:1035
+#, php-format
+msgid "No se pudo descargar %s"
+msgstr ""
+
+#: imagina-login.php:1043
+msgid "Google Fonts no devolvió archivos para esta fuente"
+msgstr ""
+
+#: imagina-login.php:1229
+#: imagina-login.php:2145
+msgid "Usuario o contraseña incorrectos."
+msgstr ""
+
+#: imagina-login.php:1238
+msgid "Error:"
+msgstr ""
+
+#: imagina-login.php:1445
+msgid "Archivo de video"
+msgstr ""
+
+#: imagina-login.php:1479
+msgid "Corporativo"
+msgstr ""
+
+#: imagina-login.php:1480
+msgid "Dos columnas, azul sobrio, tipografía Inter."
+msgstr ""
+
+#: imagina-login.php:1486
+msgid "Medianoche"
+msgstr ""
+
+#: imagina-login.php:1487
+msgid "Caja compacta en modo oscuro con acentos violeta."
+msgstr ""
+
+#: imagina-login.php:1493
+msgid "Minimalista"
+msgstr ""
+
+#: imagina-login.php:1494
+msgid "Fondo gris claro, todo en negro, sin distracciones."
+msgstr ""
+
+#: imagina-login.php:1500
+msgid "Startup"
+msgstr ""
+
+#: imagina-login.php:1501
+msgid "Efecto cristal sobre degradado vibrante, tipografía Poppins."
+msgstr ""
+
+#: imagina-login.php:1507
+msgid "Naturaleza"
+msgstr ""
+
+#: imagina-login.php:1508
+msgid "Panel lateral 50/50 en verdes, tipografía Nunito."
+msgstr ""
+
+#: imagina-login.php:1514
+msgid "Atardecer"
+msgstr ""
+
+#: imagina-login.php:1515
+msgid "Pantalla dividida en naranjas y rosas, tipografía Montserrat."
+msgstr ""
+
+#: imagina-login.php:1528
+#: imagina-login.php:1569
+#: imagina-login.php:1618
+msgid "No tienes permisos para hacer esto."
+msgstr ""
+
+#: imagina-login.php:1639
+msgid "Ajustes restaurados a sus valores por defecto."
+msgstr ""
+
+#: imagina-login.php:1643
+msgid "Ajustes importados correctamente."
+msgstr ""
+
+#: imagina-login.php:1644
+msgid "No se pudo leer el archivo. Sube un .json exportado desde Imagina Login (máximo 500 KB)."
+msgstr ""
+
+#: imagina-login.php:1645
+msgid "El archivo no es una exportación válida de Imagina Login."
+msgstr ""
+
+#: imagina-login.php:1654
+msgid "No se pudo descargar la fuente elegida; el login usará la tipografía del sistema hasta que se descargue."
+msgstr ""
+
+#: imagina-login.php:1675
+#: imagina-login.php:1741
+msgid "Diseño del Login"
+msgstr ""
+
+#: imagina-login.php:1676
+msgid "Configuración del Fondo de la Página"
+msgstr ""
+
+#: imagina-login.php:1677
+msgid "Configuración del Fondo del Logo"
+msgstr ""
+
+#: imagina-login.php:1678
+#: imagina-login.php:2076
+msgid "Colores del Formulario"
+msgstr ""
+
+#: imagina-login.php:1679
+#: imagina-login.php:2176
+msgid "Transiciones y Animaciones"
+msgstr ""
+
+#: imagina-login.php:1699
+msgid "Personaliza tu página de login de WordPress"
+msgstr ""
+
+#: imagina-login.php:1704
+#: imagina-login.php:2276
+#: imagina-login.php:2278
+msgid "Vista previa en vivo"
+msgstr ""
+
+#: imagina-login.php:1708
+msgid "Ver Login"
+msgstr ""
+
+#: imagina-login.php:1721
+msgid "Diseños rápidos"
+msgstr ""
+
+#: imagina-login.php:1722
+msgid "Aplica un diseño completo (plantilla, fondo, colores y tipografía) y luego ajústalo a tu gusto. No cambia tu logo ni tus textos."
+msgstr ""
+
+#: imagina-login.php:1742
+msgid "Elige el diseño que mejor se adapte a tu marca"
+msgstr ""
+
+#: imagina-login.php:1761
+msgid "Clásico Dos Columnas"
+msgstr ""
+
+#: imagina-login.php:1762
+msgid "Logo a la izquierda, formulario a la derecha. Ideal para empresas corporativas."
+msgstr ""
+
+#: imagina-login.php:1781
+msgid "Sidebar Izquierda"
+msgstr ""
+
+#: imagina-login.php:1782
+msgid "Panel lateral izquierdo full height. Variante invertida del sidebar."
+msgstr ""
+
+#: imagina-login.php:1801
+msgid "Sidebar 50/50 Derecha"
+msgstr ""
+
+#: imagina-login.php:1802
+msgid "Diseño equilibrado 50/50 con sidebar derecho. Perfecto para balance visual."
+msgstr ""
+
+#: imagina-login.php:1821
+msgid "Sidebar 50/50 Izquierda"
+msgstr ""
+
+#: imagina-login.php:1822
+msgid "Diseño equilibrado 50/50 con sidebar izquierdo. Balance con énfasis izquierdo."
+msgstr ""
+
+#: imagina-login.php:1841
+msgid "Pantalla Dividida"
+msgstr ""
+
+#: imagina-login.php:1842
+msgid "Split 60/40 con efecto visual impactante. Para agencias creativas."
+msgstr ""
+
+#: imagina-login.php:1862
+msgid "Pantalla Completa"
+msgstr ""
+
+#: imagina-login.php:1863
+msgid "Login cubre toda la pantalla. Ideal para aplicaciones web y SaaS."
+msgstr ""
+
+#: imagina-login.php:1882
+msgid "Glassmorphism"
+msgstr ""
+
+#: imagina-login.php:1883
+msgid "Efecto cristal moderno sobre fondo. Para startups tech y apps premium."
+msgstr ""
+
+#: imagina-login.php:1902
+msgid "Sidebar Derecha"
+msgstr ""
+
+#: imagina-login.php:1903
+msgid "Panel lateral derecho full height. Perfecto para intranets y sistemas de gestión."
+msgstr ""
+
+#: imagina-login.php:1924
+msgid "Centrado Compacto"
+msgstr ""
+
+#: imagina-login.php:1925
+msgid "Caja pequeña flotante sobre fondo. Ideal para sitios minimalistas."
+msgstr ""
+
+#: imagina-login.php:1937
+msgid "Fondo de la Página"
+msgstr ""
+
+#: imagina-login.php:1938
+msgid "Personaliza el fondo completo de tu página de login"
+msgstr ""
+
+#: imagina-login.php:1943
+msgid "Tipo de fondo:"
+msgstr ""
+
+#: imagina-login.php:1948
+#: imagina-login.php:2050
+msgid "Color"
+msgstr ""
+
+#: imagina-login.php:1954
+#: imagina-login.php:2056
+msgid "Degradado"
+msgstr ""
+
+#: imagina-login.php:1960
+#: imagina-login.php:2062
+msgid "Imagen"
+msgstr ""
+
+#: imagina-login.php:1966
+msgid "Video"
+msgstr ""
+
+#: imagina-login.php:1972
+msgid "Presentación"
+msgstr ""
+
+#: imagina-login.php:1986
+msgid "Logo y Área del Logo"
+msgstr ""
+
+#: imagina-login.php:1987
+msgid "Sube tu logo y personaliza el fondo del área donde aparece"
+msgstr ""
+
+#: imagina-login.php:2000
+msgid "Imagen del logo"
+msgstr ""
+
+#: imagina-login.php:2000
+msgid "Usa el logo del tema"
+msgstr ""
+
+#: imagina-login.php:2000
+msgid "Si no subes uno, se usa el logo del tema o el icono del sitio."
+msgstr ""
+
+#: imagina-login.php:2001
+msgid "Logo para modo oscuro (opcional)"
+msgstr ""
+
+#: imagina-login.php:2001
+msgid "Usa el mismo logo"
+msgstr ""
+
+#: imagina-login.php:2001
+msgid "Versión clara del logo para fondos oscuros. Solo se usa con el modo oscuro activo."
+msgstr ""
+
+#: imagina-login.php:2004
+msgid "Ancho del logo"
+msgstr ""
+
+#: imagina-login.php:2009
+msgid "Alto del logo"
+msgstr ""
+
+#: imagina-login.php:2023
+msgid "Espacio vertical del logo"
+msgstr ""
+
+#: imagina-login.php:2028
+msgid "0 = usa el padding del template. Ajusta el espacio arriba y abajo del logo."
+msgstr ""
+
+#: imagina-login.php:2032
+msgid "Borde separador"
+msgstr ""
+
+#: imagina-login.php:2037
+msgid "Mostrar borde"
+msgstr ""
+
+#: imagina-login.php:2040
+msgid "Línea entre el logo y el formulario."
+msgstr ""
+
+#: imagina-login.php:2045
+msgid "Fondo del área del logo:"
+msgstr ""
+
+#: imagina-login.php:2077
+msgid "Personaliza los colores de labels, botones y enlaces"
+msgstr ""
+
+#: imagina-login.php:2085
+msgid "Usar colores personalizados"
+msgstr ""
+
+#: imagina-login.php:2088
+msgid "Cuando está desactivado, heredará los colores del tema. Cuando está activado, podrás personalizar cada color individualmente."
+msgstr ""
+
+#: imagina-login.php:2101
+msgid "Tipografía y modo oscuro"
+msgstr ""
+
+#: imagina-login.php:2102
+msgid "Fuente del login y apariencia para quienes usan el modo oscuro."
+msgstr ""
+
+#: imagina-login.php:2111
+msgid "Fuente"
+msgstr ""
+
+#: imagina-login.php:2111
+msgid "Se descarga una vez y se sirve desde tu sitio: los visitantes no se conectan a Google (cumple RGPD)."
+msgstr ""
+
+#: imagina-login.php:2112
+msgid "Modo oscuro"
+msgstr ""
+
+#: imagina-login.php:2113
+msgid "Desactivado"
+msgstr ""
+
+#: imagina-login.php:2114
+msgid "Automático (según el sistema del visitante)"
+msgstr ""
+
+#: imagina-login.php:2115
+msgid "Siempre oscuro"
+msgstr ""
+
+#: imagina-login.php:2116
+msgid "Oscurece el formulario y el pie. El fondo de la página se mantiene. Sube un logo para modo oscuro en la sección del logo si el tuyo es oscuro."
+msgstr ""
+
+#: imagina-login.php:2125
+msgid "Textos del formulario"
+msgstr ""
+
+#: imagina-login.php:2126
+msgid "Cambia etiquetas, botón y mensajes. Déjalos vacíos para usar los textos de WordPress."
+msgstr ""
+
+#: imagina-login.php:2131
+msgid "Etiqueta del usuario"
+msgstr ""
+
+#: imagina-login.php:2132
+msgid "Etiqueta de la contraseña"
+msgstr ""
+
+#: imagina-login.php:2133
+msgid "Texto de \"Recuérdame\""
+msgstr ""
+
+#: imagina-login.php:2134
+msgid "Texto del botón"
+msgstr ""
+
+#: imagina-login.php:2135
+msgid "Texto de ejemplo en el campo usuario"
+msgstr ""
+
+#: imagina-login.php:2135
+msgid "ej: nombre@empresa.com"
+msgstr ""
+
+#: imagina-login.php:2136
+msgid "Texto de ejemplo en el campo contraseña"
+msgstr ""
+
+#: imagina-login.php:2140
+msgid "Mensaje de bienvenida"
+msgstr ""
+
+#: imagina-login.php:2140
+msgid "ej: ¡Hola de nuevo! Ingresa con tu cuenta."
+msgstr ""
+
+#: imagina-login.php:2140
+msgid "Aparece arriba del formulario. Admite HTML básico (negrita, enlaces)."
+msgstr ""
+
+#: imagina-login.php:2144
+msgid "Mensaje de error genérico"
+msgstr ""
+
+#: imagina-login.php:2144
+msgid "Muestra el mismo error si el usuario no existe o la contraseña es incorrecta, para que nadie pueda adivinar qué usuarios existen. No afecta los mensajes de 2FA."
+msgstr ""
+
+#: imagina-login.php:2145
+msgid "Texto del error genérico"
+msgstr ""
+
+#: imagina-login.php:2154
+msgid "Elementos y comportamiento"
+msgstr ""
+
+#: imagina-login.php:2155
+msgid "Elige qué se muestra en la página de login y cómo se comporta."
+msgstr ""
+
+#: imagina-login.php:2160
+msgid "Ocultar \"Recuérdame\""
+msgstr ""
+
+#: imagina-login.php:2161
+msgid "Ocultar \"¿Olvidaste tu contraseña?\""
+msgstr ""
+
+#: imagina-login.php:2162
+msgid "Ocultar \"Ir al sitio\""
+msgstr ""
+
+#: imagina-login.php:2163
+msgid "Ocultar enlace de privacidad"
+msgstr ""
+
+#: imagina-login.php:2164
+msgid "Mostrar selector de idioma"
+msgstr ""
+
+#: imagina-login.php:2164
+msgid "Solo aparece si el sitio tiene más de un idioma instalado."
+msgstr ""
+
+#: imagina-login.php:2165
+msgid "Sin sacudida al fallar"
+msgstr ""
+
+#: imagina-login.php:2165
+msgid "Desactiva la animación de \"temblor\" cuando la contraseña es incorrecta."
+msgstr ""
+
+#: imagina-login.php:2166
+msgid "Sin foco automático"
+msgstr ""
+
+#: imagina-login.php:2166
+msgid "El cursor no salta solo al campo de usuario al cargar la página."
+msgstr ""
+
+#: imagina-login.php:2167
+msgid "Enlace del logo"
+msgstr ""
+
+#: imagina-login.php:2167
+msgid "A dónde lleva el clic en el logo. Vacío = página de inicio."
+msgstr ""
+
+#: imagina-login.php:2177
+msgid "Configura cómo aparecen las imágenes, videos, logo y formulario"
+msgstr ""
+
+#: imagina-login.php:2185
+msgid "Activar transiciones suaves"
+msgstr ""
+
+#: imagina-login.php:2188
+msgid "Las transiciones hacen que todos los elementos aparezcan suavemente en secuencia: fondo → logo → formulario."
+msgstr ""
+
+#: imagina-login.php:2201
+msgid "Avanzado"
+msgstr ""
+
+#: imagina-login.php:2202
+msgid "CSS propio para ajustes finos."
+msgstr ""
+
+#: imagina-login.php:2206
+msgid "CSS personalizado"
+msgstr ""
+
+#: imagina-login.php:2206
+msgid "Se aplica al final, por encima del diseño elegido. Por seguridad se eliminan etiquetas HTML, @import y javascript:."
+msgstr ""
+
+#: imagina-login.php:2216
+msgid "Guardar Cambios"
+msgstr ""
+
+#: imagina-login.php:2220
+msgid "Restaurar por Defecto"
+msgstr ""
+
+#: imagina-login.php:2229
+msgid "Importar y exportar"
+msgstr ""
+
+#: imagina-login.php:2230
+msgid "Copia tu diseño a otro sitio o guarda una copia de seguridad de los ajustes."
+msgstr ""
+
+#: imagina-login.php:2234
+msgid "Exportar"
+msgstr ""
+
+#: imagina-login.php:2235
+msgid "Descargar ajustes (.json)"
+msgstr ""
+
+#: imagina-login.php:2236
+msgid "Incluye los ajustes guardados y las direcciones de las imágenes usadas."
+msgstr ""
+
+#: imagina-login.php:2239
+msgid "Importar"
+msgstr ""
+
+#: imagina-login.php:2243
+msgid "Importar ajustes"
+msgstr ""
+
+#: imagina-login.php:2244
+msgid "Reemplaza los ajustes actuales. Las imágenes se buscan en tu biblioteca de medios por su dirección; si no existen, quedan vacías."
+msgstr ""
+
+#: imagina-login.php:2252
+msgid "Consejos útiles"
+msgstr ""
+
+#: imagina-login.php:2255
+msgid "Templates:"
+msgstr ""
+
+#: imagina-login.php:2255
+msgid "Cada diseño se adapta automáticamente a móviles. Prueba varios antes de decidir."
+msgstr ""
+
+#: imagina-login.php:2258
+msgid "Colores:"
+msgstr ""
+
+#: imagina-login.php:2258
+msgid "Usa colores que combinen con tu marca para mantener consistencia visual."
+msgstr ""
+
+#: imagina-login.php:2261
+msgid "Imágenes:"
+msgstr ""
+
+#: imagina-login.php:2261
+msgid "Para mejores resultados, usa imágenes de al menos 1920x1080px."
+msgstr ""
+
+#: imagina-login.php:2264
+msgid "Videos:"
+msgstr ""
+
+#: imagina-login.php:2264
+msgid "Los videos se reproducen automáticamente sin sonido. Formato recomendado: MP4."
+msgstr ""
+
+#: imagina-login.php:2267
+msgid "Móviles:"
+msgstr ""
+
+#: imagina-login.php:2267
+msgid "Todos los fondos y templates se adaptan automáticamente a dispositivos móviles."
+msgstr ""
+
+#: imagina-login.php:2270
+msgid "Transiciones:"
+msgstr ""
+
+#: imagina-login.php:2280
+msgid "Escritorio"
+msgstr ""
+
+#: imagina-login.php:2281
+msgid "Tableta"
+msgstr ""
+
+#: imagina-login.php:2282
+msgid "Móvil"
+msgstr ""
+
+#: imagina-login.php:2285
+msgid "Cerrar"
+msgstr ""
+
+#: imagina-login.php:2287
+msgid "Vista previa del login"
+msgstr ""
+
+#: imagina-login.php:2288
+msgid "Muestra el login real con los cambios sin guardar. Recuerda pulsar \"Guardar Cambios\"."
+msgstr ""
+
+#: imagina-login.php:2305
+msgid "Color de fondo de la página"
+msgstr ""
+
+#: imagina-login.php:2312
+msgid "Elige un color que represente tu marca y combine con el resto de tu sitio web."
+msgstr ""
+
+#: imagina-login.php:2325
+#: imagina-login.php:2543
+msgid "Tipo de degradado"
+msgstr ""
+
+#: imagina-login.php:2327
+#: imagina-login.php:2545
+msgid "Lineal"
+msgstr ""
+
+#: imagina-login.php:2328
+#: imagina-login.php:2546
+msgid "Radial"
+msgstr ""
+
+#: imagina-login.php:2333
+#: imagina-login.php:2551
+msgid "Dirección"
+msgstr ""
+
+#: imagina-login.php:2335
+msgid "Vertical (arriba → abajo)"
+msgstr ""
+
+#: imagina-login.php:2336
+msgid "Horizontal (izq → der)"
+msgstr ""
+
+#: imagina-login.php:2337
+#: imagina-login.php:2555
+msgid "Diagonal ↗"
+msgstr ""
+
+#: imagina-login.php:2338
+#: imagina-login.php:2556
+msgid "Diagonal ↙"
+msgstr ""
+
+#: imagina-login.php:2347
+#: imagina-login.php:2565
+msgid "Color inicial"
+msgstr ""
+
+#: imagina-login.php:2355
+#: imagina-login.php:2573
+msgid "Color final"
+msgstr ""
+
+#: imagina-login.php:2365
+msgid "Los degradados crean fondos más dinámicos y modernos. Ajusta la dirección según tu diseño."
+msgstr ""
+
+#: imagina-login.php:2377
+#: imagina-login.php:2597
+#: imagina-login.php:2904
+msgid "Cambiar Imagen"
+msgstr ""
+
+#: imagina-login.php:2377
+#: imagina-login.php:2597
+#: imagina-login.php:2905
+msgid "Subir Imagen"
+msgstr ""
+
+#: imagina-login.php:2383
+#: imagina-login.php:2449
+#: imagina-login.php:2603
+#: imagina-login.php:2694
+msgid "Quitar"
+msgstr ""
+
+#: imagina-login.php:2388
+msgid "Formatos: JPG, PNG, GIF, WebP | Tamaño recomendado: 1920×1080px"
+msgstr ""
+
+#: imagina-login.php:2398
+#: imagina-login.php:2618
+#: imagina-login.php:2909
+msgid "No hay imagen seleccionada"
+msgstr ""
+
+#: imagina-login.php:2418
+#: imagina-login.php:2923
+msgid "Imágenes de la presentación"
+msgstr ""
+
+#: imagina-login.php:2420
+msgid "Elegir imágenes"
+msgstr ""
+
+#: imagina-login.php:2421
+msgid "Elige 2 o más imágenes. Se alternan con un fundido suave."
+msgstr ""
+
+#: imagina-login.php:2424
+msgid "Segundos por imagen"
+msgstr ""
+
+#: imagina-login.php:2429
+msgid "Si el visitante tiene activado \"reducir movimiento\" en su sistema, se queda en la primera imagen."
+msgstr ""
+
+#: imagina-login.php:2443
+#: imagina-login.php:2912
+msgid "Cambiar Video"
+msgstr ""
+
+#: imagina-login.php:2443
+#: imagina-login.php:2913
+msgid "Subir Video"
+msgstr ""
+
+#: imagina-login.php:2454
+msgid "Formatos: MP4, WebM, OGG | Tamaño máximo: 50MB"
+msgstr ""
+
+#: imagina-login.php:2463
+#: imagina-login.php:2919
+msgid "Tu navegador no soporta videos HTML5."
+msgstr ""
+
+#: imagina-login.php:2468
+#: imagina-login.php:2917
+msgid "No hay video seleccionado"
+msgstr ""
+
+#. translators: %s: video service name (YouTube, Vimeo or video file)
+#: imagina-login.php:2475
+#, php-format
+msgid "Detectado: %s. Se usará en lugar del video subido."
+msgstr ""
+
+#: imagina-login.php:2477
+msgid "Enlace no reconocido. Usa un link de YouTube, Vimeo o un archivo .mp4/.webm."
+msgstr ""
+
+#: imagina-login.php:2479
+msgid "Pega un enlace de YouTube, Vimeo o un archivo directo (.mp4, .webm). Si lo llenas, tiene prioridad sobre el video subido."
+msgstr ""
+
+#: imagina-login.php:2494
+msgid "Overlay del video (para mejorar legibilidad)"
+msgstr ""
+
+#: imagina-login.php:2502
+msgid "Usa formato rgba() para controlar transparencia. Ejemplo: rgba(0,0,0,0.5) = negro 50% transparente"
+msgstr ""
+
+#: imagina-login.php:2508
+msgid "Los videos se reproducen automáticamente sin sonido. Recomendamos videos cortos (10-30 segundos) en loop."
+msgstr ""
+
+#: imagina-login.php:2523
+msgid "Color de fondo del logo"
+msgstr ""
+
+#: imagina-login.php:2530
+msgid "Elige un color que contraste bien con tu logo para que sea fácil de ver."
+msgstr ""
+
+#: imagina-login.php:2553
+msgid "Vertical"
+msgstr ""
+
+#: imagina-login.php:2554
+msgid "Horizontal"
+msgstr ""
+
+#: imagina-login.php:2583
+msgid "Los degradados del logo crean efectos visuales únicos que complementan tu diseño."
+msgstr ""
+
+#: imagina-login.php:2608
+msgid "Para el área del logo, recomendamos imágenes cuadradas (ej: 500×500px)"
+msgstr ""
+
+#: imagina-login.php:2628
+msgid "Overlay para mejorar visibilidad del logo"
+msgstr ""
+
+#: imagina-login.php:2637
+msgid "Agrega una capa semitransparente sobre la imagen para que tu logo sea más visible. Usa \"transparent\" para quitar el overlay."
+msgstr ""
+
+#: imagina-login.php:2692
+msgid "Cambiar"
+msgstr ""
+
+#: imagina-login.php:2692
+msgid "Subir"
+msgstr ""
+
+#: imagina-login.php:2736
+msgid "Color de etiquetas"
+msgstr ""
+
+#: imagina-login.php:2745
+msgid "Color del botón"
+msgstr ""
+
+#: imagina-login.php:2754
+msgid "Color botón (hover)"
+msgstr ""
+
+#: imagina-login.php:2763
+msgid "Color de enlaces"
+msgstr ""
+
+#: imagina-login.php:2773
+msgid "Vista previa de colores"
+msgstr ""
+
+#: imagina-login.php:2777
+msgid "Etiqueta de ejemplo"
+msgstr ""
+
+#: imagina-login.php:2778
+msgid "Así se verán las etiquetas"
+msgstr ""
+
+#: imagina-login.php:2781
+msgid "Botón de ejemplo"
+msgstr ""
+
+#: imagina-login.php:2782
+msgid "Color normal del botón"
+msgstr ""
+
+#: imagina-login.php:2785
+msgid "Botón hover"
+msgstr ""
+
+#: imagina-login.php:2786
+msgid "Color al pasar el mouse"
+msgstr ""
+
+#: imagina-login.php:2789
+msgid "Enlace de ejemplo"
+msgstr ""
+
+#: imagina-login.php:2790
+msgid "Color de los enlaces"
+msgstr ""
+
+#: imagina-login.php:2809
+msgid "Tipo de transición"
+msgstr ""
+
+#: imagina-login.php:2811
+msgid "Aparición gradual (Fade)"
+msgstr ""
+
+#: imagina-login.php:2812
+msgid "Deslizar desde arriba"
+msgstr ""
+
+#: imagina-login.php:2813
+msgid "Zoom suave"
+msgstr ""
+
+#: imagina-login.php:2820
+#: imagina-login.php:2925
+msgid "Logo"
+msgstr ""
+
+#: imagina-login.php:2822
+#: imagina-login.php:2840
+msgid "Velocidad"
+msgstr ""
+
+#: imagina-login.php:2829
+#: imagina-login.php:2847
+msgid "Delay"
+msgstr ""
+
+#: imagina-login.php:2838
+#: imagina-login.php:2926
+msgid "Formulario"
+msgstr ""
+
+#: imagina-login.php:2857
+msgid "Secuencia de animación"
+msgstr ""
+
+#: imagina-login.php:2859
+msgid "Fondo: inmediato"
+msgstr ""
+
+#: imagina-login.php:2866
+msgid "Fade"
+msgstr ""
+
+#: imagina-login.php:2869
+msgid "Slide"
+msgstr ""
+
+#: imagina-login.php:2872
+msgid "Zoom"
+msgstr ""
+
+#: imagina-login.php:2899
+msgid "Cargando..."
+msgstr ""
+
+#: imagina-login.php:2900
+msgid "Subiendo..."
+msgstr ""
+
+#: imagina-login.php:2901
+msgid "Seleccionar imagen"
+msgstr ""
+
+#: imagina-login.php:2902
+msgid "Usar esta imagen"
+msgstr ""
+
+#: imagina-login.php:2903
+msgid "Imagen de fondo"
+msgstr ""
+
+#: imagina-login.php:2906
+msgid "Imagen subida correctamente"
+msgstr ""
+
+#: imagina-login.php:2907
+msgid "Imagen eliminada"
+msgstr ""
+
+#: imagina-login.php:2908
+msgid "¿Estás seguro de que quieres quitar esta imagen?"
+msgstr ""
+
+#: imagina-login.php:2910
+msgid "Seleccionar video de fondo"
+msgstr ""
+
+#: imagina-login.php:2911
+msgid "Usar este video"
+msgstr ""
+
+#: imagina-login.php:2914
+msgid "Video subido correctamente"
+msgstr ""
+
+#: imagina-login.php:2915
+msgid "Video eliminado"
+msgstr ""
+
+#: imagina-login.php:2916
+msgid "¿Estás seguro de que quieres quitar este video?"
+msgstr ""
+
+#: imagina-login.php:2918
+msgid "El video es demasiado grande. Máximo permitido: 50MB"
+msgstr ""
+
+#: imagina-login.php:2920
+msgid "Tamaño"
+msgstr ""
+
+#: imagina-login.php:2921
+msgid "El video se reproducirá automáticamente sin sonido en el login"
+msgstr ""
+
+#: imagina-login.php:2922
+msgid "¿Estás seguro de que quieres restaurar todas las configuraciones por defecto? Esta acción no se puede deshacer."
+msgstr ""
+
+#: imagina-login.php:2924
+msgid "Usar estas imágenes"
+msgstr ""
+
+#: imagina-login.php:2927
+msgid "Actualizando…"
+msgstr ""
+
+#: imagina-login.php:2928
+msgid "Actualizado"
+msgstr ""
+
+#: imagina-login.php:2929
+msgid "No se pudo actualizar"
+msgstr ""
+
+#: imagina-login.php:2931
+msgid "Diseño aplicado. Revísalo en la vista previa y pulsa \"Guardar Cambios\" para conservarlo."
+msgstr ""

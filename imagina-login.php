@@ -2,13 +2,16 @@
 /**
  * Plugin Name: Imagina Login
  * Plugin URI:  https://imaginawp.com
- * Description: Customized wp login with 9 professional templates and advanced background options
+ * Description: Personaliza la página de login de WordPress: 9 diseños, fondos con imagen, video o presentación, vista previa en vivo, modo oscuro, tipografías y textos propios.
  * Version:     2.4.0
  * Author:      IMAGINA WP
  * Author URI:  https://imaginawp.com/
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: imagina-login
+ * Domain Path: /languages
+ * Requires at least: 6.1
+ * Requires PHP: 7.4
  */
 
 if(!defined('ABSPATH')) {
@@ -16,6 +19,15 @@ if(!defined('ABSPATH')) {
 }
 
 define('IL_VERSION', '2.4.0');
+
+/**
+ * Traducciones: el idioma base del plugin es el español; en /languages hay traducción al inglés
+ * y la plantilla .pot para crear otras.
+ */
+function il_load_textdomain() {
+    load_plugin_textdomain('imagina-login', false, dirname(plugin_basename(__FILE__)) . '/languages');
+}
+add_action('init', 'il_load_textdomain');
 
 /**
  * Función para ajustar el brillo de un color hexadecimal.
@@ -929,10 +941,11 @@ function il_dark_mode_css($opts) {
     $rules = "
         {C} div#login { background-color: {$card} !important; box-shadow: 0 10px 40px rgba(0,0,0,.45); }
         {C} div#login form { background: {$card} !important; }
+        {C} div#login form [id*='overlay'], {C} div#login form [class*='overlay'] { background-color: inherit !important; color: {$text}; }
         " . ($default_logo_bg ? "{C} div#login h1 { background: {$soft} !important; }" : '') . "
         {P}.template-glass div#login { background: rgba(20, 22, 28, 0.55) !important; border-color: rgba(255,255,255,.12) !important; }
-        {P} div#login form p, {P} div#login form .description, {P} #reg_passmail, {P} .indicator-hint { color: {$muted}; }
-        {P} div#login .forgetmenot label { color: {$muted} !important; }
+        {C} div#login form p, {C} div#login form .description, {C} #reg_passmail, {C} .indicator-hint { color: {$muted}; }
+        {C} div#login .forgetmenot label { color: {$muted} !important; }
         {P} div#login form .input, {P} div#login form input[type=text], {P} div#login form input[type=email], {P} div#login form input[type=password] {
             background: {$soft} !important; border-color: {$line} !important; color: {$text} !important; }
         {P} div#login form .input:focus, {P} div#login form input[type=text]:focus, {P} div#login form input[type=email]:focus, {P} div#login form input[type=password]:focus {
@@ -1001,7 +1014,7 @@ function il_download_font($key) {
         return $response;
     }
     if (200 !== (int) wp_remote_retrieve_response_code($response)) {
-        return new WP_Error('il_font_http', sprintf('Google Fonts respondió %d', wp_remote_retrieve_response_code($response)));
+        return new WP_Error('il_font_http', sprintf(/* translators: %d: HTTP status code */ __('Google Fonts respondió %d', 'imagina-login'), wp_remote_retrieve_response_code($response)));
     }
 
     preg_match_all('#/\*\s*([a-z-]+)\s*\*/\s*(@font-face\s*\{[^}]+\})#i', wp_remote_retrieve_body($response), $blocks, PREG_SET_ORDER);
@@ -1019,7 +1032,7 @@ function il_download_font($key) {
         if (!file_exists($dir['path'] . '/' . $file)) {
             $font = wp_remote_get($url[1], ['timeout' => 30]);
             if (is_wp_error($font) || 200 !== (int) wp_remote_retrieve_response_code($font)) {
-                return is_wp_error($font) ? $font : new WP_Error('il_font_file', 'No se pudo descargar ' . $file);
+                return is_wp_error($font) ? $font : new WP_Error('il_font_file', sprintf(/* translators: %s: font file name */ __('No se pudo descargar %s', 'imagina-login'), $file));
             }
             file_put_contents($dir['path'] . '/' . $file, wp_remote_retrieve_body($font));
         }
@@ -1027,7 +1040,7 @@ function il_download_font($key) {
     }
 
     if ($css === '') {
-        return new WP_Error('il_font_empty', 'Google Fonts no devolvió archivos para esta fuente');
+        return new WP_Error('il_font_empty', __('Google Fonts no devolvió archivos para esta fuente', 'imagina-login'));
     }
     file_put_contents($dir['path'] . '/font.css', $css);
     return true;
@@ -1429,7 +1442,7 @@ function il_parse_video_url($url) {
 
     $path = (string) wp_parse_url($url, PHP_URL_PATH);
     if (preg_match('~\.(mp4|webm|ogg|ogv|mov|m4v)$~i', $path)) {
-        return ['type' => 'file', 'label' => 'Archivo de video', 'url' => $url];
+        return ['type' => 'file', 'label' => __('Archivo de video', 'imagina-login'), 'url' => $url];
     }
 
     return null;
@@ -1659,11 +1672,11 @@ function il_register_settings() {
     }
 
     // Secciones
-    add_settings_section('il_template_section', 'Diseño del Login', null, 'imagina-login-settings');
-    add_settings_section('il_body_section', 'Configuración del Fondo de la Página', null, 'imagina-login-settings');
-    add_settings_section('il_logo_section', 'Configuración del Fondo del Logo', null, 'imagina-login-settings');
-    add_settings_section('il_colors_section', 'Colores del Formulario', null, 'imagina-login-settings');
-    add_settings_section('il_transitions_section', 'Transiciones y Animaciones', null, 'imagina-login-settings');
+    add_settings_section('il_template_section', __('Diseño del Login', 'imagina-login'), null, 'imagina-login-settings');
+    add_settings_section('il_body_section', __('Configuración del Fondo de la Página', 'imagina-login'), null, 'imagina-login-settings');
+    add_settings_section('il_logo_section', __('Configuración del Fondo del Logo', 'imagina-login'), null, 'imagina-login-settings');
+    add_settings_section('il_colors_section', __('Colores del Formulario', 'imagina-login'), null, 'imagina-login-settings');
+    add_settings_section('il_transitions_section', __('Transiciones y Animaciones', 'imagina-login'), null, 'imagina-login-settings');
 }
 add_action('admin_init', 'il_register_settings');
 
@@ -1683,7 +1696,7 @@ function il_settings_page_html() {
             <div class="imagina-header-content">
                 <div class="imagina-logo-section">
                     <h1><span class="imagina-icon">🎨</span> Imagina Login</h1>
-                    <p class="imagina-subtitle">Personaliza tu página de login de WordPress</p>
+                    <p class="imagina-subtitle"><?php esc_html_e('Personaliza tu página de login de WordPress', 'imagina-login'); ?></p>
                 </div>
                 <div class="imagina-preview-section">
                     <button type="button" class="imagina-preview-btn" id="il-live-preview-toggle">
@@ -1692,7 +1705,7 @@ function il_settings_page_html() {
                     </button>
                     <a href="<?php echo esc_url(il_preview_url()); ?>" target="_blank" rel="noopener" class="imagina-preview-btn">
                         <span class="dashicons dashicons-visibility"></span>
-                        Ver Login
+                        <?php esc_html_e('Ver Login', 'imagina-login'); ?>
                     </a>
                 </div>
             </div>
@@ -1725,8 +1738,8 @@ function il_settings_page_html() {
                 <!-- NUEVA SECCIÓN: SELECTOR DE TEMPLATES -->
                 <div class="imagina-section imagina-template-section">
                     <div class="imagina-section-header">
-                        <h2><span class="section-icon">🎭</span> Diseño del Login</h2>
-                        <p>Elige el diseño que mejor se adapte a tu marca</p>
+                        <h2><span class="section-icon">🎭</span> <?php esc_html_e('Diseño del Login', 'imagina-login'); ?></h2>
+                        <p><?php esc_html_e('Elige el diseño que mejor se adapte a tu marca', 'imagina-login'); ?></p>
                     </div>
 
                     <div class="imagina-section-content">
@@ -1745,8 +1758,8 @@ function il_settings_page_html() {
                                     </div>
                                 </div>
                                 <div class="template-info">
-                                    <h3>🏢 Clásico Dos Columnas</h3>
-                                    <p>Logo a la izquierda, formulario a la derecha. Ideal para empresas corporativas.</p>
+                                    <h3>🏢 <?php esc_html_e('Clásico Dos Columnas', 'imagina-login'); ?></h3>
+                                    <p><?php esc_html_e('Logo a la izquierda, formulario a la derecha. Ideal para empresas corporativas.', 'imagina-login'); ?></p>
                                 </div>
                                 <span class="template-check">✓</span>
                             </label>
@@ -1765,8 +1778,8 @@ function il_settings_page_html() {
                                     </div>
                                 </div>
                                 <div class="template-info">
-                                    <h3>◀️ Sidebar Izquierda</h3>
-                                    <p>Panel lateral izquierdo full height. Variante invertida del sidebar.</p>
+                                    <h3>◀️ <?php esc_html_e('Sidebar Izquierda', 'imagina-login'); ?></h3>
+                                    <p><?php esc_html_e('Panel lateral izquierdo full height. Variante invertida del sidebar.', 'imagina-login'); ?></p>
                                 </div>
                                 <span class="template-check">✓</span>
                             </label>
@@ -1785,8 +1798,8 @@ function il_settings_page_html() {
                                     </div>
                                 </div>
                                 <div class="template-info">
-                                    <h3>⚖️ Sidebar 50/50 Derecha</h3>
-                                    <p>Diseño equilibrado 50/50 con sidebar derecho. Perfecto para balance visual.</p>
+                                    <h3>⚖️ <?php esc_html_e('Sidebar 50/50 Derecha', 'imagina-login'); ?></h3>
+                                    <p><?php esc_html_e('Diseño equilibrado 50/50 con sidebar derecho. Perfecto para balance visual.', 'imagina-login'); ?></p>
                                 </div>
                                 <span class="template-check">✓</span>
                             </label>
@@ -1805,8 +1818,8 @@ function il_settings_page_html() {
                                     </div>
                                 </div>
                                 <div class="template-info">
-                                    <h3>⚖️ Sidebar 50/50 Izquierda</h3>
-                                    <p>Diseño equilibrado 50/50 con sidebar izquierdo. Balance con énfasis izquierdo.</p>
+                                    <h3>⚖️ <?php esc_html_e('Sidebar 50/50 Izquierda', 'imagina-login'); ?></h3>
+                                    <p><?php esc_html_e('Diseño equilibrado 50/50 con sidebar izquierdo. Balance con énfasis izquierdo.', 'imagina-login'); ?></p>
                                 </div>
                                 <span class="template-check">✓</span>
                             </label>
@@ -1825,8 +1838,8 @@ function il_settings_page_html() {
                                     </div>
                                 </div>
                                 <div class="template-info">
-                                    <h3>🎨 Pantalla Dividida</h3>
-                                    <p>Split 60/40 con efecto visual impactante. Para agencias creativas.</p>
+                                    <h3>🎨 <?php esc_html_e('Pantalla Dividida', 'imagina-login'); ?></h3>
+                                    <p><?php esc_html_e('Split 60/40 con efecto visual impactante. Para agencias creativas.', 'imagina-login'); ?></p>
                                 </div>
                                 <span class="template-check">✓</span>
                             </label>
@@ -1846,8 +1859,8 @@ function il_settings_page_html() {
                                     </div>
                                 </div>
                                 <div class="template-info">
-                                    <h3>🖥️ Pantalla Completa</h3>
-                                    <p>Login cubre toda la pantalla. Ideal para aplicaciones web y SaaS.</p>
+                                    <h3>🖥️ <?php esc_html_e('Pantalla Completa', 'imagina-login'); ?></h3>
+                                    <p><?php esc_html_e('Login cubre toda la pantalla. Ideal para aplicaciones web y SaaS.', 'imagina-login'); ?></p>
                                 </div>
                                 <span class="template-check">✓</span>
                             </label>
@@ -1866,8 +1879,8 @@ function il_settings_page_html() {
                                     </div>
                                 </div>
                                 <div class="template-info">
-                                    <h3>💎 Glassmorphism</h3>
-                                    <p>Efecto cristal moderno sobre fondo. Para startups tech y apps premium.</p>
+                                    <h3>💎 <?php esc_html_e('Glassmorphism', 'imagina-login'); ?></h3>
+                                    <p><?php esc_html_e('Efecto cristal moderno sobre fondo. Para startups tech y apps premium.', 'imagina-login'); ?></p>
                                 </div>
                                 <span class="template-check">✓</span>
                             </label>
@@ -1886,8 +1899,8 @@ function il_settings_page_html() {
                                     </div>
                                 </div>
                                 <div class="template-info">
-                                    <h3>▶️ Sidebar Derecha</h3>
-                                    <p>Panel lateral derecho full height. Perfecto para intranets y sistemas de gestión.</p>
+                                    <h3>▶️ <?php esc_html_e('Sidebar Derecha', 'imagina-login'); ?></h3>
+                                    <p><?php esc_html_e('Panel lateral derecho full height. Perfecto para intranets y sistemas de gestión.', 'imagina-login'); ?></p>
                                 </div>
                                 <span class="template-check">✓</span>
                             </label>
@@ -1908,8 +1921,8 @@ function il_settings_page_html() {
                                     </div>
                                 </div>
                                 <div class="template-info">
-                                    <h3>📦 Centrado Compacto</h3>
-                                    <p>Caja pequeña flotante sobre fondo. Ideal para sitios minimalistas.</p>
+                                    <h3>📦 <?php esc_html_e('Centrado Compacto', 'imagina-login'); ?></h3>
+                                    <p><?php esc_html_e('Caja pequeña flotante sobre fondo. Ideal para sitios minimalistas.', 'imagina-login'); ?></p>
                                 </div>
                                 <span class="template-check">✓</span>
                             </label>
@@ -1921,36 +1934,36 @@ function il_settings_page_html() {
                 <!-- Sección Fondo de Página -->
                 <div class="imagina-section">
                     <div class="imagina-section-header">
-                        <h2><span class="section-icon">🖼️</span> Fondo de la Página</h2>
-                        <p>Personaliza el fondo completo de tu página de login</p>
+                        <h2><span class="section-icon">🖼️</span> <?php esc_html_e('Fondo de la Página', 'imagina-login'); ?></h2>
+                        <p><?php esc_html_e('Personaliza el fondo completo de tu página de login', 'imagina-login'); ?></p>
                     </div>
                     
                     <div class="imagina-section-content">
                         <div class="imagina-type-selector">
-                            <label class="imagina-main-label">Tipo de fondo:</label>
+                            <label class="imagina-main-label"><?php esc_html_e('Tipo de fondo:', 'imagina-login'); ?></label>
                             <div class="imagina-type-tabs">
                                 <input type="radio" name="il_body_bg_type" value="color" id="body-color" <?php checked($body_bg_type, 'color'); ?>>
                                 <label for="body-color" class="imagina-tab">
                                     <span class="tab-icon">🎨</span>
-                                    <span class="tab-text">Color</span>
+                                    <span class="tab-text"><?php esc_html_e('Color', 'imagina-login'); ?></span>
                                 </label>
 
                                 <input type="radio" name="il_body_bg_type" value="gradient" id="body-gradient" <?php checked($body_bg_type, 'gradient'); ?>>
                                 <label for="body-gradient" class="imagina-tab">
                                     <span class="tab-icon">🌈</span>
-                                    <span class="tab-text">Degradado</span>
+                                    <span class="tab-text"><?php esc_html_e('Degradado', 'imagina-login'); ?></span>
                                 </label>
 
                                 <input type="radio" name="il_body_bg_type" value="image" id="body-image" <?php checked($body_bg_type, 'image'); ?>>
                                 <label for="body-image" class="imagina-tab">
                                     <span class="tab-icon">🖼️</span>
-                                    <span class="tab-text">Imagen</span>
+                                    <span class="tab-text"><?php esc_html_e('Imagen', 'imagina-login'); ?></span>
                                 </label>
 
                                 <input type="radio" name="il_body_bg_type" value="video" id="body-video" <?php checked($body_bg_type, 'video'); ?>>
                                 <label for="body-video" class="imagina-tab">
                                     <span class="tab-icon">🎬</span>
-                                    <span class="tab-text">Video</span>
+                                    <span class="tab-text"><?php esc_html_e('Video', 'imagina-login'); ?></span>
                                 </label>
 
                                 <input type="radio" name="il_body_bg_type" value="slideshow" id="body-slideshow" <?php checked($body_bg_type, 'slideshow'); ?>>
@@ -1970,8 +1983,8 @@ function il_settings_page_html() {
                 <!-- Sección Logo e Imagen -->
                 <div class="imagina-section">
                     <div class="imagina-section-header">
-                        <h2><span class="section-icon">🏢</span> Logo y Área del Logo</h2>
-                        <p>Sube tu logo y personaliza el fondo del área donde aparece</p>
+                        <h2><span class="section-icon">🏢</span> <?php esc_html_e('Logo y Área del Logo', 'imagina-login'); ?></h2>
+                        <p><?php esc_html_e('Sube tu logo y personaliza el fondo del área donde aparece', 'imagina-login'); ?></p>
                     </div>
 
                     <div class="imagina-section-content">
@@ -1988,12 +2001,12 @@ function il_settings_page_html() {
                             il_field_image('il_custom_logo_dark', __('Logo para modo oscuro (opcional)', 'imagina-login'), __('Usa el mismo logo', 'imagina-login'), __('Versión clara del logo para fondos oscuros. Solo se usa con el modo oscuro activo.', 'imagina-login'));
                             ?>
                             <div class="imagina-control-group">
-                                <label class="imagina-control-label">Ancho del logo</label>
+                                <label class="imagina-control-label"><?php esc_html_e('Ancho del logo', 'imagina-login'); ?></label>
                                 <div class="imagina-slider-container">
                                     <input type="range" name="il_logo_max_size" class="imagina-slider" min="40" max="400" step="10" value="<?php echo esc_attr(get_option('il_logo_max_size', '200')); ?>" data-unit="px">
                                     <span class="imagina-slider-value"><?php echo esc_html(get_option('il_logo_max_size', '200')); ?>px</span>
                                 </div>
-                                <label class="imagina-control-label" style="margin-top: 14px;">Alto del logo</label>
+                                <label class="imagina-control-label" style="margin-top: 14px;"><?php esc_html_e('Alto del logo', 'imagina-login'); ?></label>
                                 <div class="imagina-slider-container">
                                     <input type="range" name="il_logo_height" class="imagina-slider" min="30" max="300" step="10" value="<?php echo esc_attr(get_option('il_logo_height', '80')); ?>" data-unit="px">
                                     <span class="imagina-slider-value"><?php echo esc_html(get_option('il_logo_height', '80')); ?>px</span>
@@ -2007,46 +2020,46 @@ function il_settings_page_html() {
                         ?>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div class="imagina-control-group">
-                                <label class="imagina-control-label">Espacio vertical del logo</label>
+                                <label class="imagina-control-label"><?php esc_html_e('Espacio vertical del logo', 'imagina-login'); ?></label>
                                 <div class="imagina-slider-container">
                                     <input type="range" name="il_logo_area_height" class="imagina-slider" min="0" max="80" step="5" value="<?php echo esc_attr($logo_area_height); ?>" data-unit="px" data-zero-label="Auto">
                                     <span class="imagina-slider-value"><?php echo intval($logo_area_height) === 0 ? 'Auto' : esc_html($logo_area_height) . 'px'; ?></span>
                                 </div>
-                                <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;">0 = usa el padding del template. Ajusta el espacio arriba y abajo del logo.</p>
+                                <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;"><?php esc_html_e('0 = usa el padding del template. Ajusta el espacio arriba y abajo del logo.', 'imagina-login'); ?></p>
                             </div>
 
                             <div class="imagina-control-group">
-                                <label class="imagina-control-label">Borde separador</label>
+                                <label class="imagina-control-label"><?php esc_html_e('Borde separador', 'imagina-login'); ?></label>
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <input type="<?php echo empty($logo_area_border_color) ? 'hidden' : 'color'; ?>" name="il_logo_area_border_color" value="<?php echo esc_attr(!empty($logo_area_border_color) ? $logo_area_border_color : ''); ?>" class="imagina-color-input" style="width: 36px; height: 36px;">
                                     <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #374151; cursor: pointer;">
                                         <input type="checkbox" id="il_border_toggle" <?php echo !empty($logo_area_border_color) ? 'checked' : ''; ?> onchange="toggleBorderColor(this)" style="width: 16px; height: 16px;">
-                                        Mostrar borde
+                                        <?php esc_html_e('Mostrar borde', 'imagina-login'); ?>
                                     </label>
                                 </div>
-                                <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;">Línea entre el logo y el formulario.</p>
+                                <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;"><?php esc_html_e('Línea entre el logo y el formulario.', 'imagina-login'); ?></p>
                             </div>
                         </div>
 
                         <div class="imagina-type-selector">
-                            <label class="imagina-main-label">Fondo del área del logo:</label>
+                            <label class="imagina-main-label"><?php esc_html_e('Fondo del área del logo:', 'imagina-login'); ?></label>
                             <div class="imagina-type-tabs">
                                 <input type="radio" name="il_logo_bg_type" value="color" id="logo-color" <?php checked($logo_bg_type, 'color'); ?>>
                                 <label for="logo-color" class="imagina-tab">
                                     <span class="tab-icon">🎨</span>
-                                    <span class="tab-text">Color</span>
+                                    <span class="tab-text"><?php esc_html_e('Color', 'imagina-login'); ?></span>
                                 </label>
 
                                 <input type="radio" name="il_logo_bg_type" value="gradient" id="logo-gradient" <?php checked($logo_bg_type, 'gradient'); ?>>
                                 <label for="logo-gradient" class="imagina-tab">
                                     <span class="tab-icon">🌈</span>
-                                    <span class="tab-text">Degradado</span>
+                                    <span class="tab-text"><?php esc_html_e('Degradado', 'imagina-login'); ?></span>
                                 </label>
 
                                 <input type="radio" name="il_logo_bg_type" value="image" id="logo-image" <?php checked($logo_bg_type, 'image'); ?>>
                                 <label for="logo-image" class="imagina-tab">
                                     <span class="tab-icon">🖼️</span>
-                                    <span class="tab-text">Imagen</span>
+                                    <span class="tab-text"><?php esc_html_e('Imagen', 'imagina-login'); ?></span>
                                 </label>
                             </div>
                         </div>
@@ -2060,8 +2073,8 @@ function il_settings_page_html() {
                 <!-- *** NUEVA SECCIÓN: COLORES DEL FORMULARIO *** -->
                 <div class="imagina-section">
                     <div class="imagina-section-header">
-                        <h2><span class="section-icon">🎨</span> Colores del Formulario</h2>
-                        <p>Personaliza los colores de labels, botones y enlaces</p>
+                        <h2><span class="section-icon">🎨</span> <?php esc_html_e('Colores del Formulario', 'imagina-login'); ?></h2>
+                        <p><?php esc_html_e('Personaliza los colores de labels, botones y enlaces', 'imagina-login'); ?></p>
                     </div>
                     
                     <div class="imagina-section-content">
@@ -2069,10 +2082,10 @@ function il_settings_page_html() {
                             <label class="imagina-toggle-container">
                                 <input type="checkbox" name="il_use_custom_colors" value="1" <?php checked($use_custom_colors); ?> onchange="toggleColorOptions(this)">
                                 <span class="imagina-toggle-slider"></span>
-                                <span class="imagina-toggle-label">Usar colores personalizados</span>
+                                <span class="imagina-toggle-label"><?php esc_html_e('Usar colores personalizados', 'imagina-login'); ?></span>
                             </label>
                             <p class="imagina-toggle-description">
-                                Cuando está desactivado, heredará los colores del tema. Cuando está activado, podrás personalizar cada color individualmente.
+                                <?php esc_html_e('Cuando está desactivado, heredará los colores del tema. Cuando está activado, podrás personalizar cada color individualmente.', 'imagina-login'); ?>
                             </p>
                         </div>
 
@@ -2160,8 +2173,8 @@ function il_settings_page_html() {
                 <!-- *** NUEVA SECCIÓN: TRANSICIONES Y ANIMACIONES *** -->
                 <div class="imagina-section">
                     <div class="imagina-section-header">
-                        <h2><span class="section-icon">✨</span> Transiciones y Animaciones</h2>
-                        <p>Configura cómo aparecen las imágenes, videos, logo y formulario</p>
+                        <h2><span class="section-icon">✨</span> <?php esc_html_e('Transiciones y Animaciones', 'imagina-login'); ?></h2>
+                        <p><?php esc_html_e('Configura cómo aparecen las imágenes, videos, logo y formulario', 'imagina-login'); ?></p>
                     </div>
                     
                     <div class="imagina-section-content">
@@ -2169,10 +2182,10 @@ function il_settings_page_html() {
                             <label class="imagina-toggle-container">
                                 <input type="checkbox" name="il_enable_transitions" value="1" <?php checked($enable_transitions); ?> onchange="toggleTransitionOptions(this)">
                                 <span class="imagina-toggle-slider"></span>
-                                <span class="imagina-toggle-label">Activar transiciones suaves</span>
+                                <span class="imagina-toggle-label"><?php esc_html_e('Activar transiciones suaves', 'imagina-login'); ?></span>
                             </label>
                             <p class="imagina-toggle-description">
-                                Las transiciones hacen que todos los elementos aparezcan suavemente en secuencia: fondo → logo → formulario.
+                                <?php esc_html_e('Las transiciones hacen que todos los elementos aparezcan suavemente en secuencia: fondo → logo → formulario.', 'imagina-login'); ?>
                             </p>
                         </div>
 
@@ -2200,11 +2213,11 @@ function il_settings_page_html() {
             <div class="imagina-actions">
                 <button type="submit" class="imagina-save-btn">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    Guardar Cambios
+                    <?php esc_html_e('Guardar Cambios', 'imagina-login'); ?>
                 </button>
                 <button type="button" class="imagina-reset-btn" onclick="confirmReset()">
                     <span class="dashicons dashicons-image-rotate"></span>
-                    Restaurar por Defecto
+                    <?php esc_html_e('Restaurar por Defecto', 'imagina-login'); ?>
                 </button>
             </div>
         </form>
@@ -2236,25 +2249,25 @@ function il_settings_page_html() {
 
         <!-- Tips y ayuda -->
         <div class="imagina-help-section">
-            <h3><span class="dashicons dashicons-lightbulb"></span> Consejos útiles</h3>
+            <h3><span class="dashicons dashicons-lightbulb"></span> <?php esc_html_e('Consejos útiles', 'imagina-login'); ?></h3>
             <div class="imagina-tips">
                 <div class="imagina-tip">
-                    <strong>🎭 Templates:</strong> Cada diseño se adapta automáticamente a móviles. Prueba varios antes de decidir.
+                    <strong>🎭 <?php esc_html_e('Templates:', 'imagina-login'); ?></strong> <?php esc_html_e('Cada diseño se adapta automáticamente a móviles. Prueba varios antes de decidir.', 'imagina-login'); ?>
                 </div>
                 <div class="imagina-tip">
-                    <strong>🎨 Colores:</strong> Usa colores que combinen con tu marca para mantener consistencia visual.
+                    <strong>🎨 <?php esc_html_e('Colores:', 'imagina-login'); ?></strong> <?php esc_html_e('Usa colores que combinen con tu marca para mantener consistencia visual.', 'imagina-login'); ?>
                 </div>
                 <div class="imagina-tip">
-                    <strong>🖼️ Imágenes:</strong> Para mejores resultados, usa imágenes de al menos 1920x1080px.
+                    <strong>🖼️ <?php esc_html_e('Imágenes:', 'imagina-login'); ?></strong> <?php esc_html_e('Para mejores resultados, usa imágenes de al menos 1920x1080px.', 'imagina-login'); ?>
                 </div>
                 <div class="imagina-tip">
-                    <strong>🎬 Videos:</strong> Los videos se reproducen automáticamente sin sonido. Formato recomendado: MP4.
+                    <strong>🎬 <?php esc_html_e('Videos:', 'imagina-login'); ?></strong> <?php esc_html_e('Los videos se reproducen automáticamente sin sonido. Formato recomendado: MP4.', 'imagina-login'); ?>
                 </div>
                 <div class="imagina-tip">
-                    <strong>📱 Móviles:</strong> Todos los fondos y templates se adaptan automáticamente a dispositivos móviles.
+                    <strong>📱 <?php esc_html_e('Móviles:', 'imagina-login'); ?></strong> <?php esc_html_e('Todos los fondos y templates se adaptan automáticamente a dispositivos móviles.', 'imagina-login'); ?>
                 </div>
                 <div class="imagina-tip">
-                    <strong>✨ Transiciones:</strong> Ajusta velocidad y retraso del logo y del formulario; la secuencia se muestra en la sección de animaciones.
+                    <strong>✨ <?php esc_html_e('Transiciones:', 'imagina-login'); ?></strong> Ajusta velocidad y retraso del logo y del formulario; la secuencia se muestra en la sección de animaciones.
                 </div>
             </div>
         </div>
@@ -2289,14 +2302,14 @@ function il_render_modern_body_options() {
         <div class="imagina-color-picker">
             <input type="color" name="il_body_bg_color" value="' . esc_attr($body_color) . '" class="imagina-color-input">
             <div class="imagina-color-info">
-                <span class="imagina-color-label">Color de fondo de la página</span>
+                <span class="imagina-color-label">' . esc_html__('Color de fondo de la página', 'imagina-login') . '</span>
                 <span class="imagina-color-value">' . esc_html(strtoupper($body_color)) . '</span>
             </div>
             <div class="imagina-color-preview" style="width: 40px; height: 40px; background: ' . esc_attr($body_color) . '; border-radius: 8px; border: 2px solid #e5e7eb;"></div>
         </div>
         <p style="margin-top: 15px; color: #6b7280; font-size: 14px;">
             <span class="dashicons dashicons-info"></span>
-            Elige un color que represente tu marca y combine con el resto de tu sitio web.
+            ' . esc_html__('Elige un color que represente tu marca y combine con el resto de tu sitio web.', 'imagina-login') . '
         </p>
     </div>';
 
@@ -2309,20 +2322,20 @@ function il_render_modern_body_options() {
     echo '<div class="imagina-option-panel" data-type="gradient" data-target="body">
         <div class="imagina-gradient-controls">
             <div class="imagina-control-group">
-                <label class="imagina-control-label">Tipo de degradado</label>
+                <label class="imagina-control-label">' . esc_html__('Tipo de degradado', 'imagina-login') . '</label>
                 <select name="il_body_gradient_type" class="imagina-select">
-                    <option value="linear"' . selected($gradient_type, 'linear', false) . '>🔄 Lineal</option>
-                    <option value="radial"' . selected($gradient_type, 'radial', false) . '>⭕ Radial</option>
+                    <option value="linear"' . selected($gradient_type, 'linear', false) . '>🔄 ' . esc_html__('Lineal', 'imagina-login') . '</option>
+                    <option value="radial"' . selected($gradient_type, 'radial', false) . '>⭕ ' . esc_html__('Radial', 'imagina-login') . '</option>
                 </select>
             </div>
             
             <div class="imagina-control-group">
-                <label class="imagina-control-label">Dirección</label>
+                <label class="imagina-control-label">' . esc_html__('Dirección', 'imagina-login') . '</label>
                 <select name="il_body_gradient_direction" class="imagina-select">
-                    <option value="vertical"' . selected($gradient_direction, 'vertical', false) . '>⬇️ Vertical (arriba → abajo)</option>
-                    <option value="horizontal"' . selected($gradient_direction, 'horizontal', false) . '>➡️ Horizontal (izq → der)</option>
-                    <option value="diagonal1"' . selected($gradient_direction, 'diagonal1', false) . '>↗️ Diagonal ↗</option>
-                    <option value="diagonal2"' . selected($gradient_direction, 'diagonal2', false) . '>↙️ Diagonal ↙</option>
+                    <option value="vertical"' . selected($gradient_direction, 'vertical', false) . '>⬇️ ' . esc_html__('Vertical (arriba → abajo)', 'imagina-login') . '</option>
+                    <option value="horizontal"' . selected($gradient_direction, 'horizontal', false) . '>➡️ ' . esc_html__('Horizontal (izq → der)', 'imagina-login') . '</option>
+                    <option value="diagonal1"' . selected($gradient_direction, 'diagonal1', false) . '>↗️ ' . esc_html__('Diagonal ↗', 'imagina-login') . '</option>
+                    <option value="diagonal2"' . selected($gradient_direction, 'diagonal2', false) . '>↙️ ' . esc_html__('Diagonal ↙', 'imagina-login') . '</option>
                 </select>
             </div>
         </div>
@@ -2331,7 +2344,7 @@ function il_render_modern_body_options() {
             <div class="imagina-color-picker">
                 <input type="color" name="il_body_gradient_color1" value="' . esc_attr($gradient_color1) . '" class="imagina-color-input">
                 <div class="imagina-color-info">
-                    <span class="imagina-color-label">Color inicial</span>
+                    <span class="imagina-color-label">' . esc_html__('Color inicial', 'imagina-login') . '</span>
                     <span class="imagina-color-value">' . esc_html(strtoupper($gradient_color1)) . '</span>
                 </div>
             </div>
@@ -2339,7 +2352,7 @@ function il_render_modern_body_options() {
             <div class="imagina-color-picker">
                 <input type="color" name="il_body_gradient_color2" value="' . esc_attr($gradient_color2) . '" class="imagina-color-input">
                 <div class="imagina-color-info">
-                    <span class="imagina-color-label">Color final</span>
+                    <span class="imagina-color-label">' . esc_html__('Color final', 'imagina-login') . '</span>
                     <span class="imagina-color-value">' . esc_html(strtoupper($gradient_color2)) . '</span>
                 </div>
             </div>
@@ -2349,7 +2362,7 @@ function il_render_modern_body_options() {
         
         <p style="margin-top: 15px; color: #6b7280; font-size: 14px;">
             <span class="dashicons dashicons-info"></span>
-            Los degradados crean fondos más dinámicos y modernos. Ajusta la dirección según tu diseño.
+            ' . esc_html__('Los degradados crean fondos más dinámicos y modernos. Ajusta la dirección según tu diseño.', 'imagina-login') . '
         </p>
     </div>';
 
@@ -2361,18 +2374,18 @@ function il_render_modern_body_options() {
             <input type="hidden" name="il_body_background_image" value="' . esc_attr($body_image_id) . '">
             <button type="button" class="imagina-upload-btn upload-image-button">
                 <span class="dashicons dashicons-upload"></span>
-                ' . ($body_image_id ? 'Cambiar Imagen' : 'Subir Imagen') . '
+                ' . ($body_image_id ? esc_html__('Cambiar Imagen', 'imagina-login') : esc_html__('Subir Imagen', 'imagina-login')) . '
             </button>';
             
     if ($body_image_id) {
         echo '<button type="button" class="imagina-upload-btn remove-image-button" style="background: #ef4444; margin-left: 10px;">
             <span class="dashicons dashicons-trash"></span>
-            Quitar
+            ' . esc_html__('Quitar', 'imagina-login') . '
         </button>';
     }
     
     echo '<p style="margin: 10px 0 0 0; color: #6b7280; font-size: 14px;">
-                Formatos: JPG, PNG, GIF, WebP | Tamaño recomendado: 1920×1080px
+                ' . esc_html__('Formatos: JPG, PNG, GIF, WebP | Tamaño recomendado: 1920×1080px', 'imagina-login') . '
             </p>
             
             <div class="imagina-media-preview">';
@@ -2382,7 +2395,7 @@ function il_render_modern_body_options() {
     } else {
         echo '<div style="padding: 40px; text-align: center; color: #9ca3af; border: 2px dashed #d1d5db; border-radius: 8px; margin-top: 15px;">
             <span class="dashicons dashicons-format-image" style="font-size: 32px; margin-bottom: 10px; display: block;"></span>
-            <p>No hay imagen seleccionada</p>
+            <p>' . esc_html__('No hay imagen seleccionada', 'imagina-login') . '</p>
         </div>';
     }
     
@@ -2427,18 +2440,18 @@ function il_render_modern_body_options() {
             <input type="hidden" name="il_body_background_video" value="' . esc_attr($body_video_id) . '">
             <button type="button" class="imagina-upload-btn upload-video-button">
                 <span class="dashicons dashicons-video-alt3"></span>
-                ' . ($body_video_id ? 'Cambiar Video' : 'Subir Video') . '
+                ' . ($body_video_id ? esc_html__('Cambiar Video', 'imagina-login') : esc_html__('Subir Video', 'imagina-login')) . '
             </button>';
             
     if ($body_video_id) {
         echo '<button type="button" class="imagina-upload-btn remove-video-button" style="background: #ef4444; margin-left: 10px;">
             <span class="dashicons dashicons-trash"></span>
-            Quitar
+            ' . esc_html__('Quitar', 'imagina-login') . '
         </button>';
     }
     
     echo '<p style="margin: 10px 0 0 0; color: #6b7280; font-size: 14px;">
-                Formatos: MP4, WebM, OGG | Tamaño máximo: 50MB
+                ' . esc_html__('Formatos: MP4, WebM, OGG | Tamaño máximo: 50MB', 'imagina-login') . '
             </p>
             
             <div class="imagina-media-preview">';
@@ -2447,23 +2460,23 @@ function il_render_modern_body_options() {
         $video_url = wp_get_attachment_url($body_video_id);
         echo '<video controls style="width: 100%; height: auto; border-radius: 8px;">
             <source src="' . esc_url($video_url) . '" type="video/mp4">
-            Tu navegador no soporta videos HTML5.
+            ' . esc_html__('Tu navegador no soporta videos HTML5.', 'imagina-login') . '
         </video>';
     } else {
         echo '<div style="padding: 40px; text-align: center; color: #9ca3af; border: 2px dashed #d1d5db; border-radius: 8px; margin-top: 15px;">
             <span class="dashicons dashicons-video-alt3" style="font-size: 32px; margin-bottom: 10px; display: block;"></span>
-            <p>No hay video seleccionado</p>
+            <p>' . esc_html__('No hay video seleccionado', 'imagina-login') . '</p>
         </div>';
     }
     
     $video_ext_url = get_option('il_body_video_url', '');
     $video_ext_info = il_parse_video_url($video_ext_url);
     if ($video_ext_url && $video_ext_info) {
-        $video_ext_status = '<span style="color: #059669; font-weight: 600;">✓ Detectado: ' . esc_html($video_ext_info['label']) . '. Se usará en lugar del video subido.</span>';
+        $video_ext_status = '<span style="color: #059669; font-weight: 600;">✓ ' . esc_html(sprintf(/* translators: %s: video service name (YouTube, Vimeo or video file) */ __('Detectado: %s. Se usará en lugar del video subido.', 'imagina-login'), $video_ext_info['label'])) . '</span>';
     } elseif ($video_ext_url) {
-        $video_ext_status = '<span style="color: #dc2626; font-weight: 600;">✗ Enlace no reconocido. Usa un link de YouTube, Vimeo o un archivo .mp4/.webm.</span>';
+        $video_ext_status = '<span style="color: #dc2626; font-weight: 600;">✗ ' . esc_html__('Enlace no reconocido. Usa un link de YouTube, Vimeo o un archivo .mp4/.webm.', 'imagina-login') . '</span>';
     } else {
-        $video_ext_status = 'Pega un enlace de YouTube, Vimeo o un archivo directo (.mp4, .webm). Si lo llenas, tiene prioridad sobre el video subido.';
+        $video_ext_status = esc_html__('Pega un enlace de YouTube, Vimeo o un archivo directo (.mp4, .webm). Si lo llenas, tiene prioridad sobre el video subido.', 'imagina-login');
     }
 
     echo '</div>
@@ -2478,7 +2491,7 @@ function il_render_modern_body_options() {
         </div>
 
         <div class="imagina-control-group" style="margin-top: 20px;">
-            <label class="imagina-control-label">Overlay del video (para mejorar legibilidad)</label>
+            <label class="imagina-control-label">' . esc_html__('Overlay del video (para mejorar legibilidad)', 'imagina-login') . '</label>
             <div style="display: flex; gap: 15px; align-items: center;">
                 <input type="text" name="il_video_overlay_color" value="' . esc_attr($video_overlay) . '" 
                        placeholder="rgba(0,0,0,0.3)" 
@@ -2486,13 +2499,13 @@ function il_render_modern_body_options() {
                 <div style="width: 40px; height: 40px; background: ' . esc_attr($video_overlay) . '; border-radius: 8px; border: 2px solid #e5e7eb;"></div>
             </div>
             <p style="margin: 10px 0 0 0; color: #6b7280; font-size: 12px;">
-                Usa formato rgba() para controlar transparencia. Ejemplo: rgba(0,0,0,0.5) = negro 50% transparente
+                ' . esc_html__('Usa formato rgba() para controlar transparencia. Ejemplo: rgba(0,0,0,0.5) = negro 50% transparente', 'imagina-login') . '
             </p>
         </div>
         
         <p style="margin-top: 15px; color: #6b7280; font-size: 14px;">
             <span class="dashicons dashicons-info"></span>
-            Los videos se reproducen automáticamente sin sonido. Recomendamos videos cortos (10-30 segundos) en loop.
+            ' . esc_html__('Los videos se reproducen automáticamente sin sonido. Recomendamos videos cortos (10-30 segundos) en loop.', 'imagina-login') . '
         </p>
     </div>';
 }
@@ -2507,14 +2520,14 @@ function il_render_modern_logo_options() {
         <div class="imagina-color-picker">
             <input type="color" name="il_logo_bg_color" value="' . esc_attr($logo_color) . '" class="imagina-color-input">
             <div class="imagina-color-info">
-                <span class="imagina-color-label">Color de fondo del logo</span>
+                <span class="imagina-color-label">' . esc_html__('Color de fondo del logo', 'imagina-login') . '</span>
                 <span class="imagina-color-value">' . esc_html(strtoupper($logo_color)) . '</span>
             </div>
             <div class="imagina-color-preview" style="width: 40px; height: 40px; background: ' . esc_attr($logo_color) . '; border-radius: 8px; border: 2px solid #e5e7eb;"></div>
         </div>
         <p style="margin-top: 15px; color: #6b7280; font-size: 14px;">
             <span class="dashicons dashicons-info"></span>
-            Elige un color que contraste bien con tu logo para que sea fácil de ver.
+            ' . esc_html__('Elige un color que contraste bien con tu logo para que sea fácil de ver.', 'imagina-login') . '
         </p>
     </div>';
 
@@ -2527,20 +2540,20 @@ function il_render_modern_logo_options() {
     echo '<div class="imagina-option-panel" data-type="gradient" data-target="logo">
         <div class="imagina-gradient-controls">
             <div class="imagina-control-group">
-                <label class="imagina-control-label">Tipo de degradado</label>
+                <label class="imagina-control-label">' . esc_html__('Tipo de degradado', 'imagina-login') . '</label>
                 <select name="il_logo_gradient_type" class="imagina-select">
-                    <option value="linear"' . selected($logo_gradient_type, 'linear', false) . '>🔄 Lineal</option>
-                    <option value="radial"' . selected($logo_gradient_type, 'radial', false) . '>⭕ Radial</option>
+                    <option value="linear"' . selected($logo_gradient_type, 'linear', false) . '>🔄 ' . esc_html__('Lineal', 'imagina-login') . '</option>
+                    <option value="radial"' . selected($logo_gradient_type, 'radial', false) . '>⭕ ' . esc_html__('Radial', 'imagina-login') . '</option>
                 </select>
             </div>
             
             <div class="imagina-control-group">
-                <label class="imagina-control-label">Dirección</label>
+                <label class="imagina-control-label">' . esc_html__('Dirección', 'imagina-login') . '</label>
                 <select name="il_logo_gradient_direction" class="imagina-select">
-                    <option value="vertical"' . selected($logo_gradient_direction, 'vertical', false) . '>⬇️ Vertical</option>
-                    <option value="horizontal"' . selected($logo_gradient_direction, 'horizontal', false) . '>➡️ Horizontal</option>
-                    <option value="diagonal1"' . selected($logo_gradient_direction, 'diagonal1', false) . '>↗️ Diagonal ↗</option>
-                    <option value="diagonal2"' . selected($logo_gradient_direction, 'diagonal2', false) . '>↙️ Diagonal ↙</option>
+                    <option value="vertical"' . selected($logo_gradient_direction, 'vertical', false) . '>⬇️ ' . esc_html__('Vertical', 'imagina-login') . '</option>
+                    <option value="horizontal"' . selected($logo_gradient_direction, 'horizontal', false) . '>➡️ ' . esc_html__('Horizontal', 'imagina-login') . '</option>
+                    <option value="diagonal1"' . selected($logo_gradient_direction, 'diagonal1', false) . '>↗️ ' . esc_html__('Diagonal ↗', 'imagina-login') . '</option>
+                    <option value="diagonal2"' . selected($logo_gradient_direction, 'diagonal2', false) . '>↙️ ' . esc_html__('Diagonal ↙', 'imagina-login') . '</option>
                 </select>
             </div>
         </div>
@@ -2549,7 +2562,7 @@ function il_render_modern_logo_options() {
             <div class="imagina-color-picker">
                 <input type="color" name="il_logo_gradient_color1" value="' . esc_attr($logo_gradient_color1) . '" class="imagina-color-input">
                 <div class="imagina-color-info">
-                    <span class="imagina-color-label">Color inicial</span>
+                    <span class="imagina-color-label">' . esc_html__('Color inicial', 'imagina-login') . '</span>
                     <span class="imagina-color-value">' . esc_html(strtoupper($logo_gradient_color1)) . '</span>
                 </div>
             </div>
@@ -2557,7 +2570,7 @@ function il_render_modern_logo_options() {
             <div class="imagina-color-picker">
                 <input type="color" name="il_logo_gradient_color2" value="' . esc_attr($logo_gradient_color2) . '" class="imagina-color-input">
                 <div class="imagina-color-info">
-                    <span class="imagina-color-label">Color final</span>
+                    <span class="imagina-color-label">' . esc_html__('Color final', 'imagina-login') . '</span>
                     <span class="imagina-color-value">' . esc_html(strtoupper($logo_gradient_color2)) . '</span>
                 </div>
             </div>
@@ -2567,7 +2580,7 @@ function il_render_modern_logo_options() {
         
         <p style="margin-top: 15px; color: #6b7280; font-size: 14px;">
             <span class="dashicons dashicons-info"></span>
-            Los degradados del logo crean efectos visuales únicos que complementan tu diseño.
+            ' . esc_html__('Los degradados del logo crean efectos visuales únicos que complementan tu diseño.', 'imagina-login') . '
         </p>
     </div>';
 
@@ -2581,18 +2594,18 @@ function il_render_modern_logo_options() {
             <input type="hidden" name="il_logo_background_image" value="' . esc_attr($logo_image_id) . '">
             <button type="button" class="imagina-upload-btn upload-image-button">
                 <span class="dashicons dashicons-upload"></span>
-                ' . ($logo_image_id ? 'Cambiar Imagen' : 'Subir Imagen') . '
+                ' . ($logo_image_id ? esc_html__('Cambiar Imagen', 'imagina-login') : esc_html__('Subir Imagen', 'imagina-login')) . '
             </button>';
             
     if ($logo_image_id) {
         echo '<button type="button" class="imagina-upload-btn remove-image-button" style="background: #ef4444; margin-left: 10px;">
             <span class="dashicons dashicons-trash"></span>
-            Quitar
+            ' . esc_html__('Quitar', 'imagina-login') . '
         </button>';
     }
     
     echo '<p style="margin: 10px 0 0 0; color: #6b7280; font-size: 14px;">
-                Para el área del logo, recomendamos imágenes cuadradas (ej: 500×500px)
+                ' . esc_html__('Para el área del logo, recomendamos imágenes cuadradas (ej: 500×500px)', 'imagina-login') . '
             </p>
             
             <div class="imagina-media-preview">';
@@ -2602,7 +2615,7 @@ function il_render_modern_logo_options() {
     } else {
         echo '<div style="padding: 40px; text-align: center; color: #9ca3af; border: 2px dashed #d1d5db; border-radius: 8px; margin-top: 15px;">
             <span class="dashicons dashicons-format-image" style="font-size: 32px; margin-bottom: 10px; display: block;"></span>
-            <p>No hay imagen seleccionada</p>
+            <p>' . esc_html__('No hay imagen seleccionada', 'imagina-login') . '</p>
         </div>';
     }
     
@@ -2612,7 +2625,7 @@ function il_render_modern_logo_options() {
         <div class="imagina-control-group" style="margin-top: 20px;">
             <label class="imagina-control-label">
                 <span class="dashicons dashicons-visibility"></span>
-                Overlay para mejorar visibilidad del logo
+                ' . esc_html__('Overlay para mejorar visibilidad del logo', 'imagina-login') . '
             </label>
             <div style="display: flex; gap: 15px; align-items: center;">
                 <input type="text" name="il_logo_overlay_color" value="' . esc_attr($logo_overlay) . '" 
@@ -2621,8 +2634,7 @@ function il_render_modern_logo_options() {
                 <div style="width: 40px; height: 40px; background: ' . esc_attr($logo_overlay !== 'transparent' ? $logo_overlay : '#f0f0f0') . '; border-radius: 8px; border: 2px solid #e5e7eb;"></div>
             </div>
             <p style="margin: 10px 0 0 0; color: #6b7280; font-size: 12px;">
-                Agrega una capa semitransparente sobre la imagen para que tu logo sea más visible. 
-                Usa "transparent" para quitar el overlay.
+                ' . esc_html__('Agrega una capa semitransparente sobre la imagen para que tu logo sea más visible. Usa "transparent" para quitar el overlay.', 'imagina-login') . '
             </p>
         </div>
     </div>';
@@ -2721,7 +2733,7 @@ function il_render_color_controls() {
         <div class="imagina-color-picker">
             <input type="color" name="il_label_color" value="' . esc_attr($label_color) . '" class="imagina-color-input">
             <div class="imagina-color-info">
-                <span class="imagina-color-label">Color de etiquetas</span>
+                <span class="imagina-color-label">' . esc_html__('Color de etiquetas', 'imagina-login') . '</span>
                 <span class="imagina-color-value">' . esc_html(strtoupper($label_color)) . '</span>
             </div>
             <div class="imagina-color-preview" style="width: 40px; height: 40px; background: ' . esc_attr($label_color) . '; border-radius: 8px; border: 2px solid #e5e7eb;"></div>
@@ -2730,7 +2742,7 @@ function il_render_color_controls() {
         <div class="imagina-color-picker">
             <input type="color" name="il_button_color" value="' . esc_attr($button_color) . '" class="imagina-color-input">
             <div class="imagina-color-info">
-                <span class="imagina-color-label">Color del botón</span>
+                <span class="imagina-color-label">' . esc_html__('Color del botón', 'imagina-login') . '</span>
                 <span class="imagina-color-value">' . esc_html(strtoupper($button_color)) . '</span>
             </div>
             <div class="imagina-color-preview" style="width: 40px; height: 40px; background: ' . esc_attr($button_color) . '; border-radius: 8px; border: 2px solid #e5e7eb;"></div>
@@ -2739,7 +2751,7 @@ function il_render_color_controls() {
         <div class="imagina-color-picker">
             <input type="color" name="il_button_hover_color" value="' . esc_attr($button_hover_color) . '" class="imagina-color-input">
             <div class="imagina-color-info">
-                <span class="imagina-color-label">Color botón (hover)</span>
+                <span class="imagina-color-label">' . esc_html__('Color botón (hover)', 'imagina-login') . '</span>
                 <span class="imagina-color-value">' . esc_html(strtoupper($button_hover_color)) . '</span>
             </div>
             <div class="imagina-color-preview" style="width: 40px; height: 40px; background: ' . esc_attr($button_hover_color) . '; border-radius: 8px; border: 2px solid #e5e7eb;"></div>
@@ -2748,7 +2760,7 @@ function il_render_color_controls() {
         <div class="imagina-color-picker">
             <input type="color" name="il_link_color" value="' . esc_attr($link_color) . '" class="imagina-color-input">
             <div class="imagina-color-info">
-                <span class="imagina-color-label">Color de enlaces</span>
+                <span class="imagina-color-label">' . esc_html__('Color de enlaces', 'imagina-login') . '</span>
                 <span class="imagina-color-value">' . esc_html(strtoupper($link_color)) . '</span>
             </div>
             <div class="imagina-color-preview" style="width: 40px; height: 40px; background: ' . esc_attr($link_color) . '; border-radius: 8px; border: 2px solid #e5e7eb;"></div>
@@ -2758,24 +2770,24 @@ function il_render_color_controls() {
     <div style="margin-top: 20px; padding: 15px; background: #e8f4fd; border-radius: 8px; border-left: 4px solid #0ea5e9;">
         <h4 style="margin: 0 0 10px 0; color: #0c4a6e; font-size: 16px;">
             <span class="dashicons dashicons-info"></span>
-            Vista previa de colores
+            ' . esc_html__('Vista previa de colores', 'imagina-login') . '
         </h4>
         <div style="display: grid; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span data-il-sample="il_label_color:color" style="color: ' . esc_attr($label_color) . '; font-weight: 600;">Etiqueta de ejemplo</span>
-                <span style="font-size: 12px; color: #64748b;">← Así se verán las etiquetas</span>
+                <span data-il-sample="il_label_color:color" style="color: ' . esc_attr($label_color) . '; font-weight: 600;">' . esc_html__('Etiqueta de ejemplo', 'imagina-login') . '</span>
+                <span style="font-size: 12px; color: #64748b;">← ' . esc_html__('Así se verán las etiquetas', 'imagina-login') . '</span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <button type="button" data-il-sample="il_button_color:background" style="background: ' . esc_attr($button_color) . '; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600;">Botón de ejemplo</button>
-                <span style="font-size: 12px; color: #64748b;">← Color normal del botón</span>
+                <button type="button" data-il-sample="il_button_color:background" style="background: ' . esc_attr($button_color) . '; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600;">' . esc_html__('Botón de ejemplo', 'imagina-login') . '</button>
+                <span style="font-size: 12px; color: #64748b;">← ' . esc_html__('Color normal del botón', 'imagina-login') . '</span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <button type="button" data-il-sample="il_button_hover_color:background" style="background: ' . esc_attr($button_hover_color) . '; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600;">Botón hover</button>
-                <span style="font-size: 12px; color: #64748b;">← Color al pasar el mouse</span>
+                <button type="button" data-il-sample="il_button_hover_color:background" style="background: ' . esc_attr($button_hover_color) . '; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600;">' . esc_html__('Botón hover', 'imagina-login') . '</button>
+                <span style="font-size: 12px; color: #64748b;">← ' . esc_html__('Color al pasar el mouse', 'imagina-login') . '</span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <a href="#" data-il-sample="il_link_color:color" style="color: ' . esc_attr($link_color) . '; text-decoration: none; font-weight: 500;">Enlace de ejemplo</a>
-                <span style="font-size: 12px; color: #64748b;">← Color de los enlaces</span>
+                <a href="#" data-il-sample="il_link_color:color" style="color: ' . esc_attr($link_color) . '; text-decoration: none; font-weight: 500;">' . esc_html__('Enlace de ejemplo', 'imagina-login') . '</a>
+                <span style="font-size: 12px; color: #64748b;">← ' . esc_html__('Color de los enlaces', 'imagina-login') . '</span>
             </div>
         </div>
     </div>';
@@ -2794,27 +2806,27 @@ function il_render_transition_controls() {
 
     echo '<div class="imagina-transition-grid">
         <div class="imagina-control-group">
-            <label class="imagina-control-label">Tipo de transición</label>
+            <label class="imagina-control-label">' . esc_html__('Tipo de transición', 'imagina-login') . '</label>
             <select name="il_transition_type" class="imagina-select" onchange="updateTransitionPreview()">
-                <option value="fade"' . selected($transition_type, 'fade', false) . '>Aparición gradual (Fade)</option>
-                <option value="slidedown"' . selected($transition_type, 'slidedown', false) . '>Deslizar desde arriba</option>
-                <option value="zoom"' . selected($transition_type, 'zoom', false) . '>Zoom suave</option>
+                <option value="fade"' . selected($transition_type, 'fade', false) . '>' . esc_html__('Aparición gradual (Fade)', 'imagina-login') . '</option>
+                <option value="slidedown"' . selected($transition_type, 'slidedown', false) . '>' . esc_html__('Deslizar desde arriba', 'imagina-login') . '</option>
+                <option value="zoom"' . selected($transition_type, 'zoom', false) . '>' . esc_html__('Zoom suave', 'imagina-login') . '</option>
             </select>
         </div>
     </div>
 
     <div style="margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
         <div style="padding: 14px; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
-            <h4 style="margin: 0 0 10px 0; color: #374151; font-size: 13px; font-weight: 700;">Logo</h4>
+            <h4 style="margin: 0 0 10px 0; color: #374151; font-size: 13px; font-weight: 700;">' . esc_html__('Logo', 'imagina-login') . '</h4>
             <div class="imagina-control-group" style="margin-bottom: 10px;">
-                <label class="imagina-control-label">Velocidad</label>
+                <label class="imagina-control-label">' . esc_html__('Velocidad', 'imagina-login') . '</label>
                 <div class="imagina-slider-container">
                     <input type="range" name="il_logo_transition_duration" class="imagina-slider" min="0.1" max="1.5" step="0.05" value="' . esc_attr($logo_duration) . '" data-unit="s">
                     <span class="imagina-slider-value">' . esc_html($logo_duration) . 's</span>
                 </div>
             </div>
             <div class="imagina-control-group">
-                <label class="imagina-control-label">Delay</label>
+                <label class="imagina-control-label">' . esc_html__('Delay', 'imagina-login') . '</label>
                 <div class="imagina-slider-container">
                     <input type="range" name="il_logo_transition_delay" class="imagina-slider" min="0" max="1.0" step="0.05" value="' . esc_attr($logo_delay) . '" data-unit="s">
                     <span class="imagina-slider-value">' . esc_html($logo_delay) . 's</span>
@@ -2823,16 +2835,16 @@ function il_render_transition_controls() {
         </div>
 
         <div style="padding: 14px; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
-            <h4 style="margin: 0 0 10px 0; color: #374151; font-size: 13px; font-weight: 700;">Formulario</h4>
+            <h4 style="margin: 0 0 10px 0; color: #374151; font-size: 13px; font-weight: 700;">' . esc_html__('Formulario', 'imagina-login') . '</h4>
             <div class="imagina-control-group" style="margin-bottom: 10px;">
-                <label class="imagina-control-label">Velocidad</label>
+                <label class="imagina-control-label">' . esc_html__('Velocidad', 'imagina-login') . '</label>
                 <div class="imagina-slider-container">
                     <input type="range" name="il_form_transition_duration" class="imagina-slider" min="0.1" max="1.5" step="0.05" value="' . esc_attr($form_duration) . '" data-unit="s">
                     <span class="imagina-slider-value">' . esc_html($form_duration) . 's</span>
                 </div>
             </div>
             <div class="imagina-control-group">
-                <label class="imagina-control-label">Delay</label>
+                <label class="imagina-control-label">' . esc_html__('Delay', 'imagina-login') . '</label>
                 <div class="imagina-slider-container">
                     <input type="range" name="il_form_transition_delay" class="imagina-slider" min="0" max="1.0" step="0.05" value="' . esc_attr($form_delay) . '" data-unit="s">
                     <span class="imagina-slider-value">' . esc_html($form_delay) . 's</span>
@@ -2842,7 +2854,7 @@ function il_render_transition_controls() {
     </div>
 
     <div style="margin-top: 14px; padding: 12px; background: #f3f4f6; border-radius: 8px; border: 1px dashed #d1d5db;">
-        <h4 style="margin: 0 0 8px 0; color: #374151; font-size: 13px;">Secuencia de animación</h4>
+        <h4 style="margin: 0 0 8px 0; color: #374151; font-size: 13px;">' . esc_html__('Secuencia de animación', 'imagina-login') . '</h4>
         <div style="display: flex; gap: 8px; font-size: 12px; color: #6b7280; flex-wrap: wrap;">
             <span style="padding: 4px 10px; background: white; border-radius: 4px; border-left: 3px solid #667eea;">' . esc_html__('Fondo: inmediato', 'imagina-login') . '</span>
             <span style="padding: 4px 10px; background: white; border-radius: 4px; border-left: 3px solid #10b981;" data-il-seq="logo"></span>
@@ -2851,13 +2863,13 @@ function il_render_transition_controls() {
 
         <div id="transition-preview" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px;">
             <div class="transition-demo" data-type="fade">
-                <div style="width: 100%; height: 40px; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 11px; animation: fadeDemo 3s infinite;">Fade</div>
+                <div style="width: 100%; height: 40px; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 11px; animation: fadeDemo 3s infinite;">' . esc_html__('Fade', 'imagina-login') . '</div>
             </div>
             <div class="transition-demo" data-type="slidedown">
-                <div style="width: 100%; height: 40px; background: linear-gradient(45deg, #10b981, #059669); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 11px; animation: slideDemo 3s infinite;">Slide</div>
+                <div style="width: 100%; height: 40px; background: linear-gradient(45deg, #10b981, #059669); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 11px; animation: slideDemo 3s infinite;">' . esc_html__('Slide', 'imagina-login') . '</div>
             </div>
             <div class="transition-demo" data-type="zoom">
-                <div style="width: 100%; height: 40px; background: linear-gradient(45deg, #f59e0b, #d97706); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 11px; animation: zoomDemo 3s infinite;">Zoom</div>
+                <div style="width: 100%; height: 40px; background: linear-gradient(45deg, #f59e0b, #d97706); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 11px; animation: zoomDemo 3s infinite;">' . esc_html__('Zoom', 'imagina-login') . '</div>
             </div>
         </div>
 
@@ -2883,6 +2895,39 @@ function il_enqueue_admin_scripts($hook_suffix) {
         'resetUrl' => add_query_arg(['action' => 'il_reset_settings', '_wpnonce' => wp_create_nonce('il_reset_settings')], admin_url('admin-post.php')),
         'previewNonce' => wp_create_nonce('il_preview_store'),
         'presets' => array_map(function ($preset) { return $preset['settings']; }, il_presets()),
+        'i18n' => [
+            'loading' => __('Cargando...', 'imagina-login'),
+            'uploading' => __('Subiendo...', 'imagina-login'),
+            'selectImage' => __('Seleccionar imagen', 'imagina-login'),
+            'useImage' => __('Usar esta imagen', 'imagina-login'),
+            'imageAlt' => __('Imagen de fondo', 'imagina-login'),
+            'changeImage' => __('Cambiar Imagen', 'imagina-login'),
+            'uploadImage' => __('Subir Imagen', 'imagina-login'),
+            'imageUploaded' => __('Imagen subida correctamente', 'imagina-login'),
+            'imageRemoved' => __('Imagen eliminada', 'imagina-login'),
+            'confirmRemoveImage' => __('¿Estás seguro de que quieres quitar esta imagen?', 'imagina-login'),
+            'noImage' => __('No hay imagen seleccionada', 'imagina-login'),
+            'selectVideo' => __('Seleccionar video de fondo', 'imagina-login'),
+            'useVideo' => __('Usar este video', 'imagina-login'),
+            'changeVideo' => __('Cambiar Video', 'imagina-login'),
+            'uploadVideo' => __('Subir Video', 'imagina-login'),
+            'videoUploaded' => __('Video subido correctamente', 'imagina-login'),
+            'videoRemoved' => __('Video eliminado', 'imagina-login'),
+            'confirmRemoveVideo' => __('¿Estás seguro de que quieres quitar este video?', 'imagina-login'),
+            'noVideo' => __('No hay video seleccionado', 'imagina-login'),
+            'videoTooBig' => __('El video es demasiado grande. Máximo permitido: 50MB', 'imagina-login'),
+            'videoNoSupport' => __('Tu navegador no soporta videos HTML5.', 'imagina-login'),
+            'size' => __('Tamaño', 'imagina-login'),
+            'videoAutoplay' => __('El video se reproducirá automáticamente sin sonido en el login', 'imagina-login'),
+            'confirmReset' => __('¿Estás seguro de que quieres restaurar todas las configuraciones por defecto? Esta acción no se puede deshacer.', 'imagina-login'),
+            'slidesTitle' => __('Imágenes de la presentación', 'imagina-login'),
+            'slidesButton' => __('Usar estas imágenes', 'imagina-login'),
+            'logo' => __('Logo', 'imagina-login'),
+            'form' => __('Formulario', 'imagina-login'),
+            'updating' => __('Actualizando…', 'imagina-login'),
+            'updated' => __('Actualizado', 'imagina-login'),
+            'updateFailed' => __('No se pudo actualizar', 'imagina-login'),
+        ],
         'presetApplied' => __('Diseño aplicado. Revísalo en la vista previa y pulsa "Guardar Cambios" para conservarlo.', 'imagina-login'),
     ]);
 }
