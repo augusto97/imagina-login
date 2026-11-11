@@ -699,3 +699,62 @@ body.login #pass-strength-result.strong { background: #b8e6bf; }
 body.login .wp-generate-pw {
     margin-bottom: 12px;
 }
+
+/* === Elementos ocultos desde los ajustes === */
+body.login.il-hide-remember .forgetmenot,
+body.login.il-hide-backtoblog #backtoblog,
+body.login.il-hide-privacy .privacy-policy-page-link {
+    display: none !important;
+}
+
+/* === Mensaje de bienvenida (se mueve al inicio del formulario) === */
+body.login #loginform .il-welcome-message {
+    grid-area: auto;
+    margin: 0 0 18px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* === Selector de idioma (si se activa) ===
+ * Sin JS: barra fija abajo (fuera del flujo, no desplaza la tarjeta).
+ * Con JS: se mueve dentro de la tarjeta, como una fila más del pie. */
+body.login .language-switcher {
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    z-index: 5;
+    margin: 0;
+}
+body.login div#login .language-switcher {
+    position: static;
+    transform: none;
+    grid-column: 1 / -1;
+    padding: 10px 20px 14px;
+    background: #f8f9fa;
+    text-align: center;
+}
+body.login .language-switcher form {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 8px;
+}
+body.login .language-switcher label {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    font-size: 13px;
+}
+body.login .language-switcher select {
+    padding: 4px 8px;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+}

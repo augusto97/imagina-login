@@ -49,7 +49,9 @@ function il_option_schema() {
     $directions = 'vertical|horizontal|diagonal1|diagonal2';
     return [
         'il_login_template'           => ['classic', 'choice:' . $templates],
-        'il_body_bg_type'             => ['color', 'choice:color|gradient|image|video'],
+        'il_body_bg_type'             => ['color', 'choice:color|gradient|image|video|slideshow'],
+        'il_body_slides'              => ['', 'ids'],
+        'il_slide_interval'           => ['6', 'int:3:30'],
         'il_body_bg_color'            => ['#009bde', 'hex'],
         'il_body_background_image'    => ['', 'id'],
         'il_body_background_video'    => ['', 'id'],
@@ -84,6 +86,53 @@ function il_option_schema() {
         'il_logo_transition_delay'    => ['0.05', 'float:0:1'],
         'il_form_transition_duration' => ['0.4', 'float:0.1:1.5'],
         'il_form_transition_delay'    => ['0.15', 'float:0:1'],
+
+        // Textos del formulario (vacío = texto de WordPress)
+        'il_text_username'            => ['', 'text'],
+        'il_text_password'            => ['', 'text'],
+        'il_text_button'              => ['', 'text'],
+        'il_text_remember'            => ['', 'text'],
+        'il_placeholder_username'     => ['', 'text'],
+        'il_placeholder_password'     => ['', 'text'],
+        'il_login_message'            => ['', 'html'],
+        'il_generic_errors'           => [false, 'bool'],
+        'il_error_message'            => ['', 'text'],
+
+        // Elementos visibles y comportamiento
+        'il_hide_remember'            => [false, 'bool'],
+        'il_hide_lostpassword'        => [false, 'bool'],
+        'il_hide_backtoblog'          => [false, 'bool'],
+        'il_hide_privacy'             => [false, 'bool'],
+        'il_show_language'            => [false, 'bool'],
+        'il_logo_link_url'            => ['', 'url'],
+        'il_disable_shake'            => [false, 'bool'],
+        'il_disable_autofocus'        => [false, 'bool'],
+
+        // Apariencia avanzada
+        'il_dark_mode'                => ['off', 'choice:off|auto|always'],
+        'il_font'                     => ['', 'choice:' . implode('|', array_keys(il_font_choices()))],
+        'il_custom_css'               => ['', 'css'],
+    ];
+}
+
+/**
+ * Fuentes disponibles (Google Fonts). Se descargan y se sirven desde el propio sitio:
+ * los visitantes no se conectan a Google (privacidad / RGPD).
+ * Clave vacía = tipografía del tema o del sistema.
+ */
+function il_font_choices() {
+    return [
+        ''                 => ['Del tema / sistema', ''],
+        'inter'            => ['Inter', 'Inter'],
+        'poppins'          => ['Poppins', 'Poppins'],
+        'montserrat'       => ['Montserrat', 'Montserrat'],
+        'roboto'           => ['Roboto', 'Roboto'],
+        'open-sans'        => ['Open Sans', 'Open Sans'],
+        'lato'             => ['Lato', 'Lato'],
+        'nunito'           => ['Nunito', 'Nunito'],
+        'raleway'          => ['Raleway', 'Raleway'],
+        'dm-sans'          => ['DM Sans', 'DM Sans'],
+        'playfair-display' => ['Playfair Display', 'Playfair Display'],
     ];
 }
 
@@ -114,6 +163,16 @@ function il_sanitize_value($type, $value, $default) {
         case 'id':
             $id = absint($value);
             return $id ? $id : '';
+        case 'ids':
+            // Lista de IDs de adjuntos separados por coma ("12,15,20")
+            $ids = array_filter(array_map('absint', explode(',', (string) $value)));
+            return implode(',', array_slice(array_unique($ids), 0, 20));
+        case 'text':
+            return sanitize_text_field((string) $value);
+        case 'html':
+            return wp_kses_post((string) $value);
+        case 'css':
+            return il_sanitize_css((string) $value);
         case 'url':
             return $value ? esc_url_raw($value, ['http', 'https']) : '';
         case 'bool':
@@ -126,6 +185,22 @@ function il_sanitize_value($type, $value, $default) {
             return (string) max((float) $parts[1], min((float) $parts[2], round((float) $value, 2)));
     }
     return $default;
+}
+
+/**
+ * Limpiar el CSS personalizado: solo CSS, nada que cierre la etiqueta <style>
+ * ni que cargue o ejecute código (@import, javascript:, expression(), etc.).
+ */
+function il_sanitize_css($css) {
+    $css = wp_strip_all_tags($css);
+    $css = substr($css, 0, 20000);
+    // Repetir hasta que no quede nada peligroso (evita trucos como "@imp@importort")
+    $patterns = ['/@import/i', '/javascript\s*:/i', '/vbscript\s*:/i', '/expression\s*\(/i', '/behavior\s*:/i', '/-moz-binding/i', '/<\/?\s*style/i'];
+    do {
+        $before = $css;
+        $css = preg_replace($patterns, '', $css);
+    } while ($css !== $before);
+    return trim($css);
 }
 
 /**
@@ -389,6 +464,20 @@ function il_enqueue_login_assets() {
         // Agregar clase si las transiciones están activas
         if ($opts['il_enable_transitions']) {
             $classes[] = 'has-transitions';
+        }
+
+        // Elementos ocultos desde los ajustes
+        foreach (['remember', 'backtoblog', 'privacy'] as $part) {
+            if (!empty($opts['il_hide_' . $part])) {
+                $classes[] = 'il-hide-' . $part;
+            }
+        }
+
+        // Modo oscuro: "auto" sigue la preferencia del sistema del visitante
+        if ($opts['il_dark_mode'] === 'auto') {
+            $classes[] = 'il-dark-auto';
+        } elseif ($opts['il_dark_mode'] === 'always') {
+            $classes[] = 'il-dark';
         }
 
         return $classes;
@@ -747,8 +836,25 @@ function il_enqueue_login_assets() {
     // El botón de mostrar/ocultar contraseña lo maneja WordPress (user-profile.js); antes el plugin
     // lo reemplazaba y además lo añadía a cualquier campo de contraseña, incluidos los de plugins
     // de 2FA, y forzaba a mostrarse campos que esos plugins tenían ocultos.
+    // Placeholders opcionales (WordPress no ofrece un filtro para ellos)
+    $placeholders = array_filter([
+        'user_login' => $opts['il_placeholder_username'],
+        'user_pass'  => $opts['il_placeholder_password'],
+    ]);
+
     $script = "(function () {
+        var placeholders = " . wp_json_encode($placeholders ? $placeholders : new stdClass()) . ";
         function start() {
+            Object.keys(placeholders).forEach(function (id) {
+                var field = document.getElementById(id);
+                if (field) { field.setAttribute('placeholder', placeholders[id]); }
+            });
+            // El mensaje de bienvenida va al inicio del formulario (los diseños ubican los mensajes debajo)
+            var welcome = document.querySelector('.il-welcome-message'), form = document.getElementById('loginform');
+            if (welcome && form) { form.insertBefore(welcome, form.firstChild); }
+            // El selector de idioma está fuera de #login y desplazaba la tarjeta: se integra al pie
+            var lang = document.querySelector('.language-switcher'), box = document.getElementById('login');
+            if (lang && box) { box.appendChild(lang); }
             " . ($enable_transitions
                 ? "setTimeout(function () { document.body.classList.add('logo-loaded', 'form-loaded'); }, 50);"
                 : "document.body.classList.add('logo-loaded', 'form-loaded');") . "
@@ -897,12 +1003,91 @@ function il_render_login_preview() {
 }
 
 // --- Filtros para el comportamiento del logo y el formulario ---
-add_filter('login_display_language_dropdown', '__return_false');
+// Selector de idioma: oculto salvo que se active en los ajustes
+add_filter('login_display_language_dropdown', function () {
+    $opts = il_get_all_options();
+    return (bool) $opts['il_show_language'];
+});
 
 function il_login_logo_url() {
-    return home_url();
+    $opts = il_get_all_options();
+    return $opts['il_logo_link_url'] ? $opts['il_logo_link_url'] : home_url();
 }
 add_filter('login_headerurl', 'il_login_logo_url');
+
+/**
+ * Textos, elementos visibles y comportamiento del formulario de login.
+ * Solo se activa en wp-login.php.
+ */
+function il_apply_login_customizations() {
+    $opts = il_get_all_options();
+    $action = isset($_REQUEST['action']) ? sanitize_key(wp_unslash($_REQUEST['action'])) : 'login';
+    $is_login_screen = in_array($action, ['login', ''], true);
+
+    // Textos de etiquetas y botón. Solo se cambian los textos de WordPress (dominio "default"),
+    // así no se tocan los de plugins de 2FA u otros que usan palabras iguales como "Password".
+    $texts = array_filter([
+        'Username or Email Address' => $opts['il_text_username'],
+        'Password'                  => $opts['il_text_password'],
+        'Log In'                    => $opts['il_text_button'],
+        'Remember Me'               => $opts['il_text_remember'],
+    ]);
+    if ($texts && $is_login_screen) {
+        add_filter('gettext', function ($translation, $text, $domain) use ($texts) {
+            return ('default' === $domain && isset($texts[$text])) ? $texts[$text] : $translation;
+        }, 20, 3);
+    }
+
+    // Mensaje de bienvenida sobre el formulario
+    if ($opts['il_login_message'] && $is_login_screen) {
+        add_filter('login_message', function ($message) use ($opts) {
+            return $message . '<p class="message il-welcome-message">' . wp_kses_post($opts['il_login_message']) . '</p>';
+        });
+    }
+
+    // Error genérico: no revela si el usuario existe (evita enumerar usuarios).
+    // Solo reemplaza los errores de usuario/contraseña; los de 2FA u otros plugins se mantienen.
+    if ($opts['il_generic_errors']) {
+        add_filter('wp_login_errors', function ($errors) use ($opts) {
+            $codes = ['invalid_username', 'incorrect_password', 'invalid_email'];
+            if (!is_wp_error($errors) || !array_intersect($errors->get_error_codes(), $codes)) {
+                return $errors;
+            }
+            $message = $opts['il_error_message'] ? $opts['il_error_message'] : __('Usuario o contraseña incorrectos.', 'imagina-login');
+            $generic = new WP_Error();
+            foreach ($errors->get_error_codes() as $code) {
+                if (!in_array($code, $codes, true)) {
+                    foreach ($errors->get_error_messages($code) as $m) {
+                        $generic->add($code, $m);
+                    }
+                }
+            }
+            $generic->add('il_generic_error', '<strong>' . esc_html__('Error:', 'imagina-login') . '</strong> ' . esc_html($message));
+            return $generic;
+        });
+    }
+
+    // Ocultar "¿Olvidaste tu contraseña?" (y el separador que quedaría suelto)
+    if ($opts['il_hide_lostpassword']) {
+        add_filter('lost_password_html_link', '__return_empty_string');
+        if ($is_login_screen) {
+            add_filter('login_link_separator', '__return_empty_string');
+        }
+    }
+
+    // Ocultar "← Ir a …"
+    if ($opts['il_hide_backtoblog']) {
+        add_filter('login_site_html_link', '__return_empty_string');
+    }
+
+    if ($opts['il_disable_shake']) {
+        add_filter('shake_error_codes', '__return_empty_array');
+    }
+    if ($opts['il_disable_autofocus']) {
+        add_filter('enable_login_autofocus', '__return_false');
+    }
+}
+add_action('login_init', 'il_apply_login_customizations');
 
 function il_login_logo_title() {
     return get_bloginfo('name');
@@ -1522,6 +1707,57 @@ function il_settings_page_html() {
                     </div>
                 </div>
 
+                <!-- Sección: textos del formulario -->
+                <div class="imagina-section" id="il-section-texts">
+                    <div class="imagina-section-header">
+                        <h2><span class="section-icon">✍️</span> <?php esc_html_e('Textos del formulario', 'imagina-login'); ?></h2>
+                        <p><?php esc_html_e('Cambia etiquetas, botón y mensajes. Déjalos vacíos para usar los textos de WordPress.', 'imagina-login'); ?></p>
+                    </div>
+                    <div class="imagina-section-content">
+                        <div class="imagina-fields-grid">
+                            <?php
+                            il_field_text('il_text_username', __('Etiqueta del usuario', 'imagina-login'), __('Username or Email Address'));
+                            il_field_text('il_text_password', __('Etiqueta de la contraseña', 'imagina-login'), __('Password'));
+                            il_field_text('il_text_remember', __('Texto de "Recuérdame"', 'imagina-login'), __('Remember Me'));
+                            il_field_text('il_text_button', __('Texto del botón', 'imagina-login'), __('Log In'));
+                            il_field_text('il_placeholder_username', __('Texto de ejemplo en el campo usuario', 'imagina-login'), __('ej: nombre@empresa.com', 'imagina-login'));
+                            il_field_text('il_placeholder_password', __('Texto de ejemplo en el campo contraseña', 'imagina-login'), '');
+                            ?>
+                        </div>
+                        <?php
+                        il_field_textarea('il_login_message', __('Mensaje de bienvenida', 'imagina-login'), __('ej: ¡Hola de nuevo! Ingresa con tu cuenta.', 'imagina-login'), __('Aparece arriba del formulario. Admite HTML básico (negrita, enlaces).', 'imagina-login'), 2);
+                        ?>
+                        <div class="imagina-fields-grid">
+                            <?php
+                            il_field_switch('il_generic_errors', __('Mensaje de error genérico', 'imagina-login'), __('Muestra el mismo error si el usuario no existe o la contraseña es incorrecta, para que nadie pueda adivinar qué usuarios existen. No afecta los mensajes de 2FA.', 'imagina-login'));
+                            il_field_text('il_error_message', __('Texto del error genérico', 'imagina-login'), __('Usuario o contraseña incorrectos.', 'imagina-login'));
+                            ?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección: elementos y comportamiento -->
+                <div class="imagina-section" id="il-section-elements">
+                    <div class="imagina-section-header">
+                        <h2><span class="section-icon">👁️</span> <?php esc_html_e('Elementos y comportamiento', 'imagina-login'); ?></h2>
+                        <p><?php esc_html_e('Elige qué se muestra en la página de login y cómo se comporta.', 'imagina-login'); ?></p>
+                    </div>
+                    <div class="imagina-section-content">
+                        <div class="imagina-fields-grid">
+                            <?php
+                            il_field_switch('il_hide_remember', __('Ocultar "Recuérdame"', 'imagina-login'));
+                            il_field_switch('il_hide_lostpassword', __('Ocultar "¿Olvidaste tu contraseña?"', 'imagina-login'));
+                            il_field_switch('il_hide_backtoblog', __('Ocultar "Ir al sitio"', 'imagina-login'));
+                            il_field_switch('il_hide_privacy', __('Ocultar enlace de privacidad', 'imagina-login'));
+                            il_field_switch('il_show_language', __('Mostrar selector de idioma', 'imagina-login'), __('Solo aparece si el sitio tiene más de un idioma instalado.', 'imagina-login'));
+                            il_field_switch('il_disable_shake', __('Sin sacudida al fallar', 'imagina-login'), __('Desactiva la animación de "temblor" cuando la contraseña es incorrecta.', 'imagina-login'));
+                            il_field_switch('il_disable_autofocus', __('Sin foco automático', 'imagina-login'), __('El cursor no salta solo al campo de usuario al cargar la página.', 'imagina-login'));
+                            il_field_text('il_logo_link_url', __('Enlace del logo', 'imagina-login'), home_url('/'), __('A dónde lleva el clic en el logo. Vacío = página de inicio.', 'imagina-login'), 'url');
+                            ?>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- *** NUEVA SECCIÓN: TRANSICIONES Y ANIMACIONES *** -->
                 <div class="imagina-section">
                     <div class="imagina-section-header">
@@ -1915,6 +2151,62 @@ function il_render_modern_logo_options() {
 /**
  * Renderizar controles de colores personalizados
  */
+/**
+ * Campos reutilizables del panel de ajustes
+ */
+function il_field_text($key, $label, $placeholder = '', $help = '', $type = 'text') {
+    $opts = il_get_all_options();
+    printf(
+        '<div class="imagina-control-group"><label class="imagina-control-label" for="%1$s">%2$s</label><input type="%5$s" id="%1$s" name="%1$s" value="%3$s" placeholder="%4$s" class="imagina-text-input">%6$s</div>',
+        esc_attr($key),
+        esc_html($label),
+        esc_attr($opts[$key]),
+        esc_attr($placeholder),
+        esc_attr($type),
+        $help ? '<p class="imagina-help">' . esc_html($help) . '</p>' : ''
+    );
+}
+
+function il_field_textarea($key, $label, $placeholder = '', $help = '', $rows = 3, $class = '') {
+    $opts = il_get_all_options();
+    printf(
+        '<div class="imagina-control-group imagina-control-wide"><label class="imagina-control-label" for="%1$s">%2$s</label><textarea id="%1$s" name="%1$s" rows="%5$d" placeholder="%4$s" class="imagina-text-input %6$s">%3$s</textarea>%7$s</div>',
+        esc_attr($key),
+        esc_html($label),
+        esc_textarea($opts[$key]),
+        esc_attr($placeholder),
+        (int) $rows,
+        esc_attr($class),
+        $help ? '<p class="imagina-help">' . esc_html($help) . '</p>' : ''
+    );
+}
+
+function il_field_switch($key, $label, $help = '') {
+    $opts = il_get_all_options();
+    printf(
+        '<div class="imagina-control-group"><label class="imagina-toggle-container imagina-toggle-small"><input type="checkbox" name="%1$s" value="1" %2$s><span class="imagina-toggle-slider"></span><span class="imagina-toggle-label">%3$s</span></label>%4$s</div>',
+        esc_attr($key),
+        checked(!empty($opts[$key]), true, false),
+        esc_html($label),
+        $help ? '<p class="imagina-help">' . esc_html($help) . '</p>' : ''
+    );
+}
+
+function il_field_select($key, $label, $choices, $help = '') {
+    $opts = il_get_all_options();
+    $options_html = '';
+    foreach ($choices as $value => $text) {
+        $options_html .= sprintf('<option value="%s"%s>%s</option>', esc_attr($value), selected($opts[$key], $value, false), esc_html($text));
+    }
+    printf(
+        '<div class="imagina-control-group"><label class="imagina-control-label" for="%1$s">%2$s</label><select id="%1$s" name="%1$s" class="imagina-select">%3$s</select>%4$s</div>',
+        esc_attr($key),
+        esc_html($label),
+        $options_html,
+        $help ? '<p class="imagina-help">' . esc_html($help) . '</p>' : ''
+    );
+}
+
 function il_render_color_controls() {
     $label_color = get_option('il_label_color', '#009bde');
     $button_color = get_option('il_button_color', '#009bde');
