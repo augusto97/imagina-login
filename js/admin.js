@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
             // Marcar el radio button
             const radio = this.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
+            if (radio) { radio.checked = true; radio.dispatchEvent(new Event('change', { bubbles: true })); }
         });
     });
 
@@ -236,4 +236,105 @@ jQuery(function ($) {
     function update() { seq('logo', 'Logo'); seq('form', 'Formulario'); }
     $(document).on('input change', '[name$="_transition_delay"], [name$="_transition_duration"]', update);
     update();
+});
+
+// ===== Vista previa en vivo =====
+// Envía los ajustes del formulario (sin guardar) y recarga el login real dentro del panel.
+jQuery(function ($) {
+    var $drawer = $('#il-preview-drawer'), $iframe = $drawer.find('iframe'), $stage = $drawer.find('.il-preview-stage');
+    var $form = $('form.imagina-form'), $status = $drawer.find('.il-preview-status');
+    var devices = { desktop: [1280, 800], tablet: [820, 1100], mobile: [390, 844] };
+    var device = 'desktop', timer = null, pending = null;
+    if (!$drawer.length) return;
+
+    function fit() {
+        var size = devices[device], w = $stage.width(), h = $stage.height();
+        var scale = Math.min(w / size[0], h / size[1], 1);
+        $iframe.css({ width: size[0], height: size[1], transform: 'scale(' + scale + ')' });
+    }
+
+    function collect() {
+        var settings = {};
+        $.each($form.serializeArray(), function (_, field) {
+            if (field.name.indexOf('il_') === 0) settings[field.name] = field.value;
+        });
+        return settings;
+    }
+
+    function refresh() {
+        if ($drawer.prop('hidden')) return;
+        if (pending) pending.abort();
+        $status.text('Actualizando…');
+        pending = $.post(ajaxurl, { action: 'il_preview_store', _ajax_nonce: ilAdmin.previewNonce, settings: collect() })
+            .done(function (res) {
+                if (res && res.success) { $iframe.attr('src', res.data.url); }
+                else { $status.text('No se pudo actualizar'); }
+            })
+            .fail(function (xhr) { if (xhr.statusText !== 'abort') $status.text('No se pudo actualizar'); });
+    }
+    $iframe.on('load', function () { $status.text('Actualizado'); });
+
+    function schedule() { clearTimeout(timer); timer = setTimeout(refresh, 600); }
+
+    $('#il-live-preview-toggle').on('click', function () {
+        var open = $drawer.prop('hidden');
+        $drawer.prop('hidden', !open);
+        $('body').toggleClass('il-preview-open', open);
+        if (open) { fit(); refresh(); }
+    });
+    $drawer.on('click', '.il-preview-close', function () {
+        $drawer.prop('hidden', true); $('body').removeClass('il-preview-open');
+    });
+    $drawer.on('click', '[data-device]', function () {
+        device = $(this).data('device');
+        $drawer.find('[data-device]').removeClass('is-active'); $(this).addClass('is-active');
+        fit();
+    });
+    $(window).on('resize', fit);
+    $form.on('input change', ':input', schedule);
+});
+
+// ===== Diseños rápidos =====
+// Rellena el formulario con los valores del diseño (no guarda): el usuario lo ve en la vista previa y decide.
+jQuery(function ($) {
+    function setField(name, value) {
+        var $fields = $('form.imagina-form [name="' + name + '"]');
+        if (!$fields.length) return;
+        var el = $fields[0];
+        if (el.type === 'radio') {
+            var radio = $fields.filter('[value="' + value + '"]')[0];
+            if (!radio) return;
+            var card = radio.closest('.imagina-template-card');
+            if (card) { card.click(); return; } // la tarjeta marca, resalta y dispara "change"
+            radio.checked = true;
+            radio.dispatchEvent(new Event('change', { bubbles: true }));
+        } else if (el.type === 'checkbox') {
+            el.checked = !!value;
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+        } else {
+            $(el).val(value);
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+
+    $(document).on('click', '.il-preset', function () {
+        var settings = (ilAdmin.presets || {})[$(this).data('preset')];
+        if (!settings) return;
+        Object.keys(settings).forEach(function (name) { setField(name, settings[name]); });
+        $('.il-preset').removeClass('is-active'); $(this).addClass('is-active');
+        $('.il-preset-notice').text(ilAdmin.presetApplied);
+    });
+});
+
+// "Vista previa de colores": sigue a los selectores de color en tiempo real
+jQuery(function ($) {
+    function paint() {
+        $('[data-il-sample]').each(function () {
+            var parts = $(this).data('ilSample').split(':');
+            var value = $('[name="' + parts[0] + '"]').val();
+            if (value) this.style[parts[1]] = value;
+        });
+    }
+    $(document).on('input change', '[name="il_label_color"], [name="il_button_color"], [name="il_button_hover_color"], [name="il_link_color"]', paint);
 });

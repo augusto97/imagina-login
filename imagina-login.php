@@ -226,6 +226,18 @@ function il_get_all_options($reset = false) {
         $options[$key] = ($value === false) ? $default : il_sanitize_value($type, $value, $default);
     }
 
+    // Vista previa en vivo: aplicar los ajustes sin guardar del panel (ya limpios)
+    if (!empty($_GET['il_live']) && il_is_preview()) {
+        $draft = get_transient('il_preview_' . get_current_user_id());
+        if (is_array($draft)) {
+            foreach ($draft as $key => $value) {
+                if (isset($options[$key])) {
+                    $options[$key] = $value;
+                }
+            }
+        }
+    }
+
     $cached_options = $options;
     return $options;
 }
@@ -258,6 +270,11 @@ function il_generate_gradient_css($type, $direction, $color1, $color2) {
  * Cache para los estilos dinámicos (OPTIMIZADO)
  */
 function il_get_cached_dynamic_styles() {
+    // La vista previa usa ajustes temporales: no se guardan en caché
+    if (il_is_preview()) {
+        return il_generate_dynamic_styles();
+    }
+
     // La clave incluye un hash de los ajustes: cualquier cambio (desde el admin, WP-CLI o REST)
     // genera una clave nueva, así que la caché nunca queda desactualizada y no hace falta limpiarla.
     $cache_key = 'il_dyn_styles_' . substr(md5(serialize(il_get_all_options()) . IL_VERSION), 0, 16);
@@ -1058,126 +1075,94 @@ function il_dequeue_default_login_styles() {
 add_action('login_enqueue_scripts', 'il_dequeue_default_login_styles', 11);
 
 /**
- * Modo preview: cargar un template falso de login en el frontend.
- * Usa template_include para servir una replica del login sin pasar por wp-login.php.
+ * ¿Es esta petición una vista previa del login?
+ * Solo en wp-login.php, para un administrador con sesión y con un nonce válido.
  */
-function il_login_preview_template($template) {
-    if (!isset($_GET['il_login_preview'])) {
-        return $template;
+function il_is_preview() {
+    static $is_preview = null;
+    if ($is_preview !== null) {
+        return $is_preview;
+    }
+    $is_preview = false;
+    if (empty($_GET['il_preview']) || !isset($GLOBALS['pagenow']) || $GLOBALS['pagenow'] !== 'wp-login.php') {
+        return $is_preview;
     }
     if (!is_user_logged_in() || !current_user_can('manage_options')) {
-        return $template;
+        return $is_preview;
     }
-
-    // Servir la pagina de preview
-    il_render_login_preview();
-    exit;
+    $is_preview = (bool) wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['il_preview'])), 'il_preview');
+    return $is_preview;
 }
-add_filter('template_include', 'il_login_preview_template', 999);
 
 /**
- * Renderizar la replica del login para preview
+ * URL de la vista previa. Con $live = true usa los ajustes sin guardar del panel.
  */
-function il_render_login_preview() {
-    // Disparar login_init para que nuestro plugin y otros carguen lo necesario
-    do_action('login_init');
-
-    // print_emoji_styles está obsoleta desde WP 6.4 y genera un aviso al llamar wp_print_styles() aquí
-    remove_action('wp_print_styles', 'print_emoji_styles');
-
-    // Simular las clases del body de wp-login.php
-    $opts = il_get_all_options();
-    $template = $opts['il_login_template'];
-    $body_classes = ['login', 'wp-core-ui', 'login-action-login'];
-    $body_classes[] = 'template-' . $template;
-    if ($opts['il_enable_transitions']) {
-        $body_classes[] = 'has-transitions';
+function il_preview_url($live = false) {
+    $args = ['il_preview' => wp_create_nonce('il_preview')];
+    if ($live) {
+        $args['il_live'] = '1';
     }
-
-    // Obtener el logo (misma lógica que il_enqueue_login_assets)
-    $logo_url = '';
-    $plugin_logo_id = $opts['il_custom_logo'];
-    if ($plugin_logo_id) {
-        $logo_data = wp_get_attachment_image_src($plugin_logo_id, 'full');
-        if ($logo_data && isset($logo_data[0])) {
-            $logo_url = $logo_data[0];
-        }
-    }
-    if (empty($logo_url)) {
-        $custom_logo_id = get_theme_mod('custom_logo');
-        if ($custom_logo_id) {
-            $logo_data = wp_get_attachment_image_src($custom_logo_id, 'full');
-            if ($logo_data && isset($logo_data[0])) {
-                $logo_url = $logo_data[0];
-            }
-        }
-    }
-    if (empty($logo_url)) {
-        $site_icon_url = get_site_icon_url();
-        if (!empty($site_icon_url)) {
-            $logo_url = $site_icon_url;
-        }
-    }
-    $logo_text = get_bloginfo('name');
-
-    ?><!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-<meta charset="<?php bloginfo('charset'); ?>" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="noindex, nofollow" />
-<title><?php echo esc_html(get_bloginfo('name')); ?> &mdash; Login Preview</title>
-<?php
-    // Cargar estilos base de login de WordPress
-    wp_enqueue_style('login');
-    // Disparar hooks en el mismo orden que wp-login.php
-    do_action('login_enqueue_scripts');
-    wp_print_styles();
-    wp_print_head_scripts();
-    do_action('login_head');
-?>
-</head>
-<body class="<?php echo esc_attr(implode(' ', $body_classes)); ?>">
-<div id="login">
-    <h1>
-        <a href="<?php echo esc_url(home_url('/')); ?>"><?php echo esc_html($logo_text); ?></a>
-    </h1>
-    <form name="loginform" id="loginform" action="#" method="post">
-        <p>
-            <label for="user_login"><?php esc_html_e('Username or Email Address'); ?></label>
-            <input type="text" name="log" id="user_login" class="input" value="" size="20" autocapitalize="off" autocomplete="off" readonly />
-        </p>
-        <p>
-            <label for="user_pass"><?php esc_html_e('Password'); ?></label>
-            <div class="wp-pwd">
-                <input type="password" name="pwd" id="user_pass" class="input" value="" size="20" autocomplete="off" readonly />
-            </div>
-        </p>
-        <p class="forgetmenot">
-            <input name="rememberme" type="checkbox" id="rememberme" value="forever" />
-            <label for="rememberme"><?php esc_html_e('Remember Me'); ?></label>
-        </p>
-        <p class="submit">
-            <input type="button" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e('Log In'); ?>" />
-        </p>
-    </form>
-    <p id="nav">
-        <a href="#"><?php esc_html_e('Lost your password?'); ?></a>
-    </p>
-    <p id="backtoblog">
-        <a href="<?php echo esc_url(home_url('/')); ?>"><?php echo esc_html(sprintf(_x('&larr; Go to %s', 'site'), get_bloginfo('name'))); ?></a>
-    </p>
-</div>
-<?php
-    do_action('login_footer');
-    wp_print_footer_scripts();
-?>
-</body>
-</html>
-<?php
+    return add_query_arg($args, wp_login_url());
 }
 
-// --- Filtros para el comportamiento del logo y el formulario ---
+/**
+ * Vista previa: mostrar el wp-login.php real como lo ve un visitante, sin tocar la sesión
+ * del administrador. (Antes se usaba una copia hecha a mano que no coincidía con el login real.)
+ */
+function il_preview_setup() {
+    if (!il_is_preview()) {
+        return;
+    }
+    // Nunca crear ni borrar cookies de sesión desde la vista previa
+    add_filter('send_auth_cookies', '__return_false', 999);
+
+    // WordPress identifica al admin por su cookie y lo redirige al escritorio.
+    // En la vista previa, un acceso sin usuario ni contraseña se trata como el de un visitante.
+    add_filter('authenticate', function ($user, $username, $password) {
+        if ($username === '' && $password === '') {
+            $error = new WP_Error();
+            $error->add('empty_username', '');
+            $error->add('empty_password', '');
+            return $error;
+        }
+        return $user;
+    }, 100, 3);
+
+    nocache_headers();
+
+    // Es solo una vista previa: no enviar formularios ni salir de la página
+    add_action('login_footer', function () {
+        echo '<script>
+            document.addEventListener("submit", function (e) { e.preventDefault(); }, true);
+            document.addEventListener("click", function (e) { if (e.target.closest("a")) { e.preventDefault(); } }, true);
+        </script>';
+    }, 99);
+}
+add_action('login_init', 'il_preview_setup', 1);
+
+/**
+ * Guardar temporalmente los ajustes sin guardar del panel para la vista previa en vivo
+ */
+function il_ajax_preview_store() {
+    check_ajax_referer('il_preview_store');
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(null, 403);
+    }
+    $raw = isset($_POST['settings']) && is_array($_POST['settings']) ? wp_unslash($_POST['settings']) : [];
+    $data = [];
+    foreach (il_option_schema() as $key => list($default, $type)) {
+        if ($type === 'bool') {
+            // Las casillas desmarcadas no se envían
+            $data[$key] = !empty($raw[$key]);
+        } elseif (array_key_exists($key, $raw)) {
+            $data[$key] = il_sanitize_value($type, $raw[$key], $default);
+        }
+    }
+    set_transient('il_preview_' . get_current_user_id(), $data, HOUR_IN_SECONDS);
+    wp_send_json_success(['url' => add_query_arg('t', time(), il_preview_url(true))]);
+}
+add_action('wp_ajax_il_preview_store', 'il_ajax_preview_store');
+
 // Selector de idioma: oculto salvo que se active en los ajustes
 add_filter('login_display_language_dropdown', function () {
     $opts = il_get_all_options();
@@ -1466,6 +1451,153 @@ function il_create_admin_menu() {
 add_action('admin_menu', 'il_create_admin_menu');
 
 /**
+ * Diseños completos de un clic: diseño + fondo + colores + tipografía.
+ * No tocan el logo ni los textos del usuario.
+ */
+function il_presets() {
+    $gradient = function ($type, $dir, $c1, $c2) {
+        return ['il_body_bg_type' => 'gradient', 'il_body_gradient_type' => $type, 'il_body_gradient_direction' => $dir, 'il_body_gradient_color1' => $c1, 'il_body_gradient_color2' => $c2];
+    };
+    $colors = function ($label, $button, $hover, $link) {
+        return ['il_use_custom_colors' => true, 'il_label_color' => $label, 'il_button_color' => $button, 'il_button_hover_color' => $hover, 'il_link_color' => $link];
+    };
+    return [
+        'corporativo' => [
+            'name' => __('Corporativo', 'imagina-login'),
+            'desc' => __('Dos columnas, azul sobrio, tipografía Inter.', 'imagina-login'),
+            'swatch' => 'linear-gradient(135deg,#0f4c81,#1e88e5)',
+            'settings' => ['il_login_template' => 'classic', 'il_logo_bg_type' => 'color', 'il_logo_bg_color' => '#f5f7fa', 'il_font' => 'inter', 'il_dark_mode' => 'off']
+                + $gradient('linear', 'diagonal1', '#0f4c81', '#1e88e5') + $colors('#0f4c81', '#0f4c81', '#0b3a63', '#0f4c81'),
+        ],
+        'medianoche' => [
+            'name' => __('Medianoche', 'imagina-login'),
+            'desc' => __('Caja compacta en modo oscuro con acentos violeta.', 'imagina-login'),
+            'swatch' => 'radial-gradient(circle,#334155,#0f172a)',
+            'settings' => ['il_login_template' => 'boxed', 'il_logo_bg_type' => 'color', 'il_logo_bg_color' => '#f9f9f9', 'il_font' => 'dm-sans', 'il_dark_mode' => 'always']
+                + $gradient('radial', 'vertical', '#334155', '#0f172a') + $colors('#a78bfa', '#7c3aed', '#6d28d9', '#a78bfa'),
+        ],
+        'minimal' => [
+            'name' => __('Minimalista', 'imagina-login'),
+            'desc' => __('Fondo gris claro, todo en negro, sin distracciones.', 'imagina-login'),
+            'swatch' => 'linear-gradient(135deg,#f4f4f5,#d4d4d8)',
+            'settings' => ['il_login_template' => 'boxed', 'il_body_bg_type' => 'color', 'il_body_bg_color' => '#f4f4f5', 'il_logo_bg_type' => 'color', 'il_logo_bg_color' => '#ffffff', 'il_font' => 'inter', 'il_dark_mode' => 'off']
+                + $colors('#18181b', '#18181b', '#000000', '#18181b'),
+        ],
+        'startup' => [
+            'name' => __('Startup', 'imagina-login'),
+            'desc' => __('Efecto cristal sobre degradado vibrante, tipografía Poppins.', 'imagina-login'),
+            'swatch' => 'linear-gradient(45deg,#6366f1,#ec4899)',
+            'settings' => ['il_login_template' => 'glass', 'il_font' => 'poppins', 'il_dark_mode' => 'off']
+                + $gradient('linear', 'diagonal1', '#6366f1', '#ec4899') + $colors('#ffffff', '#4f46e5', '#4338ca', '#4f46e5'),
+        ],
+        'naturaleza' => [
+            'name' => __('Naturaleza', 'imagina-login'),
+            'desc' => __('Panel lateral 50/50 en verdes, tipografía Nunito.', 'imagina-login'),
+            'swatch' => 'linear-gradient(135deg,#134e4a,#14b8a6)',
+            'settings' => ['il_login_template' => 'sidebar-half-left', 'il_logo_bg_type' => 'color', 'il_logo_bg_color' => '#ecfdf5', 'il_font' => 'nunito', 'il_dark_mode' => 'off']
+                + $gradient('linear', 'diagonal2', '#134e4a', '#14b8a6') + $colors('#0f766e', '#0f766e', '#115e59', '#0f766e'),
+        ],
+        'atardecer' => [
+            'name' => __('Atardecer', 'imagina-login'),
+            'desc' => __('Pantalla dividida en naranjas y rosas, tipografía Montserrat.', 'imagina-login'),
+            'swatch' => 'linear-gradient(-45deg,#f97316,#db2777)',
+            'settings' => ['il_login_template' => 'split', 'il_logo_bg_type' => 'gradient', 'il_logo_gradient_type' => 'linear', 'il_logo_gradient_direction' => 'vertical', 'il_logo_gradient_color1' => '#fff7ed', 'il_logo_gradient_color2' => '#ffe4e6', 'il_font' => 'montserrat', 'il_dark_mode' => 'off']
+                + $gradient('linear', 'diagonal2', '#f97316', '#db2777') + $colors('#c2410c', '#ea580c', '#c2410c', '#c2410c'),
+        ],
+    ];
+}
+
+/**
+ * Exportar los ajustes guardados como JSON
+ */
+function il_export_settings() {
+    if (!current_user_can('manage_options')) {
+        wp_die(esc_html__('No tienes permisos para hacer esto.', 'imagina-login'), 403);
+    }
+    check_admin_referer('il_export_settings');
+
+    $settings = il_get_all_options();
+    // Las imágenes se identifican por ID, que cambia entre sitios: se guarda también su dirección
+    $media = [];
+    foreach (il_media_option_keys() as $key) {
+        $ids = array_filter(explode(',', (string) $settings[$key]));
+        $media[$key] = array_values(array_filter(array_map('wp_get_attachment_url', array_map('intval', $ids))));
+    }
+
+    $payload = [
+        'plugin'   => 'imagina-login',
+        'version'  => IL_VERSION,
+        'exported' => gmdate('c'),
+        'site'     => home_url(),
+        'settings' => $settings,
+        'media'    => $media,
+    ];
+
+    nocache_headers();
+    header('Content-Type: application/json; charset=utf-8');
+    header('Content-Disposition: attachment; filename="imagina-login-' . gmdate('Y-m-d') . '.json"');
+    echo wp_json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+add_action('admin_post_il_export_settings', 'il_export_settings');
+
+/**
+ * Ajustes que guardan IDs de la biblioteca de medios
+ */
+function il_media_option_keys() {
+    return ['il_custom_logo', 'il_custom_logo_dark', 'il_body_background_image', 'il_logo_background_image', 'il_body_background_video', 'il_body_slides'];
+}
+
+/**
+ * Importar ajustes desde un JSON exportado. Solo acepta claves conocidas y limpia cada valor.
+ */
+function il_import_settings() {
+    if (!current_user_can('manage_options')) {
+        wp_die(esc_html__('No tienes permisos para hacer esto.', 'imagina-login'), 403);
+    }
+    check_admin_referer('il_import_settings');
+    $back = admin_url('options-general.php?page=imagina-login-settings');
+
+    $file = isset($_FILES['il_import_file']) ? $_FILES['il_import_file'] : null;
+    if (!$file || !empty($file['error']) || empty($file['tmp_name']) || $file['size'] > 512000) {
+        wp_safe_redirect(add_query_arg('il_import', 'file', $back));
+        exit;
+    }
+    $data = json_decode(file_get_contents($file['tmp_name']), true);
+    if (!is_array($data) || ($data['plugin'] ?? '') !== 'imagina-login' || !is_array($data['settings'] ?? null)) {
+        wp_safe_redirect(add_query_arg('il_import', 'invalid', $back));
+        exit;
+    }
+
+    $media_keys = il_media_option_keys();
+    foreach (il_option_schema() as $key => list($default, $type)) {
+        if (!array_key_exists($key, $data['settings'])) {
+            continue;
+        }
+        $value = $data['settings'][$key];
+        if (in_array($key, $media_keys, true)) {
+            // Usar el ID solo si es un adjunto de este sitio con la misma dirección; si no, buscar por dirección
+            $urls = isset($data['media'][$key]) && is_array($data['media'][$key]) ? $data['media'][$key] : [];
+            $ids = [];
+            foreach (array_values(array_filter(explode(',', (string) $value))) as $i => $id) {
+                $url = isset($urls[$i]) ? esc_url_raw($urls[$i]) : '';
+                if (get_post_type((int) $id) === 'attachment' && (!$url || wp_get_attachment_url((int) $id) === $url)) {
+                    $ids[] = (int) $id;
+                } elseif ($url && ($found = attachment_url_to_postid($url))) {
+                    $ids[] = $found;
+                }
+            }
+            $value = implode(',', $ids);
+        }
+        update_option($key, il_sanitize_value($type, $value, $default));
+    }
+
+    wp_safe_redirect(add_query_arg('il_import', 'ok', $back));
+    exit;
+}
+add_action('admin_post_il_import_settings', 'il_import_settings');
+
+/**
  * Restaurar todos los ajustes del plugin a sus valores por defecto
  */
 function il_reset_settings() {
@@ -1492,6 +1624,17 @@ function il_admin_notices() {
     }
     if (isset($_GET['il_reset'])) {
         echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Ajustes restaurados a sus valores por defecto.', 'imagina-login') . '</p></div>';
+    }
+    if (isset($_GET['il_import'])) {
+        $import_messages = [
+            'ok'      => ['success', __('Ajustes importados correctamente.', 'imagina-login')],
+            'file'    => ['error', __('No se pudo leer el archivo. Sube un .json exportado desde Imagina Login (máximo 500 KB).', 'imagina-login')],
+            'invalid' => ['error', __('El archivo no es una exportación válida de Imagina Login.', 'imagina-login')],
+        ];
+        $code = sanitize_key(wp_unslash($_GET['il_import']));
+        if (isset($import_messages[$code])) {
+            printf('<div class="notice notice-%s is-dismissible"><p>%s</p></div>', esc_attr($import_messages[$code][0]), esc_html($import_messages[$code][1]));
+        }
     }
     $font_error = get_transient('il_font_error');
     if ($font_error) {
@@ -1543,7 +1686,11 @@ function il_settings_page_html() {
                     <p class="imagina-subtitle">Personaliza tu página de login de WordPress</p>
                 </div>
                 <div class="imagina-preview-section">
-                    <a href="<?php echo esc_url(add_query_arg('il_login_preview', '1', home_url())); ?>" target="_blank" class="imagina-preview-btn">
+                    <button type="button" class="imagina-preview-btn" id="il-live-preview-toggle">
+                        <span class="dashicons dashicons-desktop"></span>
+                        <?php esc_html_e('Vista previa en vivo', 'imagina-login'); ?>
+                    </button>
+                    <a href="<?php echo esc_url(il_preview_url()); ?>" target="_blank" rel="noopener" class="imagina-preview-btn">
                         <span class="dashicons dashicons-visibility"></span>
                         Ver Login
                     </a>
@@ -1555,6 +1702,26 @@ function il_settings_page_html() {
             <?php settings_fields('imagina_login_options'); ?>
 
             <div class="imagina-sections">
+                <!-- Diseños rápidos -->
+                <div class="imagina-section" id="il-section-presets">
+                    <div class="imagina-section-header">
+                        <h2><span class="section-icon">⚡</span> <?php esc_html_e('Diseños rápidos', 'imagina-login'); ?></h2>
+                        <p><?php esc_html_e('Aplica un diseño completo (plantilla, fondo, colores y tipografía) y luego ajústalo a tu gusto. No cambia tu logo ni tus textos.', 'imagina-login'); ?></p>
+                    </div>
+                    <div class="imagina-section-content">
+                        <div class="il-presets">
+                            <?php foreach (il_presets() as $preset_key => $preset) : ?>
+                                <button type="button" class="il-preset" data-preset="<?php echo esc_attr($preset_key); ?>">
+                                    <span class="il-preset-swatch" style="background: <?php echo esc_attr($preset['swatch']); ?>"></span>
+                                    <strong><?php echo esc_html($preset['name']); ?></strong>
+                                    <span><?php echo esc_html($preset['desc']); ?></span>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                        <p class="il-preset-notice imagina-help" aria-live="polite"></p>
+                    </div>
+                </div>
+
                 <!-- NUEVA SECCIÓN: SELECTOR DE TEMPLATES -->
                 <div class="imagina-section imagina-template-section">
                     <div class="imagina-section-header">
@@ -2042,6 +2209,31 @@ function il_settings_page_html() {
             </div>
         </form>
 
+        <!-- Importar / exportar (formularios propios, fuera del formulario de ajustes) -->
+        <div class="imagina-form">
+            <div class="imagina-section" id="il-section-transfer">
+                <div class="imagina-section-header">
+                    <h2><span class="section-icon">📦</span> <?php esc_html_e('Importar y exportar', 'imagina-login'); ?></h2>
+                    <p><?php esc_html_e('Copia tu diseño a otro sitio o guarda una copia de seguridad de los ajustes.', 'imagina-login'); ?></p>
+                </div>
+                <div class="imagina-section-content imagina-fields-grid">
+                    <div class="imagina-control-group">
+                        <label class="imagina-control-label"><?php esc_html_e('Exportar', 'imagina-login'); ?></label>
+                        <a class="imagina-upload-btn" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=il_export_settings'), 'il_export_settings')); ?>"><span class="dashicons dashicons-download"></span> <?php esc_html_e('Descargar ajustes (.json)', 'imagina-login'); ?></a>
+                        <p class="imagina-help"><?php esc_html_e('Incluye los ajustes guardados y las direcciones de las imágenes usadas.', 'imagina-login'); ?></p>
+                    </div>
+                    <form class="imagina-control-group" method="post" enctype="multipart/form-data" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                        <label class="imagina-control-label" for="il-import-file"><?php esc_html_e('Importar', 'imagina-login'); ?></label>
+                        <input type="hidden" name="action" value="il_import_settings">
+                        <?php wp_nonce_field('il_import_settings'); ?>
+                        <input type="file" id="il-import-file" name="il_import_file" accept="application/json,.json" required>
+                        <button type="submit" class="imagina-upload-btn" style="margin-top:8px;"><span class="dashicons dashicons-upload"></span> <?php esc_html_e('Importar ajustes', 'imagina-login'); ?></button>
+                        <p class="imagina-help"><?php esc_html_e('Reemplaza los ajustes actuales. Las imágenes se buscan en tu biblioteca de medios por su dirección; si no existen, quedan vacías.', 'imagina-login'); ?></p>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Tips y ayuda -->
         <div class="imagina-help-section">
             <h3><span class="dashicons dashicons-lightbulb"></span> Consejos útiles</h3>
@@ -2062,10 +2254,26 @@ function il_settings_page_html() {
                     <strong>📱 Móviles:</strong> Todos los fondos y templates se adaptan automáticamente a dispositivos móviles.
                 </div>
                 <div class="imagina-tip">
-                    <strong>✨ Transiciones:</strong> Las animaciones crean una secuencia: fondo (0.1s) → logo (0.3s) → formulario (0.5s).
+                    <strong>✨ Transiciones:</strong> Ajusta velocidad y retraso del logo y del formulario; la secuencia se muestra en la sección de animaciones.
                 </div>
             </div>
         </div>
+
+        <!-- Panel de vista previa en vivo -->
+        <aside id="il-preview-drawer" aria-label="<?php esc_attr_e('Vista previa en vivo', 'imagina-login'); ?>" hidden>
+            <div class="il-preview-toolbar">
+                <strong><?php esc_html_e('Vista previa en vivo', 'imagina-login'); ?></strong>
+                <div class="il-preview-devices" role="group">
+                    <button type="button" data-device="desktop" class="is-active" title="<?php esc_attr_e('Escritorio', 'imagina-login'); ?>"><span class="dashicons dashicons-desktop"></span></button>
+                    <button type="button" data-device="tablet" title="<?php esc_attr_e('Tableta', 'imagina-login'); ?>"><span class="dashicons dashicons-tablet"></span></button>
+                    <button type="button" data-device="mobile" title="<?php esc_attr_e('Móvil', 'imagina-login'); ?>"><span class="dashicons dashicons-smartphone"></span></button>
+                </div>
+                <span class="il-preview-status" aria-live="polite"></span>
+                <button type="button" class="il-preview-close" title="<?php esc_attr_e('Cerrar', 'imagina-login'); ?>"><span class="dashicons dashicons-no-alt"></span></button>
+            </div>
+            <div class="il-preview-stage"><iframe title="<?php esc_attr_e('Vista previa del login', 'imagina-login'); ?>"></iframe></div>
+            <p class="il-preview-note"><?php esc_html_e('Muestra el login real con los cambios sin guardar. Recuerda pulsar "Guardar Cambios".', 'imagina-login'); ?></p>
+        </aside>
     </div>
 
     <?php
@@ -2554,19 +2762,19 @@ function il_render_color_controls() {
         </h4>
         <div style="display: grid; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="color: ' . esc_attr($label_color) . '; font-weight: 600;">Etiqueta de ejemplo</span>
+                <span data-il-sample="il_label_color:color" style="color: ' . esc_attr($label_color) . '; font-weight: 600;">Etiqueta de ejemplo</span>
                 <span style="font-size: 12px; color: #64748b;">← Así se verán las etiquetas</span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <button type="button" style="background: ' . esc_attr($button_color) . '; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600;">Botón de ejemplo</button>
+                <button type="button" data-il-sample="il_button_color:background" style="background: ' . esc_attr($button_color) . '; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600;">Botón de ejemplo</button>
                 <span style="font-size: 12px; color: #64748b;">← Color normal del botón</span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <button type="button" style="background: ' . esc_attr($button_hover_color) . '; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600;">Botón hover</button>
+                <button type="button" data-il-sample="il_button_hover_color:background" style="background: ' . esc_attr($button_hover_color) . '; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600;">Botón hover</button>
                 <span style="font-size: 12px; color: #64748b;">← Color al pasar el mouse</span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <a href="#" style="color: ' . esc_attr($link_color) . '; text-decoration: none; font-weight: 500;">Enlace de ejemplo</a>
+                <a href="#" data-il-sample="il_link_color:color" style="color: ' . esc_attr($link_color) . '; text-decoration: none; font-weight: 500;">Enlace de ejemplo</a>
                 <span style="font-size: 12px; color: #64748b;">← Color de los enlaces</span>
             </div>
         </div>
@@ -2673,6 +2881,9 @@ function il_enqueue_admin_scripts($hook_suffix) {
     wp_enqueue_script('imagina-login-admin', $base . 'js/admin.js', ['jquery', 'imagina-login-admin-script'], IL_VERSION, true);
     wp_localize_script('imagina-login-admin', 'ilAdmin', [
         'resetUrl' => add_query_arg(['action' => 'il_reset_settings', '_wpnonce' => wp_create_nonce('il_reset_settings')], admin_url('admin-post.php')),
+        'previewNonce' => wp_create_nonce('il_preview_store'),
+        'presets' => array_map(function ($preset) { return $preset['settings']; }, il_presets()),
+        'presetApplied' => __('Diseño aplicado. Revísalo en la vista previa y pulsa "Guardar Cambios" para conservarlo.', 'imagina-login'),
     ]);
 }
 add_action('admin_enqueue_scripts', 'il_enqueue_admin_scripts');

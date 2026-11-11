@@ -756,6 +756,10 @@ body.login div#login .language-switcher {
 }
 body.login .language-switcher form {
     display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 100%;
+    box-sizing: border-box;
     align-items: center;
     gap: 8px;
     margin: 0;
@@ -770,6 +774,7 @@ body.login .language-switcher label {
     font-size: 13px;
 }
 body.login .language-switcher select {
+    max-width: 100%;
     padding: 4px 8px;
     border: 1px solid #dcdcde;
     border-radius: 6px;
@@ -792,4 +797,10 @@ body.login .language-switcher select {
 }
 #il-slideshow .il-slide.is-active {
     opacity: 1;
+}
+
+/* Ningún elemento de la tarjeta puede ensanchar las columnas de la cuadrícula
+   (p. ej. el selector de idioma o un texto largo en móvil desbordaban la tarjeta) */
+body.login div#login > * {
+    min-width: 0;
 }

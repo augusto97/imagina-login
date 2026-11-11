@@ -111,7 +111,7 @@ jQuery(document).ready(function($) {
 
         mediaFrame.on('select', function() {
             const attachment = mediaFrame.state().get('selection').first().toJSON();
-            inputField.val(attachment.id);
+            inputField.val(attachment.id).trigger('change');
             
             // Crear preview moderno
             const imgElement = `<img src="${attachment.sizes && attachment.sizes.medium ? attachment.sizes.medium.url : attachment.url}" 
@@ -168,7 +168,7 @@ jQuery(document).ready(function($) {
                 return;
             }
             
-            inputField.val(attachment.id);
+            inputField.val(attachment.id).trigger('change');
             
             // Crear preview del video
             const videoElement = `<video controls style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
@@ -210,7 +210,7 @@ jQuery(document).ready(function($) {
         const uploadButton = button.siblings('.upload-image-button');
         const previewContainer = button.closest('.imagina-media-uploader').find('.imagina-media-preview');
 
-        inputField.val('');
+        inputField.val('').trigger('change');
         previewContainer.html(`
             <div style="padding: 40px; text-align: center; color: #9ca3af; border: 2px dashed #d1d5db; border-radius: 8px;">
                 <span class="dashicons dashicons-format-image" style="font-size: 32px; margin-bottom: 10px; display: block;"></span>
@@ -234,7 +234,7 @@ jQuery(document).ready(function($) {
         const uploadButton = button.siblings('.upload-video-button');
         const previewContainer = button.closest('.imagina-media-uploader').find('.imagina-media-preview');
 
-        inputField.val('');
+        inputField.val('').trigger('change');
         previewContainer.html(`
             <div style="padding: 40px; text-align: center; color: #9ca3af; border: 2px dashed #d1d5db; border-radius: 8px;">
                 <span class="dashicons dashicons-video-alt3" style="font-size: 32px; margin-bottom: 10px; display: block;"></span>
