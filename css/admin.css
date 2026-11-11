@@ -722,3 +722,25 @@ textarea.imagina-code {
     font-size: 13px;
     gap: 10px;
 }
+
+/* === Imágenes: vacío y miniaturas de la presentación === */
+.imagina-media-empty {
+    padding: 18px;
+    margin-top: 8px;
+    text-align: center;
+    color: #9ca3af;
+    border: 2px dashed #d1d5db;
+    border-radius: 6px;
+}
+.imagina-media-empty .dashicons { font-size: 24px; width: 24px; height: 24px; }
+.imagina-media-empty p { margin: 4px 0 0; font-size: 12px; }
+.imagina-media-preview { margin-top: 8px; }
+.il-slides-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.il-slides-preview img { width: 72px; height: 72px; object-fit: cover; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+
+/* El logo para modo oscuro se previsualiza sobre fondo oscuro */
+.imagina-media-uploader:has(input[name="il_custom_logo_dark"]) .imagina-media-preview img {
+    background: #1c1d22;
+    padding: 10px;
+    box-sizing: border-box;
+}

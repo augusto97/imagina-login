@@ -22,3 +22,17 @@ $wpdb->query(
         OR option_name LIKE '\\_transient\\_imagina\\_login\\_dynamic\\_styles\\_%'
         OR option_name LIKE '\\_transient\\_timeout\\_imagina\\_login\\_dynamic\\_styles\\_%'"
 );
+
+// Fuentes descargadas en uploads/imagina-login
+$uploads = wp_upload_dir();
+$fonts_dir = trailingslashit($uploads['basedir']) . 'imagina-login';
+if (is_dir($fonts_dir)) {
+    $items = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($fonts_dir, FilesystemIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::CHILD_FIRST
+    );
+    foreach ($items as $item) {
+        $item->isDir() ? rmdir($item->getPathname()) : unlink($item->getPathname());
+    }
+    rmdir($fonts_dir);
+}

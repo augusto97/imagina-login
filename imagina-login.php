@@ -72,6 +72,7 @@ function il_option_schema() {
         'il_logo_max_size'            => ['200', 'int:40:400'],
         'il_logo_height'              => ['80', 'int:30:300'],
         'il_custom_logo'              => ['', 'id'],
+        'il_custom_logo_dark'         => ['', 'id'],
         'il_logo_area_height'         => ['0', 'int:0:80'],
         'il_logo_area_border_color'   => ['', 'hex_or_empty'],
         'il_use_custom_colors'        => [false, 'bool'],
@@ -325,6 +326,12 @@ function il_generate_dynamic_styles() {
                 }
             }
             break;
+        case 'slideshow':
+            // La primera imagen es el fondo inmediato (sin parpadeo mientras carga el script)
+            $slide_ids = array_filter(explode(',', (string) $opts['il_body_slides']));
+            $first = $slide_ids ? wp_get_attachment_image_url((int) reset($slide_ids), 'full') : '';
+            $css .= '--background-fallback: ' . ($first ? 'url(' . esc_url($first) . ')' : esc_attr($body_bg_color)) . ';';
+            break;
         case 'video':
             $css .= '--background-fallback: ' . esc_attr($body_bg_color) . ';';
             if ($video_overlay_color) {
@@ -373,6 +380,8 @@ function il_generate_dynamic_styles() {
         'logo_bg_type' => $logo_bg_type,
         'body_bg_video' => $opts['il_body_background_video'],
         'body_video_url' => $opts['il_body_video_url'],
+        'body_slides' => $opts['il_body_slides'],
+        'slide_interval' => $opts['il_slide_interval'],
         'template' => $opts['il_login_template']
     ];
 }
@@ -832,6 +841,17 @@ function il_enqueue_login_assets() {
 
     wp_add_inline_style('imagina-login', $custom_css);
 
+    // Capas que deben ir DESPUÉS del CSS del diseño (se adjuntan a su hoja): modo oscuro,
+    // tipografía y, al final, el CSS personalizado del usuario para que siempre tenga prioridad.
+    $late_css = il_dark_mode_css($opts) . il_font_css($opts);
+    if ($opts['il_custom_css'] !== '') {
+        // "</" nunca debe aparecer dentro de <style>
+        $late_css .= "\n/* CSS personalizado */\n" . str_replace('</', '<\/', $opts['il_custom_css']);
+    }
+    if ($late_css !== '') {
+        wp_add_inline_style('imagina-login-template', $late_css);
+    }
+
     // Activar las animaciones de entrada.
     // El botón de mostrar/ocultar contraseña lo maneja WordPress (user-profile.js); antes el plugin
     // lo reemplazaba y además lo añadía a cualquier campo de contraseña, incluidos los de plugins
@@ -871,6 +891,161 @@ function il_enqueue_login_assets() {
     wp_add_inline_script('imagina-login-toggle', $script);
 }
 add_action('login_enqueue_scripts', 'il_enqueue_login_assets', 10);
+
+/**
+ * CSS del modo oscuro. "always" lo aplica siempre; "auto" solo si el sistema del visitante
+ * está en modo oscuro (prefers-color-scheme). El fondo de la página no cambia: es del usuario.
+ */
+function il_dark_mode_css($opts) {
+    if ($opts['il_dark_mode'] === 'off') {
+        return '';
+    }
+    $card = '#1c1d22';
+    $soft = '#24262c';
+    $line = '#363941';
+    $text = '#e6e7ea';
+    $muted = '#a5a9b1';
+
+    // Si el área del logo usa el gris claro por defecto, también se oscurece
+    $default_logo_bg = $opts['il_logo_bg_type'] === 'color' && in_array(strtolower($opts['il_logo_bg_color']), ['#f9f9f9', '#f8f9fa', '#ffffff', '#fff'], true);
+
+    $rules = "
+        {C} div#login { background-color: {$card} !important; box-shadow: 0 10px 40px rgba(0,0,0,.45); }
+        {C} div#login form { background: {$card} !important; }
+        " . ($default_logo_bg ? "{C} div#login h1 { background: {$soft} !important; }" : '') . "
+        {P}.template-glass div#login { background: rgba(20, 22, 28, 0.55) !important; border-color: rgba(255,255,255,.12) !important; }
+        {P} div#login form p, {P} div#login form .description, {P} #reg_passmail, {P} .indicator-hint { color: {$muted}; }
+        {P} div#login .forgetmenot label { color: {$muted} !important; }
+        {P} div#login form .input, {P} div#login form input[type=text], {P} div#login form input[type=email], {P} div#login form input[type=password] {
+            background: {$soft} !important; border-color: {$line} !important; color: {$text} !important; }
+        {P} div#login form .input:focus, {P} div#login form input[type=text]:focus, {P} div#login form input[type=email]:focus, {P} div#login form input[type=password]:focus {
+            border-color: var(--primary-color, #009bde) !important; }
+        {P} div#login form input[type=checkbox] { background: {$soft}; border-color: {$line}; }
+        {P} .wp-hide-pw span { filter: invert(1); }
+        {P} #nav, {P} #backtoblog, {P} .privacy-policy-page-link, {P} div#login .language-switcher { background: {$soft} !important; border-color: {$line} !important; }
+        {P} #nav a, {P} #backtoblog a, {P} .privacy-policy-page-link a { color: {$muted} !important; }
+        {P} .language-switcher form { background: {$card}; color: {$text}; }
+        {P} p.message:not(.il-welcome-message), {P} .notice.notice-info.message, {P} #login-message { background: #10324a !important; color: #cfe8ff !important; }
+        {P} #loginform .il-welcome-message { color: {$text}; }
+        {LOGO}
+        {P} #login_error { background: #4a1d22 !important; color: #ffd7dc !important; }
+        {P} #login_error a { color: #ff9aa8 !important; }
+        {P} .wp-core-ui .button:not(.button-primary):not(.wp-hide-pw) { background: {$soft}; color: {$text}; border-color: {$line}; }
+    ";
+
+    // Logo alternativo para fondo oscuro (opcional)
+    $dark_logo = $opts['il_custom_logo_dark'] ? wp_get_attachment_image_url((int) $opts['il_custom_logo_dark'], 'full') : '';
+    $rules = str_replace('{LOGO}', $dark_logo ? "{P} div#login h1 a { background-image: url('" . esc_url($dark_logo) . "') !important; }" : '', $rules);
+
+    $build = function ($prefix) use ($rules) {
+        $card_prefix = $prefix . ':not(.template-fullscreen):not(.template-glass)';
+        return str_replace(['{C}', '{P}'], [$card_prefix, $prefix], $rules);
+    };
+
+    if ($opts['il_dark_mode'] === 'always') {
+        return "\n/* Modo oscuro */\n" . $build('body.login.il-dark');
+    }
+    return "\n/* Modo oscuro automático */\n@media (prefers-color-scheme: dark) {" . $build('body.login.il-dark-auto') . "}\n";
+}
+
+/**
+ * Carpeta local de una fuente descargada (dentro de uploads)
+ */
+function il_font_dir($key) {
+    $uploads = wp_upload_dir();
+    return [
+        'path' => trailingslashit($uploads['basedir']) . 'imagina-login/fonts/' . $key,
+        'url'  => trailingslashit($uploads['baseurl']) . 'imagina-login/fonts/' . $key,
+    ];
+}
+
+/**
+ * Descargar una fuente de Google Fonts al propio sitio (solo latin y latin-ext, woff2).
+ * Se ejecuta al guardar los ajustes, nunca al cargar el login.
+ */
+function il_download_font($key) {
+    $choices = il_font_choices();
+    if ($key === '' || !isset($choices[$key])) {
+        return true;
+    }
+    $dir = il_font_dir($key);
+    if (file_exists($dir['path'] . '/font.css')) {
+        return true;
+    }
+
+    $family = $choices[$key][1];
+    $weights = ($key === 'lato') ? '400;700' : '400;600;700';
+    $api = 'https://fonts.googleapis.com/css2?family=' . rawurlencode($family) . ':wght@' . $weights . '&display=swap';
+    // Con un navegador moderno como user-agent, Google entrega woff2
+    $args = ['timeout' => 20, 'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36'];
+
+    $response = wp_remote_get($api, $args);
+    if (is_wp_error($response)) {
+        return $response;
+    }
+    if (200 !== (int) wp_remote_retrieve_response_code($response)) {
+        return new WP_Error('il_font_http', sprintf('Google Fonts respondió %d', wp_remote_retrieve_response_code($response)));
+    }
+
+    preg_match_all('#/\*\s*([a-z-]+)\s*\*/\s*(@font-face\s*\{[^}]+\})#i', wp_remote_retrieve_body($response), $blocks, PREG_SET_ORDER);
+    wp_mkdir_p($dir['path']);
+
+    $css = '';
+    foreach ($blocks as $block) {
+        if (!in_array($block[1], ['latin', 'latin-ext'], true)) {
+            continue;
+        }
+        if (!preg_match('#url\((https://fonts\.gstatic\.com/[^)\s]+\.woff2)\)#', $block[2], $url)) {
+            continue;
+        }
+        $file = md5($url[1]) . '.woff2';
+        if (!file_exists($dir['path'] . '/' . $file)) {
+            $font = wp_remote_get($url[1], ['timeout' => 30]);
+            if (is_wp_error($font) || 200 !== (int) wp_remote_retrieve_response_code($font)) {
+                return is_wp_error($font) ? $font : new WP_Error('il_font_file', 'No se pudo descargar ' . $file);
+            }
+            file_put_contents($dir['path'] . '/' . $file, wp_remote_retrieve_body($font));
+        }
+        $css .= str_replace($url[1], $file, $block[2]) . "\n";
+    }
+
+    if ($css === '') {
+        return new WP_Error('il_font_empty', 'Google Fonts no devolvió archivos para esta fuente');
+    }
+    file_put_contents($dir['path'] . '/font.css', $css);
+    return true;
+}
+
+/**
+ * Al cambiar la fuente en los ajustes: descargarla y avisar si falla
+ */
+function il_handle_font_change($key) {
+    $result = il_download_font($key);
+    if (is_wp_error($result)) {
+        set_transient('il_font_error', $result->get_error_message(), 10 * MINUTE_IN_SECONDS);
+    } else {
+        delete_transient('il_font_error');
+    }
+}
+add_action('update_option_il_font', function ($old, $new) { il_handle_font_change($new); }, 10, 2);
+add_action('add_option_il_font', function ($name, $value) { il_handle_font_change($value); }, 10, 2);
+
+/**
+ * Cargar la fuente local en el login y aplicarla
+ */
+function il_font_css($opts) {
+    $choices = il_font_choices();
+    if ($opts['il_font'] === '' || !isset($choices[$opts['il_font']])) {
+        return '';
+    }
+    $dir = il_font_dir($opts['il_font']);
+    $file = $dir['path'] . '/font.css';
+    if (file_exists($file)) {
+        wp_enqueue_style('imagina-login-font', $dir['url'] . '/font.css', [], (string) filemtime($file));
+    }
+    $family = $choices[$opts['il_font']][1];
+    return "\n/* Tipografía */\nbody.login, body.login input, body.login button, body.login select, body.login textarea, body.login .button { font-family: '" . esc_attr($family) . "', var(--fallback-font) !important; }\n";
+}
 
 /**
  * Función para quitar los estilos CSS por defecto de la página de login.
@@ -1119,6 +1294,12 @@ function il_inject_dynamic_elements() {
         </script>';
     }
 
+    // Presentación de imágenes de fondo
+    if ($cached_styles['body_bg_type'] === 'slideshow') {
+        il_render_slideshow($cached_styles);
+        return;
+    }
+
     // Video de fondo (lazy load): URL externa tiene prioridad sobre el video subido
     if ($cached_styles['body_bg_type'] !== 'video') {
         return;
@@ -1181,6 +1362,44 @@ function il_inject_dynamic_elements() {
             } else {
                 loadVideo();
             }
+        })();
+    </script>';
+}
+
+/**
+ * Presentación de fondo: capas de imagen que se alternan con un fundido.
+ * La primera imagen ya está puesta como fondo de la página desde el CSS crítico.
+ * Con "reducir movimiento" activado en el sistema, se queda en la primera imagen.
+ */
+function il_render_slideshow($cached_styles) {
+    $ids = array_filter(array_map('absint', explode(',', (string) $cached_styles['body_slides'])));
+    $urls = [];
+    foreach ($ids as $id) {
+        $url = wp_get_attachment_image_url($id, 'full');
+        if ($url) {
+            $urls[] = $url;
+        }
+    }
+    if (count($urls) < 2) {
+        return; // Con una sola imagen basta el fondo del CSS crítico
+    }
+    $interval = max(3, min(30, (int) $cached_styles['slide_interval'])) * 1000;
+
+    echo '<div id="il-slideshow" aria-hidden="true">';
+    foreach ($urls as $i => $url) {
+        printf('<div class="il-slide%s" style="background-image:url(%s)"></div>', $i === 0 ? ' is-active' : '', esc_url($url));
+    }
+    echo '</div>';
+    echo '<script>
+        (function () {
+            var slides = document.querySelectorAll("#il-slideshow .il-slide");
+            if (slides.length < 2 || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+            var current = 0;
+            setInterval(function () {
+                slides[current].classList.remove("is-active");
+                current = (current + 1) % slides.length;
+                slides[current].classList.add("is-active");
+            }, ' . (int) $interval . ');
         })();
     </script>';
 }
@@ -1268,8 +1487,15 @@ add_action('admin_post_il_reset_settings', 'il_reset_settings');
  * Avisos en la página de ajustes (restauración completada)
  */
 function il_admin_notices() {
-    if (isset($_GET['page'], $_GET['il_reset']) && $_GET['page'] === 'imagina-login-settings') {
+    if (!isset($_GET['page']) || $_GET['page'] !== 'imagina-login-settings') {
+        return;
+    }
+    if (isset($_GET['il_reset'])) {
         echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Ajustes restaurados a sus valores por defecto.', 'imagina-login') . '</p></div>';
+    }
+    $font_error = get_transient('il_font_error');
+    if ($font_error) {
+        echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__('No se pudo descargar la fuente elegida; el login usará la tipografía del sistema hasta que se descargue.', 'imagina-login') . ' (' . esc_html($font_error) . ')</p></div>';
     }
 }
 add_action('admin_notices', 'il_admin_notices');
@@ -1559,6 +1785,12 @@ function il_settings_page_html() {
                                     <span class="tab-icon">🎬</span>
                                     <span class="tab-text">Video</span>
                                 </label>
+
+                                <input type="radio" name="il_body_bg_type" value="slideshow" id="body-slideshow" <?php checked($body_bg_type, 'slideshow'); ?>>
+                                <label for="body-slideshow" class="imagina-tab">
+                                    <span class="tab-icon">🖼️</span>
+                                    <span class="tab-text"><?php esc_html_e('Presentación', 'imagina-login'); ?></span>
+                                </label>
                             </div>
                         </div>
 
@@ -1583,35 +1815,11 @@ function il_settings_page_html() {
                             $current_logo_url = wp_get_attachment_image_url($custom_logo_id, 'medium');
                         }
                         ?>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                            <div class="imagina-control-group">
-                                <label class="imagina-control-label">Imagen del logo</label>
-                                <div class="imagina-media-uploader">
-                                    <input type="hidden" name="il_custom_logo" value="<?php echo esc_attr($custom_logo_id); ?>">
-                                    <button type="button" class="imagina-upload-btn upload-image-button" style="margin-bottom: 8px;">
-                                        <span class="dashicons dashicons-upload"></span>
-                                        <?php echo $custom_logo_id ? 'Cambiar Logo' : 'Subir Logo'; ?>
-                                    </button>
-                                    <?php if ($custom_logo_id): ?>
-                                    <button type="button" class="imagina-upload-btn remove-image-button" style="background: #ef4444; margin-bottom: 8px;">
-                                        <span class="dashicons dashicons-trash"></span>
-                                        Quitar
-                                    </button>
-                                    <?php endif; ?>
-                                    <div class="imagina-media-preview">
-                                        <?php if ($current_logo_url): ?>
-                                            <img src="<?php echo esc_url($current_logo_url); ?>" style="max-width: 100%; max-height: 120px; border-radius: 6px; display: block;">
-                                        <?php else: ?>
-                                            <div style="padding: 20px; text-align: center; color: #9ca3af; border: 2px dashed #d1d5db; border-radius: 6px;">
-                                                <span class="dashicons dashicons-format-image" style="font-size: 24px; display: block; margin-bottom: 4px;"></span>
-                                                <p style="margin: 0; font-size: 12px;">Usa el logo del tema</p>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;">Si no subes uno, se usa el logo del tema o el icono del sitio.</p>
-                                </div>
-                            </div>
-
+                        <div class="imagina-fields-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+                            <?php
+                            il_field_image('il_custom_logo', __('Imagen del logo', 'imagina-login'), __('Usa el logo del tema', 'imagina-login'), __('Si no subes uno, se usa el logo del tema o el icono del sitio.', 'imagina-login'));
+                            il_field_image('il_custom_logo_dark', __('Logo para modo oscuro (opcional)', 'imagina-login'), __('Usa el mismo logo', 'imagina-login'), __('Versión clara del logo para fondos oscuros. Solo se usa con el modo oscuro activo.', 'imagina-login'));
+                            ?>
                             <div class="imagina-control-group">
                                 <label class="imagina-control-label">Ancho del logo</label>
                                 <div class="imagina-slider-container">
@@ -1707,6 +1915,30 @@ function il_settings_page_html() {
                     </div>
                 </div>
 
+                <!-- Sección: estilo (tipografía y modo oscuro) -->
+                <div class="imagina-section" id="il-section-style">
+                    <div class="imagina-section-header">
+                        <h2><span class="section-icon">🔤</span> <?php esc_html_e('Tipografía y modo oscuro', 'imagina-login'); ?></h2>
+                        <p><?php esc_html_e('Fuente del login y apariencia para quienes usan el modo oscuro.', 'imagina-login'); ?></p>
+                    </div>
+                    <div class="imagina-section-content">
+                        <div class="imagina-fields-grid">
+                            <?php
+                            $font_choices = [];
+                            foreach (il_font_choices() as $font_key => $font_info) {
+                                $font_choices[$font_key] = $font_info[0];
+                            }
+                            il_field_select('il_font', __('Fuente', 'imagina-login'), $font_choices, __('Se descarga una vez y se sirve desde tu sitio: los visitantes no se conectan a Google (cumple RGPD).', 'imagina-login'));
+                            il_field_select('il_dark_mode', __('Modo oscuro', 'imagina-login'), [
+                                'off'    => __('Desactivado', 'imagina-login'),
+                                'auto'   => __('Automático (según el sistema del visitante)', 'imagina-login'),
+                                'always' => __('Siempre oscuro', 'imagina-login'),
+                            ], __('Oscurece el formulario y el pie. El fondo de la página se mantiene. Sube un logo para modo oscuro en la sección del logo si el tuyo es oscuro.', 'imagina-login'));
+                            ?>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Sección: textos del formulario -->
                 <div class="imagina-section" id="il-section-texts">
                     <div class="imagina-section-header">
@@ -1780,6 +2012,19 @@ function il_settings_page_html() {
                         <div class="imagina-transition-controls" id="transition-controls" style="<?php echo $enable_transitions ? '' : 'display: none;'; ?>">
                             <?php il_render_transition_controls(); ?>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Sección: avanzado -->
+                <div class="imagina-section" id="il-section-advanced">
+                    <div class="imagina-section-header">
+                        <h2><span class="section-icon">🛠️</span> <?php esc_html_e('Avanzado', 'imagina-login'); ?></h2>
+                        <p><?php esc_html_e('CSS propio para ajustes finos.', 'imagina-login'); ?></p>
+                    </div>
+                    <div class="imagina-section-content">
+                        <?php
+                        il_field_textarea('il_custom_css', __('CSS personalizado', 'imagina-login'), "body.login div#login form .button-primary {\n    border-radius: 999px;\n}", __('Se aplica al final, por encima del diseño elegido. Por seguridad se eliminan etiquetas HTML, @import y javascript:.', 'imagina-login'), 8, 'imagina-code');
+                        ?>
                     </div>
                 </div>
             </div>
@@ -1934,6 +2179,33 @@ function il_render_modern_body_options() {
     }
     
     echo '</div>
+        </div>
+    </div>';
+
+    // Presentación de imágenes
+    $opts = il_get_all_options();
+    $slide_ids = array_filter(explode(',', (string) $opts['il_body_slides']));
+    $thumbs = '';
+    foreach ($slide_ids as $slide_id) {
+        $thumb = wp_get_attachment_image_url((int) $slide_id, 'thumbnail');
+        if ($thumb) {
+            $thumbs .= '<img src="' . esc_url($thumb) . '" alt="">';
+        }
+    }
+    echo '<div class="imagina-option-panel" data-type="slideshow" data-target="body">
+        <div class="imagina-control-group">
+            <label class="imagina-control-label">' . esc_html__('Imágenes de la presentación', 'imagina-login') . '</label>
+            <input type="hidden" name="il_body_slides" value="' . esc_attr($opts['il_body_slides']) . '">
+            <button type="button" class="imagina-upload-btn il-slides-button"><span class="dashicons dashicons-images-alt2"></span> ' . esc_html__('Elegir imágenes', 'imagina-login') . '</button>
+            <div class="il-slides-preview">' . ($thumbs ? $thumbs : '<p class="imagina-help">' . esc_html__('Elige 2 o más imágenes. Se alternan con un fundido suave.', 'imagina-login') . '</p>') . '</div>
+        </div>
+        <div class="imagina-control-group" style="margin-top: 12px;">
+            <label class="imagina-control-label">' . esc_html__('Segundos por imagen', 'imagina-login') . '</label>
+            <div class="imagina-slider-container">
+                <input type="range" name="il_slide_interval" class="imagina-slider" min="3" max="30" step="1" value="' . esc_attr($opts['il_slide_interval']) . '" data-unit="s">
+                <span class="imagina-slider-value">' . esc_html($opts['il_slide_interval']) . 's</span>
+            </div>
+            <p class="imagina-help">' . esc_html__('Si el visitante tiene activado "reducir movimiento" en su sistema, se queda en la primera imagen.', 'imagina-login') . '</p>
         </div>
     </div>';
 
@@ -2181,6 +2453,30 @@ function il_field_textarea($key, $label, $placeholder = '', $help = '', $rows = 
     );
 }
 
+function il_field_image($key, $label, $empty_text, $help = '') {
+    $opts = il_get_all_options();
+    $id = $opts[$key];
+    $url = $id ? wp_get_attachment_image_url((int) $id, 'medium') : '';
+    $preview = $url
+        ? '<img src="' . esc_url($url) . '" alt="" style="max-width:100%;max-height:120px;border-radius:6px;display:block;">'
+        : '<div class="imagina-media-empty"><span class="dashicons dashicons-format-image"></span><p>' . esc_html($empty_text) . '</p></div>';
+    printf(
+        '<div class="imagina-control-group"><label class="imagina-control-label">%1$s</label><div class="imagina-media-uploader">'
+        . '<input type="hidden" name="%2$s" value="%3$s">'
+        . '<button type="button" class="imagina-upload-btn upload-image-button"><span class="dashicons dashicons-upload"></span> %4$s</button> '
+        . '<button type="button" class="imagina-upload-btn remove-image-button" style="background:#ef4444;%5$s"><span class="dashicons dashicons-trash"></span> %6$s</button>'
+        . '<div class="imagina-media-preview">%7$s</div>%8$s</div></div>',
+        esc_html($label),
+        esc_attr($key),
+        esc_attr($id),
+        esc_html($id ? __('Cambiar', 'imagina-login') : __('Subir', 'imagina-login')),
+        $id ? '' : 'display:none;',
+        esc_html__('Quitar', 'imagina-login'),
+        $preview,
+        $help ? '<p class="imagina-help">' . esc_html($help) . '</p>' : ''
+    );
+}
+
 function il_field_switch($key, $label, $help = '') {
     $opts = il_get_all_options();
     printf(
@@ -2340,9 +2636,9 @@ function il_render_transition_controls() {
     <div style="margin-top: 14px; padding: 12px; background: #f3f4f6; border-radius: 8px; border: 1px dashed #d1d5db;">
         <h4 style="margin: 0 0 8px 0; color: #374151; font-size: 13px;">Secuencia de animación</h4>
         <div style="display: flex; gap: 8px; font-size: 12px; color: #6b7280; flex-wrap: wrap;">
-            <span style="padding: 4px 10px; background: white; border-radius: 4px; border-left: 3px solid #667eea;">Fondo (0.1s)</span>
-            <span style="padding: 4px 10px; background: white; border-radius: 4px; border-left: 3px solid #10b981;">Logo (0.3s)</span>
-            <span style="padding: 4px 10px; background: white; border-radius: 4px; border-left: 3px solid #f59e0b;">Formulario (0.5s)</span>
+            <span style="padding: 4px 10px; background: white; border-radius: 4px; border-left: 3px solid #667eea;">' . esc_html__('Fondo: inmediato', 'imagina-login') . '</span>
+            <span style="padding: 4px 10px; background: white; border-radius: 4px; border-left: 3px solid #10b981;" data-il-seq="logo"></span>
+            <span style="padding: 4px 10px; background: white; border-radius: 4px; border-left: 3px solid #f59e0b;" data-il-seq="form"></span>
         </div>
 
         <div id="transition-preview" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px;">

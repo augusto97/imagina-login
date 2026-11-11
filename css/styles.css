@@ -662,23 +662,39 @@ body.login div#login form .button-primary {
 }
 /* --- FIN ESTILOS RESPONSIVE --- */
 
-/* === Ocultar aviso Caps Lock inyectado por extensiones del navegador === */
-body.login .caps-warning,
-body.login #caps-warning,
-body.login div#login .caps-warning,
-body.login div#login #caps-warning,
-body.login div#login form .caps-warning,
-body.login div#login form #caps-warning,
-.caps-warning,
-#caps-warning {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    height: 0 !important;
-    width: 0 !important;
-    overflow: hidden !important;
-    position: absolute !important;
-    pointer-events: none !important;
+/* === Aviso de Bloq Mayús de WordPress ===
+ * Antes se ocultaba siempre con !important. Es una ayuda de accesibilidad de WordPress:
+ * queda oculto por defecto y WordPress lo muestra cuando Bloq Mayús está activo. */
+body.login .wp-pwd .caps-warning {
+    display: none;
+    position: relative;
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: #fcf9e8;
+    border: 1px solid #f0c33c;
+    border-radius: 6px;
+    color: #1d2327;
+    font-size: 13px;
+}
+body.login .wp-pwd .caps-icon {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+body.login .wp-pwd .caps-warning-text {
+    vertical-align: middle;
+}
+
+/* === Accesibilidad: foco visible al navegar con teclado === */
+body.login div#login h1 a:focus-visible,
+body.login #nav a:focus-visible,
+body.login #backtoblog a:focus-visible,
+body.login .wp-hide-pw:focus-visible {
+    outline: 2px solid var(--primary-color, #009bde);
+    outline-offset: 3px;
+    border-radius: 4px;
 }
 /* === Restablecer contraseña: medidor de seguridad y botón "Generar contraseña" === */
 body.login #pass-strength-result {
@@ -757,4 +773,23 @@ body.login .language-switcher select {
     padding: 4px 8px;
     border: 1px solid #dcdcde;
     border-radius: 6px;
+}
+
+/* === Presentación de fondo === */
+#il-slideshow {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+}
+#il-slideshow .il-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.4s ease-in-out;
+}
+#il-slideshow .il-slide.is-active {
+    opacity: 1;
 }

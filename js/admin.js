@@ -200,3 +200,40 @@ function updateTransitionPreview() {
 document.addEventListener("DOMContentLoaded", function() {
     updateTransitionPreview();
 });
+
+// Presentación de fondo: elegir varias imágenes de la biblioteca
+jQuery(function ($) {
+    $(document).on('click', '.il-slides-button', function (e) {
+        e.preventDefault();
+        var $group = $(this).closest('.imagina-control-group');
+        var $input = $group.find('input[name="il_body_slides"]');
+        var frame = wp.media({ title: 'Imágenes de la presentación', button: { text: 'Usar estas imágenes' }, multiple: 'add', library: { type: 'image' } });
+        frame.on('open', function () {
+            var selection = frame.state().get('selection');
+            ($input.val() || '').split(',').filter(Boolean).forEach(function (id) {
+                var attachment = wp.media.attachment(id); attachment.fetch(); selection.add(attachment);
+            });
+        });
+        frame.on('select', function () {
+            var items = frame.state().get('selection').toJSON();
+            $input.val(items.map(function (a) { return a.id; }).join(',')).trigger('change');
+            $group.find('.il-slides-preview').html(items.map(function (a) {
+                var url = a.sizes && a.sizes.thumbnail ? a.sizes.thumbnail.url : a.url;
+                return '<img src="' + url + '" alt="">';
+            }).join(''));
+        });
+        frame.open();
+    });
+});
+
+// "Secuencia de animación": muestra cuándo empieza y termina cada parte según los sliders
+jQuery(function ($) {
+    function seq(part, label) {
+        var delay = parseFloat($('[name="il_' + part + '_transition_delay"]').val()) || 0;
+        var duration = parseFloat($('[name="il_' + part + '_transition_duration"]').val()) || 0;
+        $('[data-il-seq="' + part + '"]').text(label + ': ' + delay.toFixed(2) + 's → ' + (delay + duration).toFixed(2) + 's');
+    }
+    function update() { seq('logo', 'Logo'); seq('form', 'Formulario'); }
+    $(document).on('input change', '[name$="_transition_delay"], [name$="_transition_duration"]', update);
+    update();
+});
