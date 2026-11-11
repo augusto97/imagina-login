@@ -3,7 +3,7 @@ Contributors: augusto97
 Tags: login, custom login, login page, login background, login logo, login templates, fullscreen login, sidebar login
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 2.3.7
+Stable tag: 2.3.8
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,14 @@ Sí, el plugin funciona correctamente en instalaciones de WordPress Multisite.
 5.  Ejemplo del selector de contraseña visible/oculto.
 
 == Changelog ==
+
+= 2.3.8 =
+* 🎬 **NUEVO:** Video de fondo desde enlace externo: YouTube, Vimeo o archivo directo (.mp4, .webm)
+* 🎬 **NUEVO:** El enlace externo tiene prioridad sobre el video subido; el panel indica si el enlace fue reconocido
+* 🖼️ **NUEVO:** Subida manual del logo, con controles de ancho, alto, espacio vertical y borde separador
+* ⚙️ **MEJORA:** Menú movido a Ajustes > Imagina Login
+* 👁️ **FIX:** Botón "Ver Login" ahora muestra una vista previa real estando con sesión iniciada
+* ⚡ **FIX:** Hooks de caché solo se registran en el admin
 
 = 2.3.7 =
 * 🐛 **FIX:** Corregido bug donde el layout no se guardaba en la primera selección

@@ -3,7 +3,7 @@
  * Plugin Name: Imagina Login
  * Plugin URI:  https://imaginawp.com
  * Description: Customized wp login with 9 professional templates and advanced background options
- * Version:     2.3.7
+ * Version:     2.3.8
  * Author:      IMAGINA WP
  * Author URI:  https://imaginawp.com/
  * License:     GPLv2 or later
@@ -56,7 +56,7 @@ function il_get_all_options($reset = false) {
     // Lista de todas las opciones del plugin
     $option_keys = [
         'il_login_template',
-        'il_body_bg_type', 'il_body_bg_color', 'il_body_background_image', 'il_body_background_video',
+        'il_body_bg_type', 'il_body_bg_color', 'il_body_background_image', 'il_body_background_video', 'il_body_video_url',
         'il_body_gradient_type', 'il_body_gradient_direction', 'il_body_gradient_color1', 'il_body_gradient_color2',
         'il_video_overlay_color',
         'il_logo_bg_type', 'il_logo_bg_color', 'il_logo_background_image',
@@ -76,6 +76,7 @@ function il_get_all_options($reset = false) {
         'il_body_bg_color' => '#009bde',
         'il_body_background_image' => '',
         'il_body_background_video' => '',
+        'il_body_video_url' => '',
         'il_body_gradient_type' => 'linear',
         'il_body_gradient_direction' => 'vertical',
         'il_body_gradient_color1' => '#009bde',
@@ -144,7 +145,7 @@ function il_generate_gradient_css($type, $direction, $color1, $color2) {
  * Cache para los estilos dinámicos (OPTIMIZADO)
  */
 function il_get_cached_dynamic_styles() {
-    $cache_key = 'imagina_login_dynamic_styles_v10';
+    $cache_key = 'imagina_login_dynamic_styles_v11';
     $cached = get_transient($cache_key);
 
     if ($cached !== false) {
@@ -257,6 +258,7 @@ function il_generate_dynamic_styles() {
         'body_bg_type' => $body_bg_type,
         'logo_bg_type' => $logo_bg_type,
         'body_bg_video' => $opts['il_body_background_video'],
+        'body_video_url' => $opts['il_body_video_url'],
         'template' => $opts['il_login_template']
     ];
 }
@@ -270,7 +272,7 @@ function il_clear_styles_cache() {
         return;
     }
     $already_cleared = true;
-    delete_transient('imagina_login_dynamic_styles_v10');
+    delete_transient('imagina_login_dynamic_styles_v11');
     il_get_all_options(true);
 }
 
@@ -301,8 +303,8 @@ function il_inject_critical_styles() {
     echo '<style id="imagina-login-critical-css">' . $cached_styles['css'] . '</style>';
 
     // Preload del CSS principal
-    echo '<link rel="preload" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.7" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
-    echo '<noscript><link rel="stylesheet" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.7"></noscript>';
+    echo '<link rel="preload" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.8" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
+    echo '<noscript><link rel="stylesheet" href="' . plugin_dir_url(__FILE__) . 'css/styles.css?v=2.3.8"></noscript>';
 
     // NO precargar imágenes para evitar que se vean antes de cargar todo
 }
@@ -321,7 +323,7 @@ function my_custom_login_assets() {
         'imagina-login',
         plugin_dir_url( __FILE__ ) . 'css/styles.css',
         array(),
-        '2.3.7'
+        '2.3.8'
     );
 
     // Cargar CSS del template seleccionado
@@ -362,7 +364,7 @@ function my_custom_login_assets() {
         'imagina-login-template',
         plugin_dir_url( __FILE__ ) . 'css/templates/' . $template_file,
         array('imagina-login'),
-        '2.3.7'
+        '2.3.8'
     );
 
     // Agregar clase del template al body y clase de transiciones
@@ -756,18 +758,7 @@ function my_custom_login_assets() {
             setTimeout(function() {
                 document.body.classList.add('logo-loaded', 'form-loaded');
             }, 50);
-
-            // Aplicar transición a videos si existen
-            const video = document.querySelector('#login-background-video');
-            if (video) {
-                video.addEventListener('loadeddata', function() {
-                    video.classList.add('loaded');
-                });
-
-                video.addEventListener('canplay', function() {
-                    video.classList.add('loaded');
-                });
-            }
+            // La clase 'loaded' del video de fondo la maneja il_inject_dynamic_elements()
         } else {
             // Si las transiciones están desactivadas, mostrar todo inmediatamente
             document.body.classList.add('logo-loaded', 'form-loaded');
@@ -864,7 +855,7 @@ function my_custom_login_assets() {
     });
     ";
 
-    wp_register_script('imagina-login-toggle', '', array('jquery'), '2.3.7', true);
+    wp_register_script('imagina-login-toggle', '', array('jquery'), '2.3.8', true);
     wp_enqueue_script('imagina-login-toggle');
     wp_add_inline_script('imagina-login-toggle', $script);
 }
@@ -1035,37 +1026,116 @@ function il_inject_dynamic_elements() {
         </script>';
     }
 
-    // Video de fondo (lazy load)
-    if ($cached_styles['body_bg_type'] === 'video' && $cached_styles['body_bg_video']) {
-        $video_url = wp_get_attachment_url($cached_styles['body_bg_video']);
-        if ($video_url) {
-            echo '<script>
-                (function() {
-                    function loadVideo() {
-                        // Solo cargar video si no está en móvil (para performance)
-                        if (window.innerWidth > 768) {
-                            const video = document.createElement("video");
-                            video.id = "login-background-video";
-                            video.src = "' . esc_url($video_url) . '";
-                            video.autoplay = true;
-                            video.loop = true;
-                            video.muted = true;
-                            video.playsInline = true;
-                            video.style.pointerEvents = "none";
-                            video.setAttribute("preload", "metadata");
-                            document.body.appendChild(video);
-                        }
-                    }
-                    
-                    if (document.readyState === "loading") {
-                        document.addEventListener("DOMContentLoaded", loadVideo);
-                    } else {
-                        loadVideo();
-                    }
-                })();
-            </script>';
+    // Video de fondo (lazy load): URL externa tiene prioridad sobre el video subido
+    if ($cached_styles['body_bg_type'] !== 'video') {
+        return;
+    }
+
+    $source = il_parse_video_url(isset($cached_styles['body_video_url']) ? $cached_styles['body_video_url'] : '');
+    if (!$source && $cached_styles['body_bg_video']) {
+        $uploaded_url = wp_get_attachment_url($cached_styles['body_bg_video']);
+        if ($uploaded_url) {
+            $source = ['type' => 'file', 'url' => $uploaded_url];
         }
     }
+    if (!$source) {
+        return;
+    }
+
+    if ($source['type'] === 'file') {
+        $create_js = '
+            var el = document.createElement("video");
+            el.src = ' . wp_json_encode(esc_url_raw($source['url'])) . ';
+            el.autoplay = true;
+            el.loop = true;
+            el.muted = true;
+            el.playsInline = true;
+            el.setAttribute("muted", "");
+            el.setAttribute("playsinline", "");
+            el.setAttribute("preload", "metadata");
+            el.addEventListener("canplay", markLoaded);
+            wrap.appendChild(el);';
+    } else {
+        $create_js = '
+            var el = document.createElement("iframe");
+            el.src = ' . wp_json_encode($source['embed']) . ';
+            el.setAttribute("frameborder", "0");
+            el.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture");
+            el.setAttribute("tabindex", "-1");
+            el.setAttribute("aria-hidden", "true");
+            el.setAttribute("title", "");
+            // Retrasar la aparición para ocultar la interfaz de carga del reproductor
+            el.addEventListener("load", function() { setTimeout(markLoaded, 1200); });
+            wrap.appendChild(el);';
+    }
+
+    echo '<script>
+        (function() {
+            function loadVideo() {
+                // Solo cargar video si no está en móvil (para performance)
+                if (window.innerWidth <= 768) return;
+                var wrap = document.createElement("div");
+                wrap.id = "login-background-video";
+                wrap.className = "il-video-' . esc_js($source['type']) . '";
+                function markLoaded() { wrap.classList.add("loaded"); }
+                ' . $create_js . '
+                document.body.appendChild(wrap);
+                // Respaldo por si el evento de carga nunca llega
+                setTimeout(markLoaded, 4000);
+            }
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", loadVideo);
+            } else {
+                loadVideo();
+            }
+        })();
+    </script>';
+}
+
+/**
+ * Interpretar una URL de video: YouTube, Vimeo o archivo directo.
+ * Devuelve null si la URL está vacía o no se reconoce.
+ */
+function il_parse_video_url($url) {
+    $url = trim((string) $url);
+    if ($url === '') {
+        return null;
+    }
+
+    if (preg_match('~(?:youtube(?:-nocookie)?\.com/(?:watch\?(?:[^#]*&)?v=|embed/|shorts/|live/|v/)|youtu\.be/)([A-Za-z0-9_-]{11})~i', $url, $m)) {
+        $id = $m[1];
+        $params = http_build_query([
+            'autoplay' => 1, 'mute' => 1, 'loop' => 1, 'playlist' => $id,
+            'controls' => 0, 'rel' => 0, 'playsinline' => 1, 'modestbranding' => 1,
+            'iv_load_policy' => 3, 'disablekb' => 1, 'fs' => 0,
+        ]);
+        return [
+            'type' => 'youtube',
+            'label' => 'YouTube',
+            'embed' => 'https://www.youtube-nocookie.com/embed/' . $id . '?' . $params,
+        ];
+    }
+
+    if (preg_match('~vimeo\.com/(?:[^?#]*/)?(\d+)(?:/([a-f0-9]+))?(?:[/?#]|$)~i', $url, $m)) {
+        // Videos no listados necesitan su hash de privacidad (vimeo.com/ID/HASH o ?h=HASH)
+        $hash = !empty($m[2]) ? $m[2] : '';
+        if (!$hash) {
+            parse_str((string) wp_parse_url($url, PHP_URL_QUERY), $query);
+            $hash = isset($query['h']) ? preg_replace('~[^a-f0-9]~i', '', $query['h']) : '';
+        }
+        return [
+            'type' => 'vimeo',
+            'label' => 'Vimeo',
+            'embed' => 'https://player.vimeo.com/video/' . $m[1] . '?' . ($hash ? 'h=' . $hash . '&' : '') . 'background=1&autoplay=1&loop=1&muted=1&dnt=1',
+        ];
+    }
+
+    $path = (string) wp_parse_url($url, PHP_URL_PATH);
+    if (preg_match('~\.(mp4|webm|ogg|ogv|mov|m4v)$~i', $path)) {
+        return ['type' => 'file', 'label' => 'Archivo de video', 'url' => $url];
+    }
+
+    return null;
 }
 add_action('login_footer', 'il_inject_dynamic_elements', 5);
 
@@ -1095,6 +1165,7 @@ function il_register_settings() {
     register_setting('imagina_login_options', 'il_body_bg_color', ['type' => 'string', 'default' => '#009bde']);
     register_setting('imagina_login_options', 'il_body_background_image', ['type' => 'integer', 'sanitize_callback' => 'absint']);
     register_setting('imagina_login_options', 'il_body_background_video', ['type' => 'integer', 'sanitize_callback' => 'absint']);
+    register_setting('imagina_login_options', 'il_body_video_url', ['type' => 'string', 'sanitize_callback' => 'esc_url_raw', 'default' => '']);
     register_setting('imagina_login_options', 'il_body_gradient_type', ['type' => 'string', 'default' => 'linear']);
     register_setting('imagina_login_options', 'il_body_gradient_direction', ['type' => 'string', 'default' => 'vertical']);
     register_setting('imagina_login_options', 'il_body_gradient_color1', ['type' => 'string', 'default' => '#009bde']);
@@ -2623,9 +2694,27 @@ function il_render_modern_body_options() {
         </div>';
     }
     
+    $video_ext_url = get_option('il_body_video_url', '');
+    $video_ext_info = il_parse_video_url($video_ext_url);
+    if ($video_ext_url && $video_ext_info) {
+        $video_ext_status = '<span style="color: #059669; font-weight: 600;">✓ Detectado: ' . esc_html($video_ext_info['label']) . '. Se usará en lugar del video subido.</span>';
+    } elseif ($video_ext_url) {
+        $video_ext_status = '<span style="color: #dc2626; font-weight: 600;">✗ Enlace no reconocido. Usa un link de YouTube, Vimeo o un archivo .mp4/.webm.</span>';
+    } else {
+        $video_ext_status = 'Pega un enlace de YouTube, Vimeo o un archivo directo (.mp4, .webm). Si lo llenas, tiene prioridad sobre el video subido.';
+    }
+
     echo '</div>
         </div>
-        
+
+        <div class="imagina-control-group" style="margin-top: 16px;">
+            <label class="imagina-control-label">O usa un video externo (enlace)</label>
+            <input type="url" name="il_body_video_url" value="' . esc_attr($video_ext_url) . '"
+                   placeholder="https://www.youtube.com/watch?v=..."
+                   style="width: 100%; padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 6px;">
+            <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 12px;">' . $video_ext_status . '</p>
+        </div>
+
         <div class="imagina-control-group" style="margin-top: 20px;">
             <label class="imagina-control-label">Overlay del video (para mejorar legibilidad)</label>
             <div style="display: flex; gap: 15px; align-items: center;">
