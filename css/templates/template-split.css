@@ -27,13 +27,15 @@ body.login.template-split div#login h1 {
 }
 
 body.login.template-split div#login h1 a {
-    max-width: var(--logo-max-size, 280px);
-    max-height: var(--logo-max-size, 280px);
+    max-width: 280px;
+    max-height: 280px;
+    width: 70%;
+    height: 70%;
 }
 
 body.login.template-split div#login form#loginform,
 body.login.template-split div#login form#lostpasswordform,
-body.login.template-split div#login form#magicloginform {
+body.login.template-split div#login form#magicloginform, body.login.template-split div#login form#registerform, body.login.template-split div#login form#resetpassform {
     grid-area: form;
     padding: 50px 40px;
     display: flex;
@@ -43,8 +45,8 @@ body.login.template-split div#login form#magicloginform {
 }
 
 /* Mensajes se muestran junto al formulario */
-body.login.template-split .login p.message,
-body.login.template-split .login #login_error,
+body.login.template-split p.message,
+body.login.template-split #login_error,
 body.login.template-split #login-message,
 body.login.template-split .notice.notice-info.message {
     grid-area: messages;
@@ -93,12 +95,12 @@ body.login.template-split.login-action-checkemail div#login h1 a {
 
     body.login.template-split div#login form#loginform,
     body.login.template-split div#login form#lostpasswordform,
-    body.login.template-split div#login form#magicloginform {
+    body.login.template-split div#login form#magicloginform, body.login.template-split div#login form#registerform, body.login.template-split div#login form#resetpassform {
         padding: 40px 30px;
     }
 
-    body.login.template-split .login p.message,
-    body.login.template-split .login #login_error,
+    body.login.template-split p.message,
+    body.login.template-split #login_error,
     body.login.template-split #login-message,
     body.login.template-split .notice.notice-info.message {
         padding: 16px 30px;
@@ -130,12 +132,12 @@ body.login.template-split.login-action-checkemail div#login h1 a {
 
     body.login.template-split div#login form#loginform,
     body.login.template-split div#login form#lostpasswordform,
-    body.login.template-split div#login form#magicloginform {
+    body.login.template-split div#login form#magicloginform, body.login.template-split div#login form#registerform, body.login.template-split div#login form#resetpassform {
         padding: 35px 25px;
     }
 
-    body.login.template-split .login p.message,
-    body.login.template-split .login #login_error,
+    body.login.template-split p.message,
+    body.login.template-split #login_error,
     body.login.template-split #login-message,
     body.login.template-split .notice.notice-info.message {
         padding: 16px 25px;
@@ -159,12 +161,12 @@ body.login.template-split.login-action-checkemail div#login h1 a {
 
     body.login.template-split div#login form#loginform,
     body.login.template-split div#login form#lostpasswordform,
-    body.login.template-split div#login form#magicloginform {
+    body.login.template-split div#login form#magicloginform, body.login.template-split div#login form#registerform, body.login.template-split div#login form#resetpassform {
         padding: 25px 20px;
     }
 
-    body.login.template-split .login p.message,
-    body.login.template-split .login #login_error,
+    body.login.template-split p.message,
+    body.login.template-split #login_error,
     body.login.template-split #login-message,
     body.login.template-split .notice.notice-info.message {
         padding: 14px 20px;

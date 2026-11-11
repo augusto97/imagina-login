@@ -1,4 +1,7 @@
 jQuery(document).ready(function($) {
+    // Textos traducibles (vienen de PHP vía wp_localize_script)
+    const i18n = (window.ilAdmin && window.ilAdmin.i18n) || {};
+    const t = (key) => i18n[key] || key;
     
     // Inicializar el panel moderno
     initModernPanel();
@@ -96,12 +99,12 @@ jQuery(document).ready(function($) {
         
         // Cambiar estado del botón
         const originalText = button.html();
-        button.html('<span class="dashicons dashicons-update spin"></span> Cargando...').prop('disabled', true);
+        button.html('<span class="dashicons dashicons-update spin"></span> ' + t('loading')).prop('disabled', true);
 
         const mediaFrame = wp.media({
-            title: 'Seleccionar Imagen para el Fondo',
+            title: t('selectImage'),
             button: {
-                text: 'Usar esta imagen'
+                text: t('useImage')
             },
             multiple: false,
             library: {
@@ -111,21 +114,21 @@ jQuery(document).ready(function($) {
 
         mediaFrame.on('select', function() {
             const attachment = mediaFrame.state().get('selection').first().toJSON();
-            inputField.val(attachment.id);
+            inputField.val(attachment.id).trigger('change');
             
             // Crear preview moderno
             const imgElement = `<img src="${attachment.sizes && attachment.sizes.medium ? attachment.sizes.medium.url : attachment.url}" 
-                               alt="${attachment.alt || 'Imagen de fondo'}" 
+                               alt="${attachment.alt || t('imageAlt')}" 
                                style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">`;
             
             previewContainer.html(imgElement);
             
             // Mostrar botón de quitar y actualizar texto
             removeButton.show();
-            button.html('<span class="dashicons dashicons-update"></span> Cambiar Imagen');
+            button.html('<span class="dashicons dashicons-update"></span> ' + t('changeImage'));
             
             // Mostrar notificación de éxito
-            showNotification('Imagen subida correctamente', 'success');
+            showNotification(t('imageUploaded'), 'success');
         });
 
         mediaFrame.on('close', function() {
@@ -145,12 +148,12 @@ jQuery(document).ready(function($) {
         
         // Cambiar estado del botón
         const originalText = button.html();
-        button.html('<span class="dashicons dashicons-update spin"></span> Subiendo...').prop('disabled', true);
+        button.html('<span class="dashicons dashicons-update spin"></span> ' + t('uploading')).prop('disabled', true);
 
         const mediaFrame = wp.media({
-            title: 'Seleccionar Video de Fondo',
+            title: t('selectVideo'),
             button: {
-                text: 'Usar este video'
+                text: t('useVideo')
             },
             multiple: false,
             library: {
@@ -163,32 +166,32 @@ jQuery(document).ready(function($) {
             
             // Validar tamaño del archivo (50MB = 52428800 bytes)
             if (attachment.filesizeInBytes && attachment.filesizeInBytes > 52428800) {
-                showNotification('El video es demasiado grande. Máximo permitido: 50MB', 'error');
+                showNotification(t('videoTooBig'), 'error');
                 button.html(originalText).prop('disabled', false);
                 return;
             }
             
-            inputField.val(attachment.id);
+            inputField.val(attachment.id).trigger('change');
             
             // Crear preview del video
             const videoElement = `<video controls style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                 <source src="${attachment.url}" type="${attachment.mime}">
-                Tu navegador no soporta videos HTML5.
+                ${t('videoNoSupport')}
             </video>
             <div style="margin-top: 10px; padding: 10px; background: #f0f9ff; border-radius: 6px; font-size: 13px; color: #0369a1;">
                 <strong>📁 ${attachment.filename}</strong><br>
-                📏 Tamaño: ${formatFileSize(attachment.filesizeInBytes || 0)}<br>
-                ⏱️ El video se reproducirá automáticamente sin sonido en el login
+                📏 ${t('size')}: ${formatFileSize(attachment.filesizeInBytes || 0)}<br>
+                ⏱️ ${t('videoAutoplay')}
             </div>`;
             
             previewContainer.html(videoElement);
             
             // Mostrar botón de quitar y actualizar texto
             removeButton.show();
-            button.html('<span class="dashicons dashicons-video-alt3"></span> Cambiar Video');
+            button.html('<span class="dashicons dashicons-video-alt3"></span> ' + t('changeVideo'));
             
             // Mostrar notificación de éxito
-            showNotification('Video subido correctamente', 'success');
+            showNotification(t('videoUploaded'), 'success');
         });
 
         mediaFrame.on('close', function() {
@@ -201,7 +204,7 @@ jQuery(document).ready(function($) {
     // Funciones para remover archivos
     function handleRemoveImage(e) {
         e.preventDefault();
-        if (!confirm('¿Estás seguro de que quieres quitar esta imagen?')) {
+        if (!confirm(t('confirmRemoveImage'))) {
             return;
         }
         
@@ -210,22 +213,22 @@ jQuery(document).ready(function($) {
         const uploadButton = button.siblings('.upload-image-button');
         const previewContainer = button.closest('.imagina-media-uploader').find('.imagina-media-preview');
 
-        inputField.val('');
+        inputField.val('').trigger('change');
         previewContainer.html(`
             <div style="padding: 40px; text-align: center; color: #9ca3af; border: 2px dashed #d1d5db; border-radius: 8px;">
                 <span class="dashicons dashicons-format-image" style="font-size: 32px; margin-bottom: 10px; display: block;"></span>
-                <p>No hay imagen seleccionada</p>
+                <p>${t('noImage')}</p>
             </div>
         `);
         button.hide();
-        uploadButton.html('<span class="dashicons dashicons-upload"></span> Subir Imagen');
+        uploadButton.html('<span class="dashicons dashicons-upload"></span> ' + t('uploadImage'));
         
-        showNotification('Imagen eliminada', 'success');
+        showNotification(t('imageRemoved'), 'success');
     }
 
     function handleRemoveVideo(e) {
         e.preventDefault();
-        if (!confirm('¿Estás seguro de que quieres quitar este video?')) {
+        if (!confirm(t('confirmRemoveVideo'))) {
             return;
         }
         
@@ -234,17 +237,17 @@ jQuery(document).ready(function($) {
         const uploadButton = button.siblings('.upload-video-button');
         const previewContainer = button.closest('.imagina-media-uploader').find('.imagina-media-preview');
 
-        inputField.val('');
+        inputField.val('').trigger('change');
         previewContainer.html(`
             <div style="padding: 40px; text-align: center; color: #9ca3af; border: 2px dashed #d1d5db; border-radius: 8px;">
                 <span class="dashicons dashicons-video-alt3" style="font-size: 32px; margin-bottom: 10px; display: block;"></span>
-                <p>No hay video seleccionado</p>
+                <p>${t('noVideo')}</p>
             </div>
         `);
         button.hide();
-        uploadButton.html('<span class="dashicons dashicons-video-alt3"></span> Subir Video');
+        uploadButton.html('<span class="dashicons dashicons-video-alt3"></span> ' + t('uploadVideo'));
         
-        showNotification('Video eliminado', 'success');
+        showNotification(t('videoRemoved'), 'success');
     }
 
     // Funciones auxiliares
@@ -342,36 +345,6 @@ jQuery(document).ready(function($) {
             }
             </style>
         `);
-    }
-
-    // Validación mejorada para archivos
-    function validateMediaFile(file, type) {
-        const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        const validVideoTypes = ['video/mp4', 'video/webm', 'video/ogg'];
-        const maxVideoSize = 50 * 1024 * 1024; // 50MB
-        const maxImageSize = 10 * 1024 * 1024; // 10MB
-        
-        if (type === 'image') {
-            if (!validImageTypes.includes(file.type)) {
-                showNotification('Formato de imagen no válido. Usa JPG, PNG, GIF o WebP.', 'error');
-                return false;
-            }
-            if (file.size > maxImageSize) {
-                showNotification('La imagen es demasiado grande. Máximo 10MB.', 'error');
-                return false;
-            }
-        } else if (type === 'video') {
-            if (!validVideoTypes.includes(file.type)) {
-                showNotification('Formato de video no válido. Usa MP4, WebM u OGG.', 'error');
-                return false;
-            }
-            if (file.size > maxVideoSize) {
-                showNotification('El video es demasiado grande. Máximo 50MB.', 'error');
-                return false;
-            }
-        }
-        
-        return true;
     }
 
     // Función adicional para monitorear cambios en el panel de administración

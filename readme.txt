@@ -1,14 +1,14 @@
 === Imagina Login ===
 Contributors: augusto97
-Tags: login, custom login, login page, login background, login logo, login templates, fullscreen login, sidebar login
-Requires at least: 5.0
-Tested up to: 6.8
-Stable tag: 2.3.7
-Requires PHP: 7.2
+Tags: login, custom login, login page, login customizer, dark mode
+Requires at least: 6.1
+Tested up to: 7.1
+Stable tag: 2.4.0
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Personaliza la página de inicio de sesión de WordPress con 9 diseños profesionales, logo, imágenes de fondo, videos y colores de marca.
+Personaliza el login de WordPress: 9 diseños, vista previa en vivo, modo oscuro, fondos con video o presentación y textos propios.
 
 == Description ==
 
@@ -26,14 +26,19 @@ Transforma por completo la aburrida página de inicio de sesión de WordPress (`
   - Glassmorphism (startups tech y apps premium)
   - Sidebar Derecha (panel lateral full height)
   - Centrado Compacto (sitios minimalistas)
-* **🖼️ Fondos Personalizables:** Usa colores sólidos, degradados lineales/radiales, imágenes o videos de fondo tanto para la página como para el área del logo.
-* **🎨 Sistema de Colores Completo:** Personaliza colores de etiquetas, botones, enlaces y estados hover de forma independiente o usa los colores de tu tema.
-* **✨ Transiciones Animadas:** 3 tipos de animaciones (Fade, Slide Down, Zoom) con duración personalizable para una experiencia suave.
-* **🎬 Videos de Fondo:** Sube videos que se reproducen automáticamente con overlay ajustable para mejor legibilidad.
-* **📱 100% Responsive:** Todos los diseños se adaptan perfectamente a tablets y móviles con optimizaciones específicas.
-* **⚡ Alto Rendimiento:** Código optimizado con cache inteligente, batch queries y auto-disconnect de observers.
-* **🔒 Seguridad Mejorada:** Toggle moderno para mostrar/ocultar contraseñas con iconos SVG optimizados.
-* **🎯 Interfaz Intuitiva:** Panel de administración moderno con previsualizaciones en tiempo real y tooltips explicativos.
+* **👁️ Vista Previa en Vivo:** Mira el login real mientras lo editas, en escritorio, tableta y móvil, sin guardar y sin cerrar tu sesión.
+* **⚡ Diseños Rápidos:** 6 diseños completos (plantilla, fondo, colores y tipografía) que se aplican con un clic.
+* **🖼️ Fondos Personalizables:** Color, degradado, imagen, video (subido, YouTube, Vimeo o enlace .mp4) o una presentación de imágenes con fundido.
+* **🌙 Modo Oscuro:** Automático según el sistema del visitante o siempre activo, con logo alternativo para fondos oscuros.
+* **🔤 Tipografías:** 10 fuentes de Google alojadas en tu propio sitio (sin conexiones a Google, compatible con RGPD).
+* **✍️ Textos y Elementos:** Cambia etiquetas, botón, textos de ejemplo y mensaje de bienvenida; oculta "Recuérdame", "¿Olvidaste tu contraseña?" y otros enlaces.
+* **🔒 Seguridad:** Mensaje de error genérico que no revela qué usuarios existen. Compatible con plugins de 2FA (Two Factor, WP 2FA, Wordfence y otros).
+* **🎨 Sistema de Colores Completo:** Personaliza etiquetas, botones, enlaces y estados hover, o usa los colores de tu tema.
+* **✨ Transiciones Animadas:** Fade, Slide Down o Zoom con velocidad y retraso independientes para logo y formulario.
+* **📦 Importar y Exportar:** Lleva tu diseño a otro sitio o guarda una copia de seguridad en JSON.
+* **🛠️ CSS Personalizado:** Para ajustes finos, con limpieza de seguridad.
+* **🌍 Traducible:** En español, con traducción al inglés incluida y plantilla .pot para otros idiomas.
+* **📱 100% Responsive y Accesible:** Funciona sin JavaScript, respeta "reducir movimiento" y muestra el foco al navegar con teclado.
 
 Dale a tus usuarios y clientes una bienvenida profesional desde el primer momento con "Imagina Login".
 
@@ -41,7 +46,7 @@ Dale a tus usuarios y clientes una bienvenida profesional desde el primer moment
 
 1.  Sube la carpeta `imagina-login` al directorio `/wp-content/plugins/` a través de FTP, o sube el archivo ZIP desde `Plugins > Añadir nuevo` en tu panel de WordPress.
 2.  Activa el plugin a través del menú 'Plugins' en WordPress.
-3.  Ve a la nueva página de ajustes **"Imagina Login"** que aparecerá en tu menú de administración para configurar las imágenes de fondo. ¡Eso es todo!
+3.  Ve a **Ajustes > Imagina Login**, elige un diseño rápido o una plantilla y abre la **vista previa en vivo** para ver los cambios antes de guardar.
 
 == Frequently Asked Questions ==
 
@@ -70,6 +75,46 @@ Sí, el plugin funciona correctamente en instalaciones de WordPress Multisite.
 5.  Ejemplo del selector de contraseña visible/oculto.
 
 == Changelog ==
+
+= 2.4.0 =
+* 👁️ **NUEVO:** Vista previa en vivo del login real dentro del panel (escritorio, tableta y móvil), con los cambios sin guardar y sin cerrar la sesión. "Ver Login" ahora abre el login real.
+* ⚡ **NUEVO:** 6 diseños rápidos de un clic.
+* 🌙 **NUEVO:** Modo oscuro (automático o siempre) con logo alternativo.
+* 🔤 **NUEVO:** 10 tipografías de Google alojadas en el propio sitio.
+* 🖼️ **NUEVO:** Fondo con presentación de imágenes.
+* ✍️ **NUEVO:** Textos de etiquetas, botón, textos de ejemplo y mensaje de bienvenida; error genérico de inicio de sesión; ocultar "Recuérdame", "¿Olvidaste tu contraseña?", "Ir al sitio" y privacidad; selector de idioma opcional; sin sacudida ni foco automático; enlace del logo.
+* 📦 **NUEVO:** Importar y exportar ajustes en JSON.
+* 🛠️ **NUEVO:** CSS personalizado.
+* 🌍 **NUEVO:** Plugin traducible, con traducción al inglés y plantilla .pot.
+* ♿ **MEJORA:** El aviso de Bloq Mayús de WordPress se muestra en lugar de ocultarse siempre; foco visible al navegar con teclado.
+* 🐛 **FIX:** En móvil, el selector de idioma ensanchaba la tarjeta y sacaba el formulario de la pantalla.
+* 🐛 **FIX:** Los controles del logo mostraban "200s" en lugar de "200px".
+* 🧹 **CÓDIGO:** CSS y JS del panel en archivos propios (cacheables), constante IL_VERSION.
+
+= 2.3.9 =
+* 🔐 **FIX:** Compatibilidad con plugins de 2FA: el campo del código ya no aparece antes de introducir usuario y contraseña. El plugin forzaba a mostrarse los campos que esos plugins ocultan.
+* 🔐 **FIX:** Se usa el botón de mostrar/ocultar contraseña de WordPress; antes se añadía a cualquier campo de contraseña, incluidos los de otros plugins.
+* 🐛 **FIX:** "¿Olvidaste tu contraseña?" y "Registro" quedaban tapados por "Volver al sitio" en todos los diseños.
+* 🐛 **FIX:** Sin JavaScript, el logo y el formulario quedaban invisibles y no se podía iniciar sesión.
+* 🐛 **FIX:** Error fatal si el tema u otro plugin definía funciones comunes como custom_login_logo_url(); todas las funciones usan ahora el prefijo il_.
+* 🐛 **FIX:** Los formularios de registro y de restablecer contraseña salían sin márgenes.
+* 🐛 **FIX:** En Pantalla Completa y Glassmorphism las etiquetas y el botón eran invisibles con los colores por defecto.
+* 🐛 **FIX:** 77 reglas CSS de los diseños nunca se aplicaban (pie, mensajes y enlaces).
+* 🐛 **FIX:** Sin logo, el nombre del sitio aparecía duplicado.
+* 🐛 **FIX:** El botón "Restaurar por Defecto" ahora funciona.
+* 🎨 **MEJORA:** Estilos para el tooltip de "Recuérdame" (WordPress 7), los botones de otros plugins y el medidor de seguridad de la contraseña.
+* 🔒 **SEGURIDAD:** Todos los ajustes se validan al guardarse y al leerse; un color manipulado ya no puede inyectar código en la página de login.
+* ⚡ **RENDIMIENTO:** styles.css se descargaba dos veces; se quitó jQuery y dos observadores de la página de login.
+* ⚡ **MEJORA:** La caché de estilos se renueva sola con cualquier cambio de ajustes (también desde WP-CLI).
+* 🧹 **NUEVO:** uninstall.php borra los ajustes al desinstalar el plugin.
+
+= 2.3.8 =
+* 🎬 **NUEVO:** Video de fondo desde enlace externo: YouTube, Vimeo o archivo directo (.mp4, .webm)
+* 🎬 **NUEVO:** El enlace externo tiene prioridad sobre el video subido; el panel indica si el enlace fue reconocido
+* 🖼️ **NUEVO:** Subida manual del logo, con controles de ancho, alto, espacio vertical y borde separador
+* ⚙️ **MEJORA:** Menú movido a Ajustes > Imagina Login
+* 👁️ **FIX:** Botón "Ver Login" ahora muestra una vista previa real estando con sesión iniciada
+* ⚡ **FIX:** Hooks de caché solo se registran en el admin
 
 = 2.3.7 =
 * 🐛 **FIX:** Corregido bug donde el layout no se guardaba en la primera selección
