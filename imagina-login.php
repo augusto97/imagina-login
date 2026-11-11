@@ -3,7 +3,7 @@
  * Plugin Name: Imagina Login
  * Plugin URI:  https://imaginawp.com
  * Description: Customized wp login with 9 professional templates and advanced background options
- * Version:     2.3.9
+ * Version:     2.4.0
  * Author:      IMAGINA WP
  * Author URI:  https://imaginawp.com/
  * License:     GPLv2 or later
@@ -14,6 +14,8 @@
 if(!defined('ABSPATH')) {
     die;
 }
+
+define('IL_VERSION', '2.4.0');
 
 /**
  * Función para ajustar el brillo de un color hexadecimal.
@@ -182,7 +184,7 @@ function il_generate_gradient_css($type, $direction, $color1, $color2) {
 function il_get_cached_dynamic_styles() {
     // La clave incluye un hash de los ajustes: cualquier cambio (desde el admin, WP-CLI o REST)
     // genera una clave nueva, así que la caché nunca queda desactualizada y no hace falta limpiarla.
-    $cache_key = 'il_dyn_styles_' . substr(md5(serialize(il_get_all_options()) . '2.3.9'), 0, 16);
+    $cache_key = 'il_dyn_styles_' . substr(md5(serialize(il_get_all_options()) . IL_VERSION), 0, 16);
     $cached = get_transient($cache_key);
 
     if ($cached !== false) {
@@ -336,7 +338,7 @@ function il_enqueue_login_assets() {
         'imagina-login',
         plugin_dir_url( __FILE__ ) . 'css/styles.css',
         $core_deps,
-        '2.3.9'
+        IL_VERSION
     );
 
     // Cargar CSS del template seleccionado
@@ -377,7 +379,7 @@ function il_enqueue_login_assets() {
         'imagina-login-template',
         plugin_dir_url( __FILE__ ) . 'css/templates/' . $template_file,
         array('imagina-login'),
-        '2.3.9'
+        IL_VERSION
     );
 
     // Agregar clase del template al body y clase de transiciones
@@ -758,7 +760,7 @@ function il_enqueue_login_assets() {
         }
     })();";
 
-    wp_register_script('imagina-login-toggle', '', array(), '2.3.9', true);
+    wp_register_script('imagina-login-toggle', '', array(), IL_VERSION, true);
     wp_enqueue_script('imagina-login-toggle');
     wp_add_inline_script('imagina-login-toggle', $script);
 }
@@ -1428,12 +1430,12 @@ function il_settings_page_html() {
                             <div class="imagina-control-group">
                                 <label class="imagina-control-label">Ancho del logo</label>
                                 <div class="imagina-slider-container">
-                                    <input type="range" name="il_logo_max_size" class="imagina-slider" min="40" max="400" step="10" value="<?php echo esc_attr(get_option('il_logo_max_size', '200')); ?>" oninput="this.parentNode.querySelector('.imagina-slider-value').textContent = this.value + 'px'">
+                                    <input type="range" name="il_logo_max_size" class="imagina-slider" min="40" max="400" step="10" value="<?php echo esc_attr(get_option('il_logo_max_size', '200')); ?>" data-unit="px">
                                     <span class="imagina-slider-value"><?php echo esc_html(get_option('il_logo_max_size', '200')); ?>px</span>
                                 </div>
                                 <label class="imagina-control-label" style="margin-top: 14px;">Alto del logo</label>
                                 <div class="imagina-slider-container">
-                                    <input type="range" name="il_logo_height" class="imagina-slider" min="30" max="300" step="10" value="<?php echo esc_attr(get_option('il_logo_height', '80')); ?>" oninput="this.parentNode.querySelector('.imagina-slider-value').textContent = this.value + 'px'">
+                                    <input type="range" name="il_logo_height" class="imagina-slider" min="30" max="300" step="10" value="<?php echo esc_attr(get_option('il_logo_height', '80')); ?>" data-unit="px">
                                     <span class="imagina-slider-value"><?php echo esc_html(get_option('il_logo_height', '80')); ?>px</span>
                                 </div>
                             </div>
@@ -1447,7 +1449,7 @@ function il_settings_page_html() {
                             <div class="imagina-control-group">
                                 <label class="imagina-control-label">Espacio vertical del logo</label>
                                 <div class="imagina-slider-container">
-                                    <input type="range" name="il_logo_area_height" class="imagina-slider" min="0" max="80" step="5" value="<?php echo esc_attr($logo_area_height); ?>" oninput="this.parentNode.querySelector('.imagina-slider-value').textContent = this.value == 0 ? 'Auto' : this.value + 'px'">
+                                    <input type="range" name="il_logo_area_height" class="imagina-slider" min="0" max="80" step="5" value="<?php echo esc_attr($logo_area_height); ?>" data-unit="px" data-zero-label="Auto">
                                     <span class="imagina-slider-value"><?php echo intval($logo_area_height) === 0 ? 'Auto' : esc_html($logo_area_height) . 'px'; ?></span>
                                 </div>
                                 <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 11px;">0 = usa el padding del template. Ajusta el espacio arriba y abajo del logo.</p>
@@ -1585,860 +1587,6 @@ function il_settings_page_html() {
         </div>
     </div>
 
-    <style>
-    /* Estilos del panel compacto */
-    .imagina-login-admin {
-        max-width: none;
-        margin: 0;
-        padding: 0;
-        background: #f0f2f5;
-    }
-
-    .imagina-login-admin .wrap { margin: 0; padding: 0; }
-
-    .imagina-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 16px 30px;
-        margin: 0 0 20px 0;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-    }
-
-    .imagina-header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .imagina-logo-section h1 {
-        margin: 0;
-        font-size: 22px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: white;
-    }
-
-    .imagina-icon { font-size: 26px; }
-
-    .imagina-subtitle {
-        margin: 2px 0 0 36px;
-        opacity: 0.9;
-        font-size: 13px;
-    }
-
-    .imagina-preview-btn {
-        background: rgba(255,255,255,0.2);
-        color: white;
-        padding: 8px 18px;
-        border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 20px;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-weight: 600;
-        font-size: 13px;
-        transition: all 0.2s ease;
-    }
-
-    .imagina-preview-btn:hover {
-        background: rgba(255,255,255,0.3);
-        color: white;
-        text-decoration: none;
-    }
-
-    .imagina-form {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 30px;
-    }
-
-    .imagina-sections {
-        display: grid;
-        gap: 16px;
-    }
-
-    .imagina-section {
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
-    .imagina-section-header {
-        background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
-        padding: 14px 20px;
-        border-bottom: 1px solid #e3e8ee;
-    }
-
-    .imagina-section-header h2 {
-        margin: 0 0 2px 0;
-        font-size: 17px;
-        font-weight: 700;
-        color: #2c3e50;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .section-icon { font-size: 20px; }
-
-    .imagina-section-header p {
-        margin: 0;
-        color: #64748b;
-        font-size: 12px;
-    }
-
-    .imagina-section-content { padding: 16px 20px; }
-
-    .imagina-main-label {
-        display: block;
-        font-size: 14px;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 10px;
-    }
-
-    .imagina-type-tabs {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 16px;
-    }
-
-    .imagina-type-tabs input[type="radio"] { display: none; }
-
-    .imagina-tab {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 14px;
-        border: 2px solid #e5e7eb;
-        border-radius: 8px;
-        background: #f9fafb;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-weight: 600;
-        font-size: 13px;
-        color: #6b7280;
-    }
-
-    .imagina-tab:hover {
-        border-color: #d1d5db;
-        background: #f3f4f6;
-    }
-
-    .imagina-type-tabs input[type="radio"]:checked + .imagina-tab {
-        border-color: #667eea;
-        background: linear-gradient(135deg, #667eea15, #764ba215);
-        color: #667eea;
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-    }
-
-    .tab-icon { font-size: 16px; }
-    .tab-text { font-size: 13px; font-weight: 600; }
-
-    .imagina-options-container {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 16px;
-        border: 1px dashed #dee2e6;
-    }
-
-    .imagina-option-panel { display: none; }
-    .imagina-option-panel.active { display: block; }
-
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Toggles */
-    .imagina-toggle-section {
-        margin-bottom: 14px;
-        padding: 12px 16px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        border: 1px solid #e9ecef;
-    }
-
-    .imagina-toggle-container {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        cursor: pointer;
-        font-weight: 600;
-        color: #374151;
-        font-size: 14px;
-    }
-
-    .imagina-toggle-container input[type="checkbox"] { display: none; }
-
-    .imagina-toggle-slider {
-        position: relative;
-        width: 42px;
-        height: 22px;
-        background: #ccc;
-        border-radius: 22px;
-        transition: 0.3s;
-        cursor: pointer;
-        flex-shrink: 0;
-    }
-
-    .imagina-toggle-slider:before {
-        content: "";
-        position: absolute;
-        height: 16px;
-        width: 16px;
-        left: 3px;
-        bottom: 3px;
-        background-color: white;
-        border-radius: 50%;
-        transition: 0.3s;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-
-    .imagina-toggle-container input:checked + .imagina-toggle-slider { background: #667eea; }
-    .imagina-toggle-container input:checked + .imagina-toggle-slider:before { transform: translateX(20px); }
-
-    .imagina-toggle-description {
-        margin: 6px 0 0 0;
-        color: #6b7280;
-        font-size: 12px;
-        line-height: 1.4;
-    }
-
-    /* Controles de color */
-    .imagina-color-controls { animation: fadeInUp 0.2s ease; }
-
-    .imagina-color-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 12px;
-        margin-top: 12px;
-    }
-
-    .imagina-color-picker {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: 10px;
-        align-items: center;
-        background: white;
-        padding: 10px 14px;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
-    }
-
-    .imagina-color-input {
-        width: 36px;
-        height: 36px;
-        border: none;
-        border-radius: 50%;
-        cursor: pointer;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-    }
-
-    .imagina-color-input:hover { transform: scale(1.1); }
-
-    .imagina-color-info { display: flex; flex-direction: column; gap: 2px; }
-
-    .imagina-color-label { font-weight: 600; color: #374151; font-size: 13px; }
-
-    .imagina-color-value {
-        font-family: 'Monaco', 'Menlo', monospace;
-        font-size: 11px;
-        color: #6b7280;
-        background: #f3f4f6;
-        padding: 2px 6px;
-        border-radius: 3px;
-    }
-
-    /* Controles de transicion */
-    .imagina-transition-controls { animation: fadeInUp 0.2s ease; }
-
-    .imagina-transition-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 12px;
-        margin-top: 12px;
-    }
-
-    .imagina-control-group {
-        background: white;
-        padding: 12px 14px;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
-    }
-
-    .imagina-control-label {
-        display: block;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 6px;
-        font-size: 13px;
-    }
-
-    .imagina-select {
-        width: 100%;
-        padding: 7px 10px;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        background: white;
-        color: #374151;
-        font-size: 13px;
-    }
-
-    .imagina-select:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-    }
-
-    .imagina-slider-container { display: flex; align-items: center; gap: 8px; }
-
-    .imagina-slider {
-        flex: 1;
-        height: 5px;
-        border-radius: 3px;
-        background: #e5e7eb;
-        outline: none;
-    }
-
-    .imagina-slider::-webkit-slider-thumb {
-        appearance: none;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: #667eea;
-        cursor: pointer;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-
-    .imagina-slider::-moz-range-thumb {
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: #667eea;
-        cursor: pointer;
-        border: none;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-
-    .imagina-slider-value {
-        font-weight: 600;
-        color: #374151;
-        min-width: 32px;
-        text-align: center;
-        font-size: 13px;
-    }
-
-    .imagina-actions {
-        display: flex;
-        justify-content: center;
-        gap: 14px;
-        padding: 24px 0;
-        margin-top: 16px;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    .imagina-save-btn {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-        border: none;
-        padding: 10px 24px;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-    }
-
-    .imagina-save-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-    }
-
-    .imagina-reset-btn {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        color: white;
-        border: none;
-        padding: 10px 24px;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-    }
-
-    .imagina-reset-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-    }
-
-    .imagina-help-section {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 0 30px;
-    }
-
-    .imagina-help-section h3 {
-        color: #374151;
-        font-size: 15px;
-        font-weight: 700;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .imagina-tips {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 10px;
-    }
-
-    .imagina-tip {
-        background: white;
-        padding: 10px 14px;
-        border-radius: 8px;
-        border-left: 3px solid #667eea;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-        font-size: 12px;
-        line-height: 1.4;
-    }
-
-    /* Selector de templates */
-    .imagina-template-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 12px;
-        margin-top: 10px;
-    }
-
-    .imagina-template-card {
-        position: relative;
-        background: white;
-        border: 2px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 10px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        overflow: hidden;
-    }
-
-    .imagina-template-card:hover {
-        border-color: #d1d5db;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .imagina-template-card.active {
-        border-color: #667eea;
-        background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
-        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
-    }
-
-    .imagina-template-card input[type="radio"] { display: none; }
-
-    .template-preview {
-        background: #f3f4f6;
-        border-radius: 8px;
-        padding: 12px;
-        min-height: 90px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .template-mockup {
-        width: 100%;
-        max-width: 160px;
-        height: 80px;
-        background: white;
-        border-radius: 6px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        display: grid;
-        overflow: hidden;
-    }
-
-    /* Mockups */
-    .classic-mockup { grid-template-columns: 1fr 1fr; }
-    .mockup-left { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .mockup-right {
-        padding: 10px 6px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        justify-content: center;
-    }
-
-    .minimal-mockup { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-    .mockup-logo-mini {
-        background: #f3f4f6;
-        height: 25px;
-        border-bottom: 1px solid #e5e7eb;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .mockup-form-centered {
-        padding: 8px 6px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        justify-content: center;
-    }
-
-    .toplogo-mockup { grid-template-columns: 1fr; grid-template-rows: 30px 1fr; }
-    .mockup-logo-top { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-
-    .split-mockup { grid-template-columns: 1.5fr 1fr; }
-    .mockup-left-big { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-    .mockup-right-small {
-        padding: 8px 5px;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        justify-content: center;
-    }
-
-    .mock-input { background: #e5e7eb; height: 8px; border-radius: 3px; }
-    .mock-button { background: #667eea; height: 10px; border-radius: 3px; margin-top: 2px; }
-
-    .fullscreen-mockup {
-        grid-template-columns: 1fr;
-        grid-template-rows: 22px 1fr 14px;
-        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-    }
-    .mockup-full-header { background: rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .mockup-full-content {
-        padding: 8px 6px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        justify-content: center;
-    }
-    .fullscreen-mockup .mock-input { background: rgba(255,255,255,0.9); }
-    .fullscreen-mockup .mock-button { background: rgba(255,255,255,0.95); }
-    .mockup-full-footer { background: rgba(0,0,0,0.05); border-top: 1px solid rgba(255,255,255,0.1); }
-
-    .glass-preview { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); }
-    .glass-mockup {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
-        background: rgba(255,255,255,0.2);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.3);
-    }
-    .mockup-glass-header {
-        background: rgba(255,255,255,0.05);
-        height: 22px;
-        border-bottom: 1px solid rgba(255,255,255,0.15);
-    }
-    .mockup-glass-content {
-        padding: 8px 6px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        justify-content: center;
-    }
-    .glass-mockup .mock-input { background: rgba(255,255,255,0.6); }
-    .glass-mockup .mock-button { background: rgba(255,255,255,0.8); }
-
-    .sidebar-mockup { grid-template-columns: 2fr 1fr; position: relative; }
-    .mockup-sidebar-bg { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
-    .mockup-sidebar-panel {
-        background: white;
-        padding: 8px 5px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        justify-content: center;
-        box-shadow: -2px 0 6px rgba(0,0,0,0.08);
-    }
-
-    .boxed-mockup {
-        grid-template-columns: 1fr;
-        background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-        padding: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .mockup-boxed-container {
-        width: 75%;
-        background: white;
-        border-radius: 5px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        overflow: hidden;
-        display: grid;
-        grid-template-rows: 20px 1fr;
-    }
-    .mockup-boxed-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .mockup-boxed-content {
-        padding: 6px 5px;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        justify-content: center;
-    }
-
-    .template-info h3 {
-        margin: 0 0 2px 0;
-        font-size: 13px;
-        font-weight: 700;
-        color: #374151;
-    }
-
-    .template-info p {
-        margin: 0;
-        font-size: 11px;
-        color: #6b7280;
-        line-height: 1.3;
-    }
-
-    .template-check {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        width: 24px;
-        height: 24px;
-        background: #667eea;
-        color: white;
-        border-radius: 50%;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        font-weight: bold;
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-    }
-
-    .imagina-template-card.active .template-check {
-        display: flex;
-        animation: checkPop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    }
-
-    @keyframes checkPop {
-        0% { transform: scale(0); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); }
-    }
-
-    .imagina-template-section {
-        border: 2px solid #667eea;
-        box-shadow: 0 2px 12px rgba(102, 126, 234, 0.12);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .imagina-header { padding: 12px 16px; }
-        .imagina-header-content { flex-direction: column; text-align: center; gap: 12px; }
-        .imagina-logo-section h1 { font-size: 20px; }
-        .imagina-subtitle { margin-left: 0; }
-        .imagina-form, .imagina-help-section { padding: 0 12px; }
-        .imagina-section-content { padding: 12px; }
-        .imagina-type-tabs { flex-wrap: wrap; }
-        .imagina-color-grid, .imagina-transition-grid { grid-template-columns: 1fr; }
-        .imagina-template-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-        .imagina-actions { flex-direction: column; align-items: center; }
-        .imagina-tips { grid-template-columns: 1fr; }
-    }
-    </style>
-
-    <script>
-    // JavaScript para el panel moderno
-    document.addEventListener('DOMContentLoaded', function() {
-        // Manejar selección de templates
-        const templateCards = document.querySelectorAll('.imagina-template-card');
-        templateCards.forEach(card => {
-            card.addEventListener('click', function() {
-                // Remover clase active de todas las cards
-                templateCards.forEach(c => c.classList.remove('active'));
-                // Agregar clase active a la card seleccionada
-                this.classList.add('active');
-                // Marcar el radio button
-                const radio = this.querySelector('input[type="radio"]');
-                if (radio) radio.checked = true;
-            });
-        });
-
-        // Manejar cambios en los radio buttons
-        const radioButtons = document.querySelectorAll('input[type="radio"][name^="il_"]');
-        radioButtons.forEach(radio => {
-            radio.addEventListener('change', function() {
-                updateOptionsDisplay();
-                updateColorValues();
-                updateGradientPreviews();
-            });
-        });
-
-        // Manejar cambios en color inputs
-        const colorInputs = document.querySelectorAll('.imagina-color-input');
-        colorInputs.forEach(input => {
-            input.addEventListener('input', function() {
-                updateColorValues();
-                updateGradientPreviews();
-            });
-        });
-
-        // Manejar cambios en selects de gradiente
-        const gradientSelects = document.querySelectorAll('select[name*="gradient"]');
-        gradientSelects.forEach(select => {
-            select.addEventListener('change', updateGradientPreviews);
-        });
-
-        // Función para mostrar/ocultar opciones
-        function updateOptionsDisplay() {
-            const bodyType = document.querySelector('input[name="il_body_bg_type"]:checked')?.value;
-            const logoType = document.querySelector('input[name="il_logo_bg_type"]:checked')?.value;
-            
-            // Actualizar paneles del body
-            document.querySelectorAll('.imagina-option-panel[data-target="body"]').forEach(panel => {
-                panel.classList.remove('active');
-                if (panel.dataset.type === bodyType) {
-                    panel.classList.add('active');
-                }
-            });
-
-            // Actualizar paneles del logo
-            document.querySelectorAll('.imagina-option-panel[data-target="logo"]').forEach(panel => {
-                panel.classList.remove('active');
-                if (panel.dataset.type === logoType) {
-                    panel.classList.add('active');
-                }
-            });
-        }
-
-        // Función para actualizar valores de color mostrados
-        function updateColorValues() {
-            colorInputs.forEach(input => {
-                const valueSpan = input.parentNode.querySelector('.imagina-color-value');
-                if (valueSpan) {
-                    valueSpan.textContent = input.value.toUpperCase();
-                }
-            });
-        }
-
-        // Función CORREGIDA para actualizar previews de gradientes
-        function updateGradientPreviews() {
-            // Preview del body
-            const bodyType = document.querySelector('select[name="il_body_gradient_type"]')?.value;
-            const bodyDirection = document.querySelector('select[name="il_body_gradient_direction"]')?.value;
-            const bodyColor1 = document.querySelector('input[name="il_body_gradient_color1"]')?.value;
-            const bodyColor2 = document.querySelector('input[name="il_body_gradient_color2"]')?.value;
-            
-            if (bodyType && bodyDirection && bodyColor1 && bodyColor2) {
-                const bodyGradientCSS = generateGradientCSS(bodyType, bodyDirection, bodyColor1, bodyColor2);
-                const bodyPreview = document.querySelector('.imagina-option-panel[data-type="gradient"][data-target="body"] .imagina-gradient-preview');
-                if (bodyPreview) {
-                    bodyPreview.style.background = bodyGradientCSS;
-                }
-            }
-            
-            // Preview del logo
-            const logoType = document.querySelector('select[name="il_logo_gradient_type"]')?.value;
-            const logoDirection = document.querySelector('select[name="il_logo_gradient_direction"]')?.value;
-            const logoColor1 = document.querySelector('input[name="il_logo_gradient_color1"]')?.value;
-            const logoColor2 = document.querySelector('input[name="il_logo_gradient_color2"]')?.value;
-            
-            if (logoType && logoDirection && logoColor1 && logoColor2) {
-                const logoGradientCSS = generateGradientCSS(logoType, logoDirection, logoColor1, logoColor2);
-                const logoPreview = document.querySelector('.imagina-option-panel[data-type="gradient"][data-target="logo"] .imagina-gradient-preview');
-                if (logoPreview) {
-                    logoPreview.style.background = logoGradientCSS;
-                }
-            }
-        }
-
-        // Función CORREGIDA para generar CSS de gradiente
-        function generateGradientCSS(type, direction, color1, color2) {
-            const directionMap = {
-                'vertical': 'to bottom',
-                'horizontal': 'to right',
-                'diagonal1': '45deg',
-                'diagonal2': '-45deg'
-            };
-            
-            if (type === 'radial') {
-                return `radial-gradient(circle, ${color1}, ${color2})`;
-            } else {
-                const cssDirection = directionMap[direction] || 'to bottom';
-                return `linear-gradient(${cssDirection}, ${color1}, ${color2})`;
-            }
-        }
-
-        // Inicializar
-        updateOptionsDisplay();
-        updateColorValues();
-        updateGradientPreviews();
-        
-        // Sliders de transición
-        const sliders = document.querySelectorAll('.imagina-slider');
-        sliders.forEach(slider => {
-            const valueDisplay = slider.parentNode.querySelector('.imagina-slider-value');
-            if (valueDisplay) {
-                slider.addEventListener('input', function() {
-                    valueDisplay.textContent = this.value + 's';
-                });
-            }
-        });
-    });
-
-    // Funciones para toggles
-    function toggleColorOptions(checkbox) {
-        const controls = document.getElementById('custom-color-controls');
-        if (checkbox.checked) {
-            controls.style.display = 'block';
-            controls.style.animation = 'fadeInUp 0.3s ease';
-        } else {
-            controls.style.display = 'none';
-        }
-    }
-
-    function toggleTransitionOptions(checkbox) {
-        const controls = document.getElementById('transition-controls');
-        if (checkbox.checked) {
-            controls.style.display = 'block';
-            controls.style.animation = 'fadeInUp 0.3s ease';
-        } else {
-            controls.style.display = 'none';
-        }
-    }
-
-    function toggleBorderColor(checkbox) {
-        const colorInput = checkbox.closest('.imagina-control-group').querySelector('input[name="il_logo_area_border_color"]');
-        if (!checkbox.checked) {
-            colorInput.value = '';
-            colorInput.type = 'hidden';
-        } else {
-            colorInput.type = 'color';
-            if (!colorInput.value || colorInput.value === '') colorInput.value = '#e3e8ee';
-        }
-    }
-
-    function confirmReset() {
-        if (confirm('¿Estás seguro de que quieres restaurar todas las configuraciones por defecto? Esta acción no se puede deshacer.')) {
-            // URL sin escapar para HTML (wp_nonce_url convierte & en &amp; y rompe la URL en JS)
-            window.location.href = <?php echo wp_json_encode(add_query_arg(array('action' => 'il_reset_settings', '_wpnonce' => wp_create_nonce('il_reset_settings')), admin_url('admin-post.php'))); ?>;
-        }
-    }
-    </script>
     <?php
 }
 
@@ -2865,14 +2013,14 @@ function il_render_transition_controls() {
             <div class="imagina-control-group" style="margin-bottom: 10px;">
                 <label class="imagina-control-label">Velocidad</label>
                 <div class="imagina-slider-container">
-                    <input type="range" name="il_logo_transition_duration" class="imagina-slider" min="0.1" max="1.5" step="0.05" value="' . esc_attr($logo_duration) . '" oninput="updateDurationDisplay(this)">
+                    <input type="range" name="il_logo_transition_duration" class="imagina-slider" min="0.1" max="1.5" step="0.05" value="' . esc_attr($logo_duration) . '" data-unit="s">
                     <span class="imagina-slider-value">' . esc_html($logo_duration) . 's</span>
                 </div>
             </div>
             <div class="imagina-control-group">
                 <label class="imagina-control-label">Delay</label>
                 <div class="imagina-slider-container">
-                    <input type="range" name="il_logo_transition_delay" class="imagina-slider" min="0" max="1.0" step="0.05" value="' . esc_attr($logo_delay) . '" oninput="updateDurationDisplay(this)">
+                    <input type="range" name="il_logo_transition_delay" class="imagina-slider" min="0" max="1.0" step="0.05" value="' . esc_attr($logo_delay) . '" data-unit="s">
                     <span class="imagina-slider-value">' . esc_html($logo_delay) . 's</span>
                 </div>
             </div>
@@ -2883,14 +2031,14 @@ function il_render_transition_controls() {
             <div class="imagina-control-group" style="margin-bottom: 10px;">
                 <label class="imagina-control-label">Velocidad</label>
                 <div class="imagina-slider-container">
-                    <input type="range" name="il_form_transition_duration" class="imagina-slider" min="0.1" max="1.5" step="0.05" value="' . esc_attr($form_duration) . '" oninput="updateDurationDisplay(this)">
+                    <input type="range" name="il_form_transition_duration" class="imagina-slider" min="0.1" max="1.5" step="0.05" value="' . esc_attr($form_duration) . '" data-unit="s">
                     <span class="imagina-slider-value">' . esc_html($form_duration) . 's</span>
                 </div>
             </div>
             <div class="imagina-control-group">
                 <label class="imagina-control-label">Delay</label>
                 <div class="imagina-slider-container">
-                    <input type="range" name="il_form_transition_delay" class="imagina-slider" min="0" max="1.0" step="0.05" value="' . esc_attr($form_delay) . '" oninput="updateDurationDisplay(this)">
+                    <input type="range" name="il_form_transition_delay" class="imagina-slider" min="0" max="1.0" step="0.05" value="' . esc_attr($form_delay) . '" data-unit="s">
                     <span class="imagina-slider-value">' . esc_html($form_delay) . 's</span>
                 </div>
             </div>
@@ -2917,39 +2065,9 @@ function il_render_transition_controls() {
             </div>
         </div>
 
-        <style>
-        @keyframes fadeDemo { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @keyframes slideDemo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes zoomDemo { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.85); } }
-        .transition-demo.active { border: 2px solid #667eea; padding: 3px; border-radius: 8px; }
-        </style>
     </div>
     
-    <script>
-    function updateDurationDisplay(slider) {
-        const valueDisplay = slider.parentNode.querySelector(".imagina-slider-value");
-        if (valueDisplay) {
-            valueDisplay.textContent = slider.value + "s";
-        }
-    }
-    
-    function updateTransitionPreview() {
-        const select = document.querySelector("select[name=\"il_transition_type\"]");
-        const demos = document.querySelectorAll(".transition-demo");
-        
-        demos.forEach(demo => {
-            demo.classList.remove("active");
-            if (demo.dataset.type === select.value) {
-                demo.classList.add("active");
-            }
-        });
-    }
-    
-    // Inicializar preview
-    document.addEventListener("DOMContentLoaded", function() {
-        updateTransitionPreview();
-    });
-    </script>';
+';
 }
 
 /**
@@ -2960,13 +2078,13 @@ function il_enqueue_admin_scripts($hook_suffix) {
         return;
     }
     
+    $base = plugin_dir_url(__FILE__);
     wp_enqueue_media();
-    wp_enqueue_script(
-        'imagina-login-admin-script',
-        plugin_dir_url(__FILE__) . 'js/media-uploader.js',
-        ['jquery'],
-        '2.2.2',
-        true
-    );
+    wp_enqueue_style('imagina-login-admin', $base . 'css/admin.css', [], IL_VERSION);
+    wp_enqueue_script('imagina-login-admin-script', $base . 'js/media-uploader.js', ['jquery'], IL_VERSION, true);
+    wp_enqueue_script('imagina-login-admin', $base . 'js/admin.js', ['jquery', 'imagina-login-admin-script'], IL_VERSION, true);
+    wp_localize_script('imagina-login-admin', 'ilAdmin', [
+        'resetUrl' => add_query_arg(['action' => 'il_reset_settings', '_wpnonce' => wp_create_nonce('il_reset_settings')], admin_url('admin-post.php')),
+    ]);
 }
 add_action('admin_enqueue_scripts', 'il_enqueue_admin_scripts');
